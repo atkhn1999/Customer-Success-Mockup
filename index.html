@@ -65,8 +65,8 @@
     /* Buttons: high-contrast, modern */
     .btn { display:inline-flex; align-items:center; gap:.5rem; font-weight:600; border-radius:10px; padding:.5rem .75rem; border:1px solid transparent; transition: all .2s ease; }
     .btn-sm { padding:.25rem .5rem; font-size:.875rem; border-radius:8px; }
-    .btn-primary { background:#0f172a; color:#fff; }
-    .btn-primary:hover { background:#111827; }
+    .btn-primary { background:#2563eb; color:#fff; }
+    .btn-primary:hover { background:#1d4ed8; }
     .btn-success { background:#059669; color:#fff; }
     .btn-success:hover { background:#047857; }
     .btn-outline { background:#fff; color:#0f172a; border-color:#cbd5e1; }
@@ -210,6 +210,23 @@
       'Trust Center': ['Trust score improvement', 'Compliance rate', 'Security incident reduction', 'Customer confidence score']
     };
 
+    // Catalog of KPIs for objectives
+    const kpiCatalog = [
+      { key: 'time_per_response', label: 'Time per response', defaultUnit: 'min/response', isPercent: false },
+      { key: 'content_utilization_rate', label: 'Content utilization rate', defaultUnit: '%', isPercent: true },
+      { key: 'obsolete_content_percentage', label: 'Obsolete content percentage', defaultUnit: '%', isPercent: true },
+      { key: 'ai_adoption_rate', label: 'AI adoption rate', defaultUnit: '%', isPercent: true },
+      { key: 'csat', label: 'CSAT', defaultUnit: '%', isPercent: true },
+      { key: 'content_search_time', label: 'Content search time', defaultUnit: 'sec/search', isPercent: false }
+    ];
+
+    // Suggested KPIs by objective name
+    const objectiveKPIMap = {
+      'Reduce time spent per response': ['time_per_response','ai_adoption_rate'],
+      'Content library clean up': ['content_utilization_rate','obsolete_content_percentage','content_search_time'],
+      default: ['content_utilization_rate','ai_adoption_rate','csat']
+    };
+
     const mockContacts = [
       { id: 1, name: 'Jane Doe', title: 'VP, Sales', email: 'jane.d@example.com' },
       { id: 2, name: 'John Smith', title: 'Project Manager', email: 'john.s@example.com' },
@@ -236,13 +253,15 @@
         id: Date.now(), name: 'Reduce time spent per response', targetDate: '2025-09-30', status: 'In Progress',
         kpiGoal: 'Reduce average response time from 45s to 30s.',
         challenges: 'Team members are still learning the new workflow.',
-        nextSteps: 'Hold a workshop on advanced features.', s4Link: 'https://s4.example.com/ticket/12345',
+        nextSteps: 'Hold a workshop on advanced features.', s4Link: '',
+        kpis: generateDefaultKPIs('Reduce time spent per response'),
         editing: false, expanded: false
       }, {
         id: Date.now() + 2, name: 'Content library clean up', targetDate: '2025-10-31', status: 'Not Started',
         kpiGoal: 'Archive 50% of obsolete content.',
         challenges: 'Lack of clear ownership for older content.',
-        nextSteps: 'Work with Samantha Ray to identify content owners.', s4Link: 'https://s4.example.com/ticket/12346',
+        nextSteps: 'Work with Samantha Ray to identify content owners.', s4Link: '',
+        kpis: generateDefaultKPIs('Content library clean up'),
         editing: false, expanded: false
       }],
       pastObjectives: [],
@@ -292,6 +311,138 @@
       return 220;
     }
 
+    // KPI helpers
+    function getKPICatalogEntry(key) {
+      return kpiCatalog.find(k => k.key === key) || { key, label: key, defaultUnit: '', isPercent: false };
+    }
+
+    function generateDefaultKPIs(objectiveName) {
+      const keys = (objectiveKPIMap[objectiveName] || objectiveKPIMap.default || []).slice(0, 2);
+      const now = new Date();
+      const currentQuarter = Math.floor(now.getMonth() / 3) + 1;
+      const currentYear = now.getFullYear();
+      return keys.map((key) => {
+        const cat = getKPICatalogEntry(key);
+        return {
+          id: Date.now() + Math.random(),
+          key: cat.key,
+          label: cat.label,
+          unit: cat.defaultUnit,
+          isPercent: !!cat.isPercent,
+          periodType: 'Quarter',
+          month: now.toISOString().slice(0, 7),
+          quarter: currentQuarter,
+          year: currentYear,
+          currentValue: 0,
+          previousValue: 0
+        };
+      });
+    }
+
+    function formatPeriodLabel(kpi) {
+      if (kpi.periodType === 'Month') return kpi.month || '';
+      if (kpi.periodType === 'Quarter') return `Q${kpi.quarter || ''} ${kpi.year || ''}`;
+      return `${kpi.year || ''}`;
+    }
+
+    function computeDeltaPercent(currentValue, previousValue) {
+      const prev = Number(previousValue);
+      const cur = Number(currentValue);
+      if (!isFinite(prev) || prev === 0) return null;
+      const delta = ((cur - prev) / prev) * 100;
+      return delta;
+    }
+
+    function kpiSectionHTML(objective) {
+      const availableOptions = kpiCatalog
+        .filter(cat => !(objective.kpis || []).some(k => k.key === cat.key))
+        .map(cat => `<option value="${cat.key}">${cat.label}</option>`)  
+        .join('');
+
+      const kpiRows = (objective.kpis || []).map(k => {
+        const delta = computeDeltaPercent(k.currentValue, k.previousValue);
+        const deltaText = (delta === null) ? '—' : `${delta > 0 ? '+' : ''}${delta.toFixed(1)}%`;
+        return `
+          <div class="p-3 border rounded-lg" data-kpi-id="${k.id}">
+            <div class="flex items-center justify-between">
+              <div class="font-semibold text-sm">${k.label}</div>
+              <button class="text-slate-400 hover:text-red-600" data-role="remove-kpi" title="Remove">&times;</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mt-2 items-end">
+              <div>
+                <label class="block text-xs font-medium mb-1">Period Type</label>
+                <select class="text-zone p-2 w-full" data-role="kpi-period-type">
+                  ${['Month','Quarter','Year'].map(t => `<option value="${t}" ${k.periodType===t?'selected':''}>${t}</option>`).join('')}
+                </select>
+              </div>
+              <div>
+                ${k.periodType==='Month' ? `
+                  <label class="block text-xs font-medium mb-1">Month</label>
+                  <input type="month" class="text-zone p-2 w-full" value="${k.month||''}" data-role="kpi-month" />
+                ` : k.periodType==='Quarter' ? `
+                  <div class="grid grid-cols-2 gap-2">
+                    <div>
+                      <label class="block text-xs font-medium mb-1">Quarter</label>
+                      <select class="text-zone p-2 w-full" data-role="kpi-quarter">
+                        ${[1,2,3,4].map(q => `<option value="${q}" ${Number(k.quarter)===q?'selected':''}>Q${q}</option>`).join('')}
+                      </select>
+                    </div>
+                    <div>
+                      <label class="block text-xs font-medium mb-1">Year</label>
+                      <input type="number" class="text-zone p-2 w-full" value="${k.year||''}" data-role="kpi-year" />
+                    </div>
+                  </div>
+                ` : `
+                  <label class="block text-xs font-medium mb-1">Year</label>
+                  <input type="number" class="text-zone p-2 w-full" value="${k.year||''}" data-role="kpi-year" />
+                `}
+              </div>
+              <div>
+                <label class="block text-xs font-medium mb-1">Current</label>
+                <div class="flex items-center gap-1">
+                  <input type="number" step="0.01" class="text-zone p-2 w-full" value="${k.currentValue||0}" data-role="kpi-current" />
+                  <span class="text-slate-500 text-xs">${k.isPercent ? '%' : (k.unit||'')}</span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-medium mb-1">Previous</label>
+                <div class="flex items-center gap-1">
+                  <input type="number" step="0.01" class="text-zone p-2 w-full" value="${k.previousValue||0}" data-role="kpi-previous" />
+                  <span class="text-slate-500 text-xs">${k.isPercent ? '%' : (k.unit||'')}</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between mt-2">
+              <div class="text-xs text-slate-600">${formatPeriodLabel(k)}</div>
+              <div class="text-xs font-semibold ${delta===null?'text-slate-400':(delta>=0?'text-emerald-700':'text-rose-700')}">Δ ${deltaText}</div>
+            </div>
+            <div class="mt-2">
+              <label class="block text-xs font-medium mb-1">Unit</label>
+              <input class="text-zone p-2 w-40" value="${k.unit||''}" placeholder="e.g., min/response" data-role="kpi-unit" />
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <div class="mt-4">
+          <div class="flex items-center justify-between">
+            <div class="text-sm font-semibold">KPIs</div>
+            <div class="flex items-center gap-2">
+              <select class="text-zone p-2 text-sm" data-role="kpi-select">
+                <option value="">+ Add KPI...</option>
+                ${availableOptions}
+              </select>
+              <button class="btn btn-success btn-sm" data-role="add-kpi">Add</button>
+            </div>
+          </div>
+          <div class="space-y-2 mt-2" data-role="kpi-list">
+            ${kpiRows || '<div class="text-slate-500 text-sm">No KPIs yet.</div>'}
+          </div>
+        </div>
+      `;
+    }
+
     // ---------- Renderers ----------
     function renderMissionGoals(){
       const c = $('#mission-goals-container');
@@ -305,9 +456,10 @@
           <div class="mt-3 space-y-2" data-role="custom-fields">
             ${(g.customFields||[]).map(f=>`
               <div class="flex items-center gap-2" data-field-id="${f.id}">
-                <input class="text-zone p-2 text-xs font-semibold" value="${f.label}" placeholder="Field name" data-role="cf-label" />
-                <input class="text-zone p-2 text-xs flex-1" value="${f.value||''}" placeholder="Value or https://link" data-role="cf-value" />
-                <a href="${/^https?:\/\//.test(f.value)?f.value:'#'}" target="_blank" class="${/^https?:\/\//.test(f.value)?'linkish':'pointer-events-none opacity-40'} text-xs">Attach</a>
+                <input class="text-zone p-1 text-xs w-40 font-semibold" value="${f.label}" placeholder="Field name" data-role="cf-label" />
+                <input class="text-zone p-1 text-xs flex-1" value="${f.value||''}" placeholder="Value" data-role="cf-value" />
+                <input class="text-zone p-1 text-xs w-52" value="${f.link||''}" placeholder="https://link" data-role="cf-link" />
+                <a href="${/^https?:\/\//.test(f.link||'')?f.link:'#'}" target="_blank" class="${/^https?:\/\//.test(f.link||'')?'linkish':'pointer-events-none opacity-40'} text-xs">Open</a>
                 <button class="text-slate-400 hover:text-red-600" title="Remove" data-role="remove-cf">🗑️</button>
               </div>
             `).join('')}
@@ -394,11 +546,12 @@
                 <textarea class="text-zone text-area p-3" rows="3" data-role="edit-steps">${o.nextSteps||''}</textarea>
               </div>
               <div>
-                <label class="block text-sm font-medium mb-1">S4 / External Link</label>
+                <label class="block text-sm font-medium mb-1">S4 / External Link (optional)</label>
                 <input class="text-zone p-2" value="${o.s4Link||''}" placeholder="https://" data-role="edit-link" />
                 ${o.s4Link?`<a class="linkish text-sm mt-1 inline-block" href="${o.s4Link}" target="_blank">Open</a>`:''}
               </div>
             </div>
+                        ${kpiSectionHTML(o)}
           </div>`;
       }
       // View mode with always-on preview blocks
@@ -440,6 +593,7 @@
                 ${o.s4Link ? `<a class="linkish text-sm" href="${o.s4Link}" target="_blank">Open S4</a>`: '<div class="text-sm text-slate-400">No links</div>'}
               </div>
             </div>` : ''}
+          ${kpiSectionHTML(o)}
         </div>`;
     }
 
@@ -569,6 +723,46 @@
           showAddMissionGoalModal();
         }
 
+        // KPI actions inside objective cards
+        if (e.target.matches('[data-role="add-kpi"]')){
+          const objCard = e.target.closest('[data-id]');
+          if (!objCard) return;
+          const objId = Number(objCard.dataset.id);
+          const o = state.objectives.find(x=>x.id===objId) || state.pastObjectives.find(x=>x.id===objId);
+          if (!o) return;
+          if (!o.kpis) o.kpis = [];
+          const select = objCard.querySelector('[data-role="kpi-select"]');
+          const key = select ? select.value : '';
+          if (key){
+            const cat = getKPICatalogEntry(key);
+            o.kpis.push({
+              id: Date.now()+Math.random(),
+              key: cat.key,
+              label: cat.label,
+              unit: cat.defaultUnit,
+              isPercent: !!cat.isPercent,
+              periodType: 'Quarter',
+              month: new Date().toISOString().slice(0,7),
+              quarter: Math.floor((new Date().getMonth())/3)+1,
+              year: new Date().getFullYear(),
+              currentValue: 0,
+              previousValue: 0
+            });
+            renderObjectives();
+          }
+        }
+        if (e.target.matches('[data-role="remove-kpi"]')){
+          const row = e.target.closest('[data-kpi-id]');
+          const objCard = e.target.closest('[data-id]');
+          if (!row || !objCard) return;
+          const kpiId = Number(row.dataset.kpiId);
+          const objId = Number(objCard.dataset.id);
+          const o = state.objectives.find(x=>x.id===objId) || state.pastObjectives.find(x=>x.id===objId);
+          if (!o || !o.kpis) return;
+          o.kpis = o.kpis.filter(k=>k.id!==kpiId);
+          renderObjectives();
+        }
+
         if (e.target.id === 'add-value-btn'){
           showAddValueRealizedModal();
         }
@@ -638,6 +832,7 @@
           const o = state.objectives.find(x=>x.id===id) || state.pastObjectives.find(x=>x.id===id);
           if (o){
             const oldStatus = o.status;
+            const oldName = o.name;
             o.name = $('[data-role="edit-name"]', wrap).value.trim() || o.name;
             o.status = $('[data-role="edit-status"]', wrap).value;
             o.targetDate = $('[data-role="edit-date"]', wrap).value;
@@ -645,6 +840,10 @@
             o.challenges = $('[data-role="edit-challenges"]', wrap).value;
             o.nextSteps = $('[data-role="edit-steps"]', wrap).value;
             o.s4Link = $('[data-role="edit-link"]', wrap).value;
+            // If name changed and kpis empty, seed defaults for the new name
+            if ((!o.kpis || o.kpis.length===0) && o.name !== oldName) {
+              o.kpis = generateDefaultKPIs(o.name);
+            }
             o.editing = false;
             
             // Handle status change to Completed from current list only
@@ -713,7 +912,7 @@
           const g = state.missionGoals.find(x=>x.id===id); if (g) g.description = e.target.value;
           autoSave();
         }
-        if (e.target.matches('[data-role="cf-label"], [data-role="cf-value"]')){
+        if (e.target.matches('[data-role="cf-label"], [data-role="cf-value"], [data-role="cf-link"]')){
           const id = Number(e.target.closest('[data-id]').dataset.id);
           const fid = Number(e.target.closest('[data-field-id]').dataset.fieldId);
           const g = state.missionGoals.find(x=>x.id===id);
@@ -721,6 +920,7 @@
           if (f){
             if (e.target.dataset.role==='cf-label') f.label = e.target.value;
             if (e.target.dataset.role==='cf-value') f.value = e.target.value;
+            if (e.target.dataset.role==='cf-link') f.link = e.target.value;
             autoSave();
           }
         }
@@ -756,6 +956,24 @@
           autoSave();
         }
 
+        // KPI per-objective changes (change events)
+        if (e.target.closest('[data-id^="objective-"]') && e.target.closest('[data-kpi-id]')){
+          const card = e.target.closest('[data-id]');
+          const objId = Number(card.dataset.id);
+          const o = state.objectives.find(x=>x.id===objId) || state.pastObjectives.find(x=>x.id===objId);
+          if (!o) return;
+          const row = e.target.closest('[data-kpi-id]');
+          const kpiId = Number(row.dataset.kpiId);
+          const k = (o.kpis||[]).find(x=>x.id===kpiId);
+          if (!k) return;
+          if (e.target.dataset.role === 'kpi-period-type') { k.periodType = e.target.value; }
+          if (e.target.dataset.role === 'kpi-month') { k.month = e.target.value; }
+          if (e.target.dataset.role === 'kpi-quarter') { k.quarter = Number(e.target.value); }
+          if (e.target.dataset.role === 'kpi-year') { k.year = Number(e.target.value); }
+          autoSave();
+          renderObjectives();
+        }
+
         // Plan Details + Mission Summary
         if (e.target.id === 'health-score'){
           state.planHealth = e.target.value;
@@ -775,6 +993,23 @@
           if (e.target.dataset.role === 'metric-value') m.valuePercent = Number(e.target.value||0);
           if (e.target.dataset.role === 'metric-delta') m.deltaPercent = Number(e.target.value||0);
           autoSave();
+        }
+
+        // KPI per-objective live inputs
+        if (e.target.closest('[data-id^="objective-"]') && e.target.closest('[data-kpi-id]')){
+          const card = e.target.closest('[data-id]');
+          const objId = Number(card.dataset.id);
+          const o = state.objectives.find(x=>x.id===objId) || state.pastObjectives.find(x=>x.id===objId);
+          if (!o) return;
+          const row = e.target.closest('[data-kpi-id]');
+          const kpiId = Number(row.dataset.kpiId);
+          const k = (o.kpis||[]).find(x=>x.id===kpiId);
+          if (!k) return;
+          if (e.target.dataset.role === 'kpi-current') { k.currentValue = Number(e.target.value||0); }
+          if (e.target.dataset.role === 'kpi-previous') { k.previousValue = Number(e.target.value||0); }
+          if (e.target.dataset.role === 'kpi-unit') { k.unit = e.target.value; }
+          autoSave();
+          renderObjectives();
         }
       });
 
@@ -892,12 +1127,12 @@
         const missionGoalsData = state.missionGoals.map(g=>({
           Title: g.title,
           Description: g.description,
-          CustomFields: (g.customFields||[]).map(cf=>`${cf.label}: ${cf.value}`).join(' | ')
+          CustomFields: (g.customFields||[]).map(cf=>`${cf.label}: ${cf.value}${cf.link?` (${cf.link})`:''}`).join(' | ')
         }));
         const stakeholdersData = state.stakeholders.map(s=>({ Name: s.name, Title: s.title, Email: s.email||'' }));
         const objectivesData = [
-          ...state.objectives.map(o=>({ Type:'Current', Name:o.name, Status:o.status, TargetDate:o.targetDate, KPIGoal:o.kpiGoal, Challenges:o.challenges, NextSteps:o.nextSteps, Link:o.s4Link })),
-          ...state.pastObjectives.map(o=>({ Type:'Past', Name:o.name, Status:o.status, TargetDate:o.targetDate, KPIGoal:o.kpiGoal, Challenges:o.challenges, NextSteps:o.nextSteps, Link:o.s4Link }))
+          ...state.objectives.map(o=>({ Type:'Current', Name:o.name, Status:o.status, TargetDate:o.targetDate, KPIGoal:o.kpiGoal, Challenges:o.challenges, NextSteps:o.nextSteps, Link:o.s4Link, KPIs: (o.kpis||[]).map(k=>`${k.label} (Curr: ${k.currentValue}${k.isPercent?'%':(k.unit||'')} | Prev: ${k.previousValue}${k.isPercent?'%':(k.unit||'')} | Δ: ${computeDeltaPercent(k.currentValue,k.previousValue)===null?'—':(computeDeltaPercent(k.currentValue,k.previousValue).toFixed(1)+'%')})`).join(' | ') })),
+          ...state.pastObjectives.map(o=>({ Type:'Past', Name:o.name, Status:o.status, TargetDate:o.targetDate, KPIGoal:o.kpiGoal, Challenges:o.challenges, NextSteps:o.nextSteps, Link:o.s4Link, KPIs: (o.kpis||[]).map(k=>`${k.label} (Curr: ${k.currentValue}${k.isPercent?'%':(k.unit||'')} | Prev: ${k.previousValue}${k.isPercent?'%':(k.unit||'')} | Δ: ${computeDeltaPercent(k.currentValue,k.previousValue)===null?'—':(computeDeltaPercent(k.currentValue,k.previousValue).toFixed(1)+'%')})`).join(' | ') }))
         ];
         const valueData = state.valueRealized.map(v=>({ Type:v.type, Description:v.description, Date:v.date, Link:v.link }));
         const metricsData = (m.items||[]).map(x=>({ PeriodType:m.periodType, Period: periodLabel, Metric:x.name, ValuePercent:x.valuePercent, DeltaVsPrevQ:x.deltaPercent }));
@@ -1067,19 +1302,20 @@
           objectiveName = customText.value.trim();
         }
         
-        if (objectiveName && goal) {
-          const newObjective = {
-            id: Date.now(),
-            name: objectiveName,
-            targetDate: date,
-            status: 'Not Started',
-            kpiGoal: goal,
-            challenges: modal.querySelector('#new-objective-challenges').value.trim(),
-            nextSteps: modal.querySelector('#new-objective-steps').value.trim(),
-            s4Link: modal.querySelector('#new-objective-link').value.trim(),
-            editing: false,
-            expanded: false
-          };
+                  if (objectiveName && goal) {
+            const newObjective = {
+              id: Date.now(),
+              name: objectiveName,
+              targetDate: date,
+              status: 'Not Started',
+              kpiGoal: goal,
+              challenges: modal.querySelector('#new-objective-challenges').value.trim(),
+              nextSteps: modal.querySelector('#new-objective-steps').value.trim(),
+              s4Link: modal.querySelector('#new-objective-link').value.trim(),
+              kpis: generateDefaultKPIs(objectiveName),
+              editing: false,
+              expanded: false
+            };
           
           state.objectives.unshift(newObjective);
           renderObjectives();
@@ -1129,8 +1365,9 @@
         row.className = 'flex items-center gap-2';
         row.setAttribute('data-field-row','');
         row.innerHTML = `
-          <input class="text-zone p-2 text-xs font-semibold" placeholder="Field name" data-role="label" />
-          <input class="text-zone p-2 text-xs flex-1" placeholder="Value or https://link" data-role="value" />
+          <input class="text-zone p-1 text-xs w-40 font-semibold" placeholder="Field name" data-role="label" />
+          <input class="text-zone p-1 text-xs flex-1" placeholder="Value" data-role="value" />
+          <input class="text-zone p-1 text-xs w-52" placeholder="https://link" data-role="link" />
           <button class="text-slate-400 hover:text-red-600" title="Remove">&times;</button>
         `;
         row.querySelector('button').addEventListener('click', ()=> row.remove());
@@ -1144,7 +1381,8 @@
         const customFields = [...modal.querySelectorAll('[data-field-row]')].map((row) => {
           const label = row.querySelector('[data-role="label"]').value.trim() || 'Field';
           const value = row.querySelector('[data-role="value"]').value.trim();
-          return { id: Date.now()+Math.random(), label, value };
+          const link = row.querySelector('[data-role="link"]').value.trim();
+          return { id: Date.now()+Math.random(), label, value, link };
         });
         state.missionGoals.push({ id: Date.now(), title: title, description: desc, customFields });
         renderMissionGoals();
@@ -1296,6 +1534,12 @@
           }
           if (typeof state.planHealth === 'undefined') state.planHealth = 'green';
           if (typeof state.missionSummary === 'undefined') state.missionSummary = '';
+          // Ensure objectives have kpis array after upgrade
+          [...(state.objectives||[]), ...(state.pastObjectives||[])].forEach(o => {
+            if (!o.kpis) {
+              o.kpis = generateDefaultKPIs(o.name || '');
+            }
+          });
         }
       } catch (error) {
         console.warn('Could not load from localStorage:', error);
