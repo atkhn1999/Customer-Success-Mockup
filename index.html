@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -60,6 +61,18 @@
     .modal-header { padding:1rem 1.5rem; border-bottom:1px solid rgba(226,232,240,0.7); background: linear-gradient(90deg, rgba(8,145,178,0.08), rgba(16,185,129,0.08)); border-top-left-radius:16px; border-top-right-radius:16px; }
     .modal-body { padding:1.5rem; }
     .modal-footer { padding:1rem 1.5rem; border-top:1px solid rgba(226,232,240,0.7); display:flex; justify-content:flex-end; gap:.75rem; }
+
+    /* Buttons: high-contrast, modern */
+    .btn { display:inline-flex; align-items:center; gap:.5rem; font-weight:600; border-radius:10px; padding:.5rem .75rem; border:1px solid transparent; transition: all .2s ease; }
+    .btn-sm { padding:.25rem .5rem; font-size:.875rem; border-radius:8px; }
+    .btn-primary { background:#0f172a; color:#fff; }
+    .btn-primary:hover { background:#111827; }
+    .btn-success { background:#059669; color:#fff; }
+    .btn-success:hover { background:#047857; }
+    .btn-outline { background:#fff; color:#0f172a; border-color:#cbd5e1; }
+    .btn-outline:hover { background:#f1f5f9; }
+    .btn-ghost { background:transparent; color:#0f172a; }
+    .btn-ghost:hover { background:rgba(15,23,42,0.06); }
   </style>
 </head>
 <body>
@@ -69,23 +82,26 @@
         <h1 class="text-4xl font-bold">Customer Success Plan</h1>
         <p class="text-cyan-200 mt-2">A collaborative plan to track and achieve outcomes. Last updated: Aug 12, 2025</p>
       </div>
-      <button id="export-pdf-btn" class="bg-white/20 text-white font-semibold px-4 py-2 rounded-lg hover:bg-white/30 transition-colors flex items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>
-        Generate PDF
-      </button>
+      <div class="flex items-center gap-3">
+        <button id="export-excel-btn" class="btn btn-outline">Export Excel</button>
+        <button id="export-pdf-btn" class="btn btn-primary flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>
+          Export PDF
+        </button>
+      </div>
     </header>
 
     <!-- Mission Summary -->
     <section class="card mb-6 p-6">
       <h2 class="text-2xl font-bold mb-4">Mission Summary</h2>
-      <textarea id="mission-summary" class="text-zone text-area p-3" rows="3" placeholder="Describe the primary business outcome and vision...">To empower the sales team by centralizing our content, reducing response times, and providing data-driven insights that directly contribute to winning more business and increasing revenue.</textarea>
+      <textarea id="mission-summary" class="text-zone text-area p-3" rows="3" placeholder="Describe the primary business outcome and vision..."></textarea>
     </section>
 
     <!-- Mission Goals -->
     <section class="card mb-10 p-6">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-2xl font-bold">Mission Goals</h2>
-        <button id="add-mission-goal-btn" class="bg-emerald-600 text-white font-semibold px-4 py-2 rounded-lg shadow-sm hover:bg-emerald-700">+ Add Goal</button>
+        <button id="add-mission-goal-btn" class="btn btn-success">+ Add Goal</button>
       </div>
       <div id="mission-goals-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
     </section>
@@ -97,7 +113,7 @@
         <section id="value-realized" class="card p-6">
           <div class="flex justify-between items-center mb-4">
             <h2 class="text-2xl font-bold">Value Realized</h2>
-            <button id="add-value-btn" class="bg-emerald-600 text-white font-semibold px-4 py-2 rounded-lg shadow-sm hover:bg-emerald-700">+ Add Value</button>
+            <button id="add-value-btn" class="btn btn-success">+ Add Value</button>
           </div>
           <div id="value-container" class="space-y-4"></div>
           <div id="no-value-message" class="hidden text-center py-10 px-4 text-slate-500">No value items added yet.</div>
@@ -107,7 +123,7 @@
         <section id="current-objectives" class="card p-6">
           <div class="flex justify-between items-center mb-4">
             <h2 class="text-2xl font-bold">Current Objectives</h2>
-            <button id="add-objective-btn" class="bg-cyan-600 text-white font-semibold px-4 py-2 rounded-lg shadow-sm hover:bg-cyan-700">+ Add Objective</button>
+            <button id="add-objective-btn" class="btn btn-primary">+ Add Objective</button>
           </div>
           <div id="objectives-container" class="space-y-6"></div>
         </section>
@@ -122,6 +138,7 @@
 
       <!-- Right -->
       <div class="lg:col-span-1 space-y-8">
+        <section id="metrics-section" class="card p-6"></section>
         <section class="card p-6">
           <h3 class="text-lg font-semibold mb-3">Plan Details</h3>
           <label class="block text-sm font-medium mb-1">Overall Health</label>
@@ -197,7 +214,16 @@
       { id: 1, name: 'Jane Doe', title: 'VP, Sales', email: 'jane.d@example.com' },
       { id: 2, name: 'John Smith', title: 'Project Manager', email: 'john.s@example.com' },
       { id: 3, name: 'Samantha Ray', title: 'Director of Ops', email: 'samantha.r@example.com' },
-      { id: 4, name: 'Mike Chen', title: 'Lead Engineer', email: 'mike.c@example.com' }
+      { id: 4, name: 'Mike Chen', title: 'Lead Engineer', email: 'mike.c@example.com' },
+      // LOTR Easter eggs
+      { id: 1001, name: 'Gandalf the Grey', title: 'Chief Wizard', email: 'gandalf@middleearth.me' },
+      { id: 1002, name: 'Aragorn Elessar', title: 'Head of Field Ops', email: 'aragorn@gondor.gov' },
+      { id: 1003, name: 'Legolas Greenleaf', title: 'Director of Archery', email: 'legolas@mirkwood.el' },
+      { id: 1004, name: 'Gimli, Son of Glóin', title: 'Chief Mining Officer', email: 'gimli@erebor.dw' },
+      { id: 1005, name: 'Frodo Baggins', title: 'Special Projects Lead', email: 'frodo@shire.me' },
+      { id: 1006, name: 'Samwise Gamgee', title: 'Chief of Staff', email: 'samwise@shire.me' },
+      { id: 1007, name: 'Galadriel', title: 'Executive Advisor', email: 'galadriel@lothlorien.el' },
+      { id: 1008, name: 'Elrond', title: 'Head of Strategy', email: 'elrond@rivendell.el' }
     ];
 
     const state = {
@@ -221,6 +247,18 @@
       }],
       pastObjectives: [],
       valueRealized: [{ id: Date.now(), type: 'Time Savings', description: 'Saved ~5 hours/week per agent in Q3.', date: '2025-07-30', link: 'https://datastudio.example.com/report/1' }],
+      planHealth: 'green',
+      missionSummary: 'To empower the sales team by centralizing our content, reducing response times, and providing data-driven insights that directly contribute to winning more business and increasing revenue.',
+      metrics: {
+        periodType: 'Quarter',
+        month: new Date().toISOString().slice(0,7),
+        quarter: Math.floor((new Date().getMonth())/3)+1,
+        year: new Date().getFullYear(),
+        items: [
+          { id: Date.now()+101, name: 'Win Rate', valuePercent: 37, deltaPercent: 5 },
+          { id: Date.now()+102, name: 'Adoption', valuePercent: 62, deltaPercent: 8 }
+        ]
+      }
     };
 
     // ---------- Helpers ----------
@@ -245,7 +283,7 @@
       textarea.style.height = textarea.scrollHeight + 'px';
     }
     function applyAutoResize(root=document) {
-      ($$('.text-area', root) || []).forEach(autoResizeTextarea);
+      (($$('.text-area', root) || [])).forEach(autoResizeTextarea);
     }
     function getPreviewLimit() {
       const w = window.innerWidth || 1024;
@@ -278,6 +316,7 @@
         </div>
       `).join('');
       applyAutoResize(c);
+      autoSave();
     }
 
     function valueItemHTML(item){
@@ -311,6 +350,7 @@
       c.innerHTML = state.valueRealized.map(valueItemHTML).join('');
       $('#no-value-message').classList.toggle('hidden', state.valueRealized.length!==0);
       applyAutoResize(c);
+      autoSave();
     }
 
     function objectiveCardHTML(o){
@@ -334,8 +374,8 @@
                 </div>
               </div>
               <div class="flex items-center gap-2">
-                <button class="px-3 py-1 rounded-md bg-slate-100" data-role="cancel-edit">Cancel</button>
-                <button class="px-3 py-1 rounded-md bg-cyan-600 text-white" data-role="save-edit">Save</button>
+                <button class="btn btn-outline btn-sm" data-role="cancel-edit">Cancel</button>
+                <button class="btn btn-primary btn-sm" data-role="save-edit">Save</button>
               </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
@@ -372,10 +412,10 @@
                 <input type="date" class="text-zone p-1 text-sm w-auto" value="${o.targetDate||''}" data-role="quick-date" />
               </div>
             </div>
-            <div class="flex items-center gap-3">
-              <button class="text-cyan-700 font-semibold" data-role="toggle-expand">${o.expanded?'Hide preview':'Show more'}</button>
-              <button class="text-slate-500 hover:text-slate-700" data-role="view-details">View Details</button>
-              <button class="text-slate-500 hover:text-slate-700" data-role="edit">Edit</button>
+            <div class="flex items-center gap-2">
+              <button class="btn btn-ghost btn-sm" data-role="toggle-expand">${o.expanded?'Hide preview':'Show more'}</button>
+              <button class="btn btn-ghost btn-sm" data-role="view-details">View Details</button>
+              <button class="btn btn-outline btn-sm" data-role="edit">Edit</button>
             </div>
           </div>
 
@@ -412,6 +452,7 @@
       $('#no-past-objectives').classList.toggle('hidden', state.pastObjectives.length!==0);
       applyAutoResize(cur);
       applyAutoResize(past);
+      autoSave();
     }
 
     function renderStakeholders(){
@@ -429,6 +470,72 @@
       const sel = $('#add-stakeholder-select');
       const unselected = mockContacts.filter(mc => !state.stakeholders.find(sc=>sc.id===mc.id));
       sel.innerHTML = '<option value="">+ Select a contact...</option>' + unselected.map(c=>`<option value="${c.id}">${c.name}</option>`).join('') + '<option value="new">Add New Stakeholder...</option>';
+      autoSave();
+    }
+
+    function renderMetrics(){
+      const wrap = $('#metrics-section');
+      if (!wrap) return;
+      const m = state.metrics;
+      const active = (t) => m.periodType===t ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm';
+      const periodControls = (
+        m.periodType === 'Month' ? `
+          <div class="mt-3">
+            <label class="block text-sm font-medium mb-1">Month</label>
+            <input type="month" id="metrics-month" class="text-zone p-2 w-full" value="${m.month}">
+          </div>` :
+        m.periodType === 'Quarter' ? `
+          <div class="mt-3 grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-sm font-medium mb-1">Quarter</label>
+              <select id="metrics-quarter" class="text-zone p-2 w-full">
+                ${[1,2,3,4].map(q=>`<option value="${q}" ${Number(m.quarter)===q?'selected':''}>Q${q}</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Year</label>
+              <input type="number" id="metrics-year" class="text-zone p-2 w-full" value="${m.year}">
+            </div>
+          </div>` : `
+          <div class="mt-3">
+            <label class="block text-sm font-medium mb-1">Year</label>
+            <input type="number" id="metrics-year-only" class="text-zone p-2 w-full" value="${m.year}">
+          </div>`
+      );
+
+      const items = (m.items||[]).map(it=>`
+        <div class="flex items-center gap-2 p-2 border rounded-lg" data-id="${it.id}">
+          <input class="text-zone p-2 flex-1" placeholder="Metric name" value="${it.name||''}" data-role="metric-name" />
+          <div class="flex items-center gap-1">
+            <input type="number" class="text-zone p-2 w-20" value="${it.valuePercent||0}" min="0" max="999" step="1" data-role="metric-value" />
+            <span class="text-slate-500">%</span>
+          </div>
+          <div class="flex items-center gap-1 text-emerald-700">
+            <span class="text-slate-500">Δ</span>
+            <input type="number" class="text-zone p-2 w-16" value="${it.deltaPercent||0}" step="1" data-role="metric-delta" />
+            <span class="text-slate-500">%</span>
+            <span class="text-xs text-slate-500">vs prev Q</span>
+          </div>
+          <button class="text-slate-400 hover:text-red-600" data-role="remove-metric" title="Remove">&times;</button>
+        </div>
+      `).join('');
+
+      wrap.innerHTML = `
+        <h3 class="text-lg font-semibold mb-3">Performance Metrics</h3>
+        <div class="flex items-center gap-2">
+          <button class="${active('Month')}" data-role="set-period-type" data-value="Month">Month</button>
+          <button class="${active('Quarter')}" data-role="set-period-type" data-value="Quarter">Quarter</button>
+          <button class="${active('Year')}" data-role="set-period-type" data-value="Year">Year</button>
+        </div>
+        ${periodControls}
+        <div class="mt-4 space-y-2" id="metrics-items-list">
+          ${items || '<div class="text-slate-500 text-sm">No metrics yet.</div>'}
+        </div>
+        <div class="mt-3">
+          <button class="btn btn-success" data-role="add-metric">+ Add Metric</button>
+        </div>
+      `;
+      autoSave();
     }
 
     function renderAll(){
@@ -436,6 +543,15 @@
       renderValue();
       renderObjectives();
       renderStakeholders();
+      renderMetrics();
+      syncTopControls();
+    }
+
+    function syncTopControls(){
+      const ms = document.getElementById('mission-summary');
+      if (ms && ms.value !== state.missionSummary) ms.value = state.missionSummary || '';
+      const hs = document.getElementById('health-score');
+      if (hs && hs.value !== state.planHealth) hs.value = state.planHealth || 'green';
     }
 
     // ---------- Event wiring ----------
@@ -459,6 +575,21 @@
 
         if (e.target.id === 'add-objective-btn'){
           showAddObjectiveModal();
+        }
+
+        // Metrics actions
+        if (e.target.matches('[data-role="set-period-type"]')){
+          state.metrics.periodType = e.target.dataset.value;
+          renderMetrics();
+        }
+        if (e.target.matches('[data-role="add-metric"]')){
+          state.metrics.items.push({ id: Date.now()+Math.random(), name: 'New Metric', valuePercent: 0, deltaPercent: 0 });
+          renderMetrics();
+        }
+        if (e.target && e.target.matches('[data-role="remove-metric"]')){
+          const id = Number(e.target.closest('[data-id]').dataset.id);
+          state.metrics.items = state.metrics.items.filter(m=>m.id!==id);
+          renderMetrics();
         }
 
         // Value list actions
@@ -504,7 +635,7 @@
         if (e.target.matches('[data-role="save-edit"]')){
           const id = Number(card.dataset.id);
           const wrap = card;
-          const o = state.objectives.find(x=>x.id===id);
+          const o = state.objectives.find(x=>x.id===id) || state.pastObjectives.find(x=>x.id===id);
           if (o){
             const oldStatus = o.status;
             o.name = $('[data-role="edit-name"]', wrap).value.trim() || o.name;
@@ -516,15 +647,12 @@
             o.s4Link = $('[data-role="edit-link"]', wrap).value;
             o.editing = false;
             
-            // Handle status change to Completed
-            if (oldStatus !== 'Completed' && o.status === 'Completed') {
-              // Move to past objectives
-              const index = state.objectives.findIndex(obj => obj.id === id);
-              if (index > -1) {
-                const completedObj = state.objectives.splice(index, 1)[0];
-                state.pastObjectives.unshift(completedObj);
-                showNotification('Objective completed! Moved to Past Objectives.', 'success');
-              }
+            // Handle status change to Completed from current list only
+            const currentIndex = state.objectives.findIndex(obj => obj.id === id);
+            if (currentIndex > -1 && oldStatus !== 'Completed' && o.status === 'Completed') {
+              const completedObj = state.objectives.splice(currentIndex, 1)[0];
+              state.pastObjectives.unshift(completedObj);
+              showNotification('Objective completed! Moved to Past Objectives.', 'success');
             }
             
             renderObjectives();
@@ -532,7 +660,7 @@
         }
         if (e.target.matches('[data-role="toggle-expand"]')){
           const id = Number(card.dataset.id);
-          const o = state.objectives.find(x=>x.id===id);
+          const o = state.objectives.find(x=>x.id===id) || state.pastObjectives.find(x=>x.id===id);
           if (o){ o.expanded = !o.expanded; renderObjectives(); }
         }
         if (e.target.matches('[data-role="view-details"]')){
@@ -562,9 +690,8 @@
         // status change on objective card
         if (e.target.matches('[data-role="edit-status"]')){
           const id = Number(e.target.closest('[data-id]').dataset.id);
-          const o = state.objectives.find(x=>x.id===id);
+          const o = state.objectives.find(x=>x.id===id) || state.pastObjectives.find(x=>x.id===id);
           if (o && e.target.value === 'Completed'){
-            // Move to past objectives
             const index = state.objectives.findIndex(obj => obj.id === id);
             if (index > -1) {
               const completedObj = state.objectives.splice(index, 1)[0];
@@ -579,10 +706,12 @@
         if (e.target.matches('[data-role="goal-title"]')){
           const id = Number(e.target.closest('[data-id]').dataset.id);
           const g = state.missionGoals.find(x=>x.id===id); if (g) g.title = e.target.value;
+          autoSave();
         }
         if (e.target.matches('[data-role="goal-desc"]')){
           const id = Number(e.target.closest('[data-id]').dataset.id);
           const g = state.missionGoals.find(x=>x.id===id); if (g) g.description = e.target.value;
+          autoSave();
         }
         if (e.target.matches('[data-role="cf-label"], [data-role="cf-value"]')){
           const id = Number(e.target.closest('[data-id]').dataset.id);
@@ -592,6 +721,7 @@
           if (f){
             if (e.target.dataset.role==='cf-label') f.label = e.target.value;
             if (e.target.dataset.role==='cf-value') f.value = e.target.value;
+            autoSave();
           }
         }
 
@@ -605,6 +735,46 @@
           if (e.target.dataset.role==='value-date') it.date = e.target.value;
           if (e.target.dataset.role==='value-link') it.link = e.target.value;
           if (e.target.classList.contains('value-type-select')) it.type = e.target.value;
+          autoSave();
+        }
+
+        // Metrics edits
+        if (e.target.id === 'metrics-month'){
+          state.metrics.month = e.target.value;
+          autoSave();
+        }
+        if (e.target.id === 'metrics-quarter'){
+          state.metrics.quarter = Number(e.target.value);
+          autoSave();
+        }
+        if (e.target.id === 'metrics-year'){
+          state.metrics.year = Number(e.target.value);
+          autoSave();
+        }
+        if (e.target.id === 'metrics-year-only'){
+          state.metrics.year = Number(e.target.value);
+          autoSave();
+        }
+
+        // Plan Details + Mission Summary
+        if (e.target.id === 'health-score'){
+          state.planHealth = e.target.value;
+          autoSave();
+        }
+      });
+
+      // Metric item live input updates
+      app.addEventListener('input', (e)=>{
+        if (e.target.closest('#metrics-items-list')){
+          const row = e.target.closest('[data-id]');
+          if (!row) return;
+          const id = Number(row.dataset.id);
+          const m = state.metrics.items.find(x=>x.id===id);
+          if (!m) return;
+          if (e.target.dataset.role === 'metric-name') m.name = e.target.value;
+          if (e.target.dataset.role === 'metric-value') m.valuePercent = Number(e.target.value||0);
+          if (e.target.dataset.role === 'metric-delta') m.deltaPercent = Number(e.target.value||0);
+          autoSave();
         }
       });
 
@@ -639,8 +809,9 @@
         }
       });
       
-      // PDF Export button
+      // Exports
       $('#export-pdf-btn').addEventListener('click', exportToPDF);
+      $('#export-excel-btn').addEventListener('click', exportToExcel);
 
       // Reflow on resize
       window.addEventListener('resize', () => {
@@ -704,8 +875,49 @@
         
         // Reset button
         const btn = $('#export-pdf-btn');
-        btn.innerHTML = 'Generate PDF';
+        btn.innerHTML = 'Export PDF';
         btn.disabled = false;
+      }
+    }
+
+    // ---------- Excel Export ----------
+    function exportToExcel(){
+      try {
+        const wb = XLSX.utils.book_new();
+        
+        const m = state.metrics;
+        const periodLabel = (m.periodType==='Quarter') ? `Q${m.quarter} ${m.year}` : (m.periodType==='Month' ? m.month : `${m.year}`);
+        const planOverview = [{ MissionSummary: state.missionSummary || '', Health: state.planHealth || 'green', PeriodType: m.periodType, Period: periodLabel }];
+
+        const missionGoalsData = state.missionGoals.map(g=>({
+          Title: g.title,
+          Description: g.description,
+          CustomFields: (g.customFields||[]).map(cf=>`${cf.label}: ${cf.value}`).join(' | ')
+        }));
+        const stakeholdersData = state.stakeholders.map(s=>({ Name: s.name, Title: s.title, Email: s.email||'' }));
+        const objectivesData = [
+          ...state.objectives.map(o=>({ Type:'Current', Name:o.name, Status:o.status, TargetDate:o.targetDate, KPIGoal:o.kpiGoal, Challenges:o.challenges, NextSteps:o.nextSteps, Link:o.s4Link })),
+          ...state.pastObjectives.map(o=>({ Type:'Past', Name:o.name, Status:o.status, TargetDate:o.targetDate, KPIGoal:o.kpiGoal, Challenges:o.challenges, NextSteps:o.nextSteps, Link:o.s4Link }))
+        ];
+        const valueData = state.valueRealized.map(v=>({ Type:v.type, Description:v.description, Date:v.date, Link:v.link }));
+        const metricsData = (m.items||[]).map(x=>({ PeriodType:m.periodType, Period: periodLabel, Metric:x.name, ValuePercent:x.valuePercent, DeltaVsPrevQ:x.deltaPercent }));
+        
+        const addSheet = (data, name) => {
+          const ws = XLSX.utils.json_to_sheet(data.length?data:[{}]);
+          XLSX.utils.book_append_sheet(wb, ws, name);
+        };
+        addSheet(planOverview, 'Plan Overview');
+        addSheet(missionGoalsData, 'Mission Goals');
+        addSheet(objectivesData, 'Objectives');
+        addSheet(valueData, 'Value Realized');
+        addSheet(stakeholdersData, 'Stakeholders');
+        addSheet(metricsData, 'Metrics');
+        
+        XLSX.writeFile(wb, 'customer-success-plan.xlsx');
+        showNotification('Excel exported successfully!', 'success');
+      } catch (err) {
+        console.error('Excel export failed', err);
+        showNotification('Excel export failed. Please try again.', 'error');
       }
     }
     
@@ -767,7 +979,7 @@
           </div>
           
           <div class="flex justify-end mt-6">
-            <button id="close-details-modal-2" class="px-4 py-2 bg-slate-200 text-slate-800 rounded-lg hover:bg-slate-300">Close</button>
+            <button id="close-details-modal-2" class="btn btn-outline">Close</button>
           </div>
         </div>
       `;
@@ -821,8 +1033,8 @@
             </div>
           </div>
           <div class="flex justify-end gap-3 mt-6">
-            <button id="cancel-new-objective" class="px-4 py-2 text-slate-600 hover:text-slate-800">Cancel</button>
-            <button id="save-new-objective" class="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700">Save Objective</button>
+            <button id="cancel-new-objective" class="btn btn-ghost">Cancel</button>
+            <button id="save-new-objective" class="btn btn-primary">Save Objective</button>
           </div>
         </div>
       `;
@@ -900,12 +1112,12 @@
             <div>
               <label class="block text-sm font-medium mb-2">Custom Fields</label>
               <div id="mg-fields" class="space-y-2"></div>
-              <button id="mg-add-field" class="text-cyan-700 font-semibold mt-2">+ Add Custom Field</button>
+              <button id="mg-add-field" class="btn btn-ghost mt-2">+ Add Custom Field</button>
             </div>
           </div>
           <div class="modal-footer">
-            <button id="mg-cancel" class="px-4 py-2 text-slate-600 hover:text-slate-800">Cancel</button>
-            <button id="mg-save" class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">Save Goal</button>
+            <button id="mg-cancel" class="btn btn-ghost">Cancel</button>
+            <button id="mg-save" class="btn btn-success">Save Goal</button>
           </div>
         </div>
       `;
@@ -973,8 +1185,8 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button id="vr-cancel" class="px-4 py-2 text-slate-600 hover:text-slate-800">Cancel</button>
-            <button id="vr-save" class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">Save</button>
+            <button id="vr-cancel" class="btn btn-ghost">Cancel</button>
+            <button id="vr-save" class="btn btn-success">Save</button>
           </div>
         </div>
       `;
@@ -1011,8 +1223,8 @@
             </div>
           </div>
           <div class="flex justify-end gap-3 mt-6">
-            <button id="cancel-new-stakeholder" class="px-4 py-2 text-slate-600 hover:text-slate-800">Cancel</button>
-            <button id="save-new-stakeholder" class="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700">Save</button>
+            <button id="cancel-new-stakeholder" class="btn btn-ghost">Cancel</button>
+            <button id="save-new-stakeholder" class="btn btn-primary">Save</button>
           </div>
         </div>
       `;
@@ -1072,6 +1284,18 @@
         if (saved) {
           const parsed = JSON.parse(saved);
           Object.assign(state, parsed);
+          // Ensure metrics shape exists after upgrades
+          if (!state.metrics) {
+            state.metrics = {
+              periodType: 'Quarter',
+              month: new Date().toISOString().slice(0,7),
+              quarter: Math.floor((new Date().getMonth())/3)+1,
+              year: new Date().getFullYear(),
+              items: []
+            };
+          }
+          if (typeof state.planHealth === 'undefined') state.planHealth = 'green';
+          if (typeof state.missionSummary === 'undefined') state.missionSummary = '';
         }
       } catch (error) {
         console.warn('Could not load from localStorage:', error);
@@ -1088,6 +1312,7 @@
     renderAll();
     setupEvents();
     applyAutoResize();
+    syncTopControls();
     
     // Set up auto-save for all state changes
     const originalRenderAll = renderAll;
