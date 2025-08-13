@@ -16,13 +16,13 @@
     body { font-family: 'Inter', sans-serif; background:#f1f5f9; color:var(--ink); }
 
     /* Unified text zones: every text/edit surface is clearly bordered with squircle borders and auto-sizing textareas */
-    .text-zone { width:100%; border-radius:14px; border:1px solid rgb(203 213 225); background: rgba(255,255,255,0.8); box-shadow: 0 1px 2px rgba(0,0,0,0.04); transition: box-shadow .2s, border-color .2s, background-color .2s; outline: none; }
+    .text-zone { width:100%; border-radius:2px; border:1px solid rgb(203 213 225); background:#fff; box-shadow:none; transition: border-color .2s, background-color .2s; outline: none; }
     .text-zone:focus { border-color: rgb(8 145 178); box-shadow: 0 0 0 4px rgba(8,145,178,0.2); }
     .text-area { resize: none; min-height: 2.75rem; overflow: hidden; font-size: clamp(0.9rem, 0.88rem + 0.2vw, 1rem); line-height: 1.6; }
-    .chip { display:inline-flex; align-items:center; gap:.25rem; padding:.25rem .5rem; font-size:.75rem; font-weight:600; border-radius:.5rem; border:1px solid rgba(15,23,42,.15); }
+    .chip { display:inline-flex; align-items:center; gap:.25rem; padding:.25rem .5rem; font-size:.75rem; font-weight:600; border-radius:2px; border:1px solid rgba(15,23,42,.15); }
 
     /* Status pills */
-    .status-pill { font-size: .75rem; font-weight: 600; margin-right: .5rem; padding: .125rem .625rem; border-radius: 9999px; display:inline-flex; align-items:center; }
+    .status-pill { font-size: .75rem; font-weight: 600; margin-right: .5rem; padding: .125rem .625rem; border-radius: 2px; display:inline-flex; align-items:center; }
     .status-green { background:#dcfce7; color:#166534; }
     .status-yellow { background:#fef9c3; color:#854d0e; }
     .status-red { background:#fee2e2; color:#991b1b; }
@@ -34,7 +34,7 @@
     .colored-filter:focus { border-color:#10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.25); }
 
     /* Cards + micro-transitions */
-    .card { background:#fff; border-radius:14px; box-shadow: 0 1px 2px rgba(16,24,40,0.04); border:1px solid rgba(226,232,240,0.8); }
+    .card { background:#fff; border-radius:2px; box-shadow:none; border:1px solid rgba(226,232,240,1); }
     .fade { transition: all .2s ease; }
     .removing { transform: scale(.98); opacity:0; max-height:0; padding-top:0; padding-bottom:0; margin-top:0; margin-bottom:0; border-width:0; }
     
@@ -49,7 +49,7 @@
     }
 
     /* Preview blocks inside objective cards */
-    .preview-box { background: linear-gradient(180deg, #f8fafc, #f1f5f9); border:1px solid rgb(226 232 240); border-radius:12px; padding:0.75rem; }
+    .preview-box { background:#f8fafc; border:1px solid rgb(226 232 240); border-radius:2px; padding:0.75rem; }
 
     /* Small helpers */
     .health-dot { width:0.75rem; height:0.75rem; border-radius:9999px; display:inline-block; margin-right:0.5rem; }
@@ -57,14 +57,14 @@
     .linkish:hover { color:#0a3f56; }
     /* Modal aesthetics */
     .modal-overlay { position:fixed; inset:0; background: rgba(0,0,0,0.55); backdrop-filter: blur(2px); display:flex; align-items:center; justify-content:center; z-index:50; }
-    .modal-panel { border-radius:16px; border:1px solid rgba(226,232,240,0.9); box-shadow: 0 20px 40px rgba(2,6,23,0.25); max-height:90vh; overflow-y:auto; background: linear-gradient(135deg, #ffffff, #f8fafc, #ecfeff); }
-    .modal-header { padding:1rem 1.5rem; border-bottom:1px solid rgba(226,232,240,0.7); background: linear-gradient(90deg, rgba(8,145,178,0.08), rgba(16,185,129,0.08)); border-top-left-radius:16px; border-top-right-radius:16px; }
+    .modal-panel { border-radius:2px; border:1px solid rgba(226,232,240,0.9); box-shadow: 0 20px 40px rgba(2,6,23,0.25); max-height:90vh; overflow-y:auto; background:#ffffff; }
+    .modal-header { padding:1rem 1.5rem; border-bottom:1px solid rgba(226,232,240,0.7); background: linear-gradient(90deg, rgba(8,145,178,0.08), rgba(16,185,129,0.08)); border-top-left-radius:2px; border-top-right-radius:2px; }
     .modal-body { padding:1.5rem; }
     .modal-footer { padding:1rem 1.5rem; border-top:1px solid rgba(226,232,240,0.7); display:flex; justify-content:flex-end; gap:.75rem; }
 
     /* Buttons: high-contrast, modern */
-    .btn { display:inline-flex; align-items:center; gap:.5rem; font-weight:600; border-radius:10px; padding:.5rem .75rem; border:1px solid transparent; transition: all .2s ease; }
-    .btn-sm { padding:.25rem .5rem; font-size:.875rem; border-radius:8px; }
+    .btn { display:inline-flex; align-items:center; gap:.5rem; font-weight:600; border-radius:2px; padding:.5rem .75rem; border:1px solid transparent; transition: all .2s ease; }
+    .btn-sm { padding:.25rem .5rem; font-size:.875rem; border-radius:2px; }
     .btn-primary { background:#0f172a; color:#fff; }
     .btn-primary:hover { background:#111827; }
     .btn-success { background:#059669; color:#fff; }
@@ -73,29 +73,18 @@
     .btn-outline:hover { background:#f1f5f9; }
     .btn-ghost { background:transparent; color:#0f172a; }
     .btn-ghost:hover { background:rgba(15,23,42,0.06); }
-    /* Compact, readable select styling */
-    select.text-zone { padding: .375rem .5rem; font-size: .95rem; min-height: 2.25rem; }
-    
-    /* KPI display styles */
-    .kpi-row { display:flex; align-items:center; justify-content:space-between; gap:.75rem; border:1px solid rgb(226 232 240); background:#f8fafc; border-radius:12px; padding:.5rem .75rem; }
-    .kpi-name { font-weight:600; }
-    .kpi-values { display:flex; align-items:baseline; gap:.5rem; color:#475569; }
-    .kpi-delta { font-weight:700; }
-    .kpi-up { color:#047857; }
-    .kpi-down { color:#b91c1c; }
-    .field-label { font-size:.75rem; font-weight:600; color:#475569; }
   </style>
 </head>
 <body>
   <div id="app" class="max-w-screen-xl mx-auto p-4 sm:p-6 lg:p-8">
-    <header class="mb-10 p-8 rounded-xl bg-gradient-to-r from-cyan-800 to-emerald-600 text-white shadow-lg flex justify-between items-center">
+    <header class="mb-10 p-8 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 text-white flex justify-between items-center" style="border-radius:2px;">
       <div>
         <h1 class="text-4xl font-bold">Customer Success Plan</h1>
         <p class="text-cyan-200 mt-2">A collaborative plan to track and achieve outcomes. Last updated: Aug 12, 2025</p>
       </div>
       <div class="flex items-center gap-3">
-        <button id="export-excel-btn" class="btn btn-outline">Export Excel</button>
-        <button id="export-pdf-btn" class="btn btn-primary flex items-center">
+        <button id="export-excel-btn" class="btn btn-outline bg-gradient-to-r from-emerald-600 to-teal-500 text-white border-0">Export Excel</button>
+        <button id="export-pdf-btn" class="btn btn-primary flex items-center bg-gradient-to-r from-sky-600 to-indigo-500 border-0">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>
           Export PDF
         </button>
@@ -149,9 +138,12 @@
 
       <!-- Right -->
       <div class="lg:col-span-1 space-y-8">
+        <section id="kpi-section" class="card p-6"></section>
+        <section id="metrics-section" class="card p-6"></section>
+        <section class="card p-6">
           <h3 class="text-lg font-semibold mb-3">Plan Details</h3>
           <label class="block text-sm font-medium mb-1">Overall Health</label>
-                     <select id="health-score" class="text-zone p-2 text-sm">
+          <select id="health-score" class="text-zone p-2">
             <option value="green">🟢 On Track</option>
             <option value="yellow">🟡 Needs Attention</option>
             <option value="red">🔴 At Risk</option>
@@ -163,7 +155,7 @@
           <div class="space-y-4">
             <div>
               <label class="block text-sm font-medium mb-1">Industry</label>
-                             <select id="filter-industry" class="text-zone colored-filter p-2 text-sm">
+              <select id="filter-industry" class="text-zone colored-filter p-2">
                 <option>Technology</option>
                 <option>Finance</option>
                 <option>Healthcare</option>
@@ -171,7 +163,7 @@
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Segment</label>
-                             <select id="filter-segment" class="text-zone colored-filter p-2 text-sm">
+              <select id="filter-segment" class="text-zone colored-filter p-2">
                 <option>SMB</option>
                 <option>MM</option>
                 <option>Enterprise</option>
@@ -179,7 +171,7 @@
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Products Owned</label>
-                             <select id="filter-products" class="text-zone colored-filter p-2 text-sm">
+              <select id="filter-products" class="text-zone colored-filter p-2">
                 <option value="">Select a product...</option>
                 <option>Content Library</option>
                 <option>AI</option>
@@ -197,7 +189,7 @@
         <section class="card p-6">
           <h3 class="text-lg font-semibold mb-3">Key Stakeholders</h3>
           <div id="stakeholders-container" class="space-y-3 mb-3"></div>
-                     <select id="add-stakeholder-select" class="text-zone p-2 text-sm">
+          <select id="add-stakeholder-select" class="text-zone p-2">
             <option value="">+ Add a contact...</option>
             <option value="new">Add New Stakeholder...</option>
           </select>
@@ -210,7 +202,17 @@
     // ---------- Data ----------
     const objectiveOptions = ['Reduce time spent per response', 'Adoption', 'Content library clean up', 'Increase win rate'];
     const valueOptions = ['Time Savings', 'Win Rate Increase', 'Adoption Rate', 'Cost Reduction', 'Revenue Growth', 'Productivity Gain'];
-    
+
+    // Predefined KPI types catalogue for auto unit + delta direction
+    const KPI_TYPES = [
+      { key: 'content_utilization', label: 'Content Utilization', unit: '%', direction: 'up_is_good' },
+      { key: 'obsolete_content_pct', label: 'Obsolete Content Percentage', unit: '%', direction: 'down_is_good' },
+      { key: 'avg_response_time', label: 'Average Response Time', unit: 'seconds', direction: 'down_is_good' },
+      { key: 'customer_satisfaction', label: 'Customer Satisfaction', unit: '%', direction: 'up_is_good' },
+      { key: 'tickets_resolved', label: 'Support Tickets Resolved', unit: 'count', direction: 'up_is_good' },
+      { key: 'escalation_rate', label: 'Escalation Rate', unit: '%', direction: 'down_is_good' }
+    ];
+
     // Suggested KPIs based on product selection
     const productKPIs = {
       'AI': ['Unedited AI responses', '% answer with AI', 'AI response quality score', 'AI adoption rate'],
@@ -237,8 +239,8 @@
 
     const state = {
       missionGoals: [
-        { id: Date.now(), title: 'Time Savings', targetDate: '', description: 'Reduce time spent on manual tasks by 20% through automation and streamlined workflows.', customFields: [{id: 1, label: 'Collateral', value: 'https://example.com/deck'}] },
-        { id: Date.now() + 1, title: 'Winning More Business', targetDate: '', description: 'Increase the sales win rate by 10% by leveraging improved content and faster response times.', customFields: [] }
+        { id: Date.now(), title: 'Time Savings', description: 'Reduce time spent on manual tasks by 20% through automation and streamlined workflows.', customFields: [{id: 1, label: 'Collateral', value: 'https://example.com/deck'}] },
+        { id: Date.now() + 1, title: 'Winning More Business', description: 'Increase the sales win rate by 10% by leveraging improved content and faster response times.', customFields: [] }
       ],
       stakeholders: [mockContacts[0], mockContacts[1]],
       objectives: [{
@@ -246,20 +248,23 @@
         kpiGoal: 'Reduce average response time from 45s to 30s.',
         challenges: 'Team members are still learning the new workflow.',
         nextSteps: 'Hold a workshop on advanced features.', s4Link: 'https://s4.example.com/ticket/12345',
-        kpis: [],
         editing: false, expanded: false
       }, {
         id: Date.now() + 2, name: 'Content library clean up', targetDate: '2025-10-31', status: 'Not Started',
         kpiGoal: 'Archive 50% of obsolete content.',
         challenges: 'Lack of clear ownership for older content.',
         nextSteps: 'Work with Samantha Ray to identify content owners.', s4Link: 'https://s4.example.com/ticket/12346',
-        kpis: [],
         editing: false, expanded: false
       }],
-      pastObjectives: [],
+      pastObjectives: [{ id: Date.now()+100, name: 'Increase win rate', targetDate: '2025-06-30', status: 'Completed', kpiGoal: 'Raise win rate from 30% to 35% by Q2.', challenges: 'Competitive pricing pressure.', nextSteps: 'Monitor sustainment and share best practices.', s4Link: 'https://s4.example.com/ticket/12001', editing: false, expanded: false }],
       valueRealized: [{ id: Date.now(), type: 'Time Savings', description: 'Saved ~5 hours/week per agent in Q3.', date: '2025-07-30', link: 'https://datastudio.example.com/report/1' }],
       planHealth: 'green',
       missionSummary: 'To empower the sales team by centralizing our content, reducing response times, and providing data-driven insights that directly contribute to winning more business and increasing revenue.',
+      kpis: [
+        { id: Date.now()+401, typeKey: 'content_utilization', name: 'Content Utilization', unit: '%', value: 68, delta: 6 },
+        { id: Date.now()+402, typeKey: 'obsolete_content_pct', name: 'Obsolete Content Percentage', unit: '%', value: 22, delta: -4 },
+        { id: Date.now()+403, typeKey: 'avg_response_time', name: 'Average Response Time', unit: 'seconds', value: 37, delta: -5 }
+      ],
       metrics: {
         periodType: 'Quarter',
         month: new Date().toISOString().slice(0,7),
@@ -286,47 +291,7 @@
       if (days <= 90) return { dot:'bg-yellow-500', icon:'🟡' };
       return { dot:'bg-green-500', icon:'🟢' };
     };
-
-    // KPI helpers
-    function computeDeltaPercent(previousValue, currentValue){
-      const prev = Number(previousValue||0);
-      const curr = Number(currentValue||0);
-      if (prev === 0){
-        if (curr === 0) return 0;
-        return 100;
-      }
-      return ((curr - prev) / prev) * 100;
-    }
-    function kpiListHTML(objective){
-      const kpis = Array.isArray(objective.kpis) ? objective.kpis : [];
-      const list = kpis.map(k => {
-        const delta = computeDeltaPercent(k.previousValue, k.currentValue);
-        const isUp = delta >= 0;
-        const deltaClass = isUp ? 'kpi-up' : 'kpi-down';
-        const arrow = isUp ? '▲' : '▼';
-        const deltaText = `${arrow} ${Math.abs(delta).toFixed(1)}%`;
-        return `
-          <div class="kpi-row" data-kpi-id="${k.id}">
-            <div class="kpi-name">${k.name||'Untitled KPI'}</div>
-            <div class="kpi-values">
-              <span>Current: <strong>${Number(k.currentValue||0)}</strong></span>
-              <span class="text-slate-400">Prev: ${Number(k.previousValue||0)}</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <span class="kpi-delta ${deltaClass}">${deltaText}</span>
-              <button class="btn btn-outline btn-sm" data-role="edit-kpi">Edit</button>
-            </div>
-          </div>`;
-      }).join('');
-      return `
-        <div class="mt-4">
-          <div class="flex items-center justify-between mb-2">
-            <h4 class="text-sm font-semibold">KPIs</h4>
-            <button class="btn btn-success btn-sm" data-role="add-kpi">+ Add KPI</button>
-          </div>
-          ${kpis.length ? list : '<div class="text-slate-500 text-sm">No KPIs yet.</div>'}
-        </div>`;
-    }
+    const findObjectiveById = (id) => state.objectives.find(x=>x.id===id) || state.pastObjectives.find(x=>x.id===id) || null;
 
     // Auto-resize and responsive preview
     function autoResizeTextarea(textarea) {
@@ -349,31 +314,22 @@
       const c = $('#mission-goals-container');
       c.innerHTML = state.missionGoals.map(g=>`
         <div id="mission-goal-${g.id}" class="card p-4" data-id="${g.id}">
-          <div class="flex items-start justify-between gap-3">
-            <div class="flex-1">
-              <div class="flex items-center justify-between">
-                <h3 class="font-semibold text-lg">${g.title}</h3>
-                <div class="text-sm text-slate-600">
-                  <span class="field-label mr-2">Target Date</span>
-                  <span>${g.targetDate || 'Not set'}</span>
-                </div>
-              </div>
-              <p class="text-sm text-slate-700 mt-2">${g.description||'<span class=\'text-slate-400\'>No description</span>'}</p>
-              ${(g.customFields&&g.customFields.length)?`
-                <div class="mt-3 space-y-2">
-                  ${(g.customFields||[]).map(f=>`
-                    <div class="flex items-center gap-2 text-sm" data-field-id="${f.id}">
-                      <span class="px-2 py-1 bg-slate-100 rounded border text-xs font-semibold">${f.label}</span>
-                      ${/^https?:\/\//.test(f.value) ? `<a href="${f.value}" target="_blank" class="linkish">${f.value}</a>` : `<span class="text-slate-600">${f.value||''}</span>`}
-                    </div>
-                  `).join('')}
-                </div>`:''}
-            </div>
-            <div class="flex items-center gap-2">
-              <button class="btn btn-outline btn-sm" data-role="edit-goal">Edit</button>
-              <button class="text-slate-400 hover:text-red-600" data-role="remove-goal" title="Remove">&times;</button>
-            </div>
+          <div class="flex items-center justify-between gap-2">
+            <input class="text-zone p-2 font-semibold" value="${g.title}" data-role="goal-title" />
+            <button class="text-slate-400 hover:text-red-600" data-role="remove-goal">&times;</button>
           </div>
+          <textarea class="text-zone text-area p-3 mt-2 text-sm" rows="3" placeholder="Goal description..." data-role="goal-desc">${g.description||''}</textarea>
+          <div class="mt-3 space-y-2" data-role="custom-fields">
+            ${(g.customFields||[]).map(f=>`
+              <div class="flex items-center gap-2" data-field-id="${f.id}">
+                <input class="text-zone p-2 text-xs font-semibold" value="${f.label}" placeholder="Field name" data-role="cf-label" />
+                <input class="text-zone p-2 text-xs flex-1" value="${f.value||''}" placeholder="Value or https://link" data-role="cf-value" />
+                <a href="${/^https?:\/\//.test(f.value)?f.value:'#'}" target="_blank" class="${/^https?:\/\//.test(f.value)?'linkish':'pointer-events-none opacity-40'} text-xs">Attach</a>
+                <button class="text-slate-400 hover:text-red-600" title="Remove" data-role="remove-cf">🗑️</button>
+              </div>
+            `).join('')}
+          </div>
+          <button class="text-cyan-700 font-semibold mt-2" data-role="add-cf">+ Add Custom Field</button>
         </div>
       `).join('');
       applyAutoResize(c);
@@ -384,7 +340,7 @@
       return `
         <div id="value-${item.id}" class="card p-4" data-id="${item.id}">
           <div class="flex items-center justify-between">
-                         <select class="text-zone p-2 text-sm value-type-select">
+            <select class="text-zone p-2 text-sm font-semibold value-type-select">
               ${valueOptions.map(opt=>`<option ${opt===item.type?'selected':''}>${opt}</option>`).join('')}
             </select>
             <button class="text-slate-400 hover:text-slate-600" data-role="remove-value">&times;</button>
@@ -393,12 +349,12 @@
             <label class="block text-xs font-medium mb-1">Description</label>
             <textarea class="text-zone text-area p-3 text-sm" rows="3" data-role="value-desc">${item.description||''}</textarea>
           </div>
-                       <div class="grid grid-cols-2 gap-3 mt-3">
-              <div>
-                <label class="block text-xs font-medium mb-1">Target Date</label>
-                <input type="date" value="${item.date||''}" class="text-zone p-2" data-role="value-date" />
-              </div>
-              <div>
+          <div class="grid grid-cols-2 gap-3 mt-3">
+            <div>
+              <label class="block text-xs font-medium mb-1">Date Realized</label>
+              <input type="date" value="${item.date||''}" class="text-zone p-2" data-role="value-date" />
+            </div>
+            <div>
               <label class="block text-xs font-medium mb-1">Reference Link</label>
               <input type="text" value="${item.link||''}" placeholder="https://" class="text-zone p-2" data-role="value-link" />
             </div>
@@ -431,7 +387,7 @@
                   <select class="text-zone p-1 text-xs ${statusCls}" data-role="edit-status">
                     ${['Not Started','In Progress','At Risk','Completed'].map(s=>`<option ${o.status===s?'selected':''}>${s}</option>`).join('')}
                   </select>
-                                     <div class="flex items-center gap-2 text-sm text-slate-700"><span class="field-label">Target Date</span><input type="date" class="text-zone p-1 text-sm w-auto" value="${o.targetDate||''}" data-role="edit-date" /></div>
+                  <input type="date" class="text-zone p-1 text-sm w-auto" value="${o.targetDate||''}" data-role="edit-date" />
                 </div>
               </div>
               <div class="flex items-center gap-2">
@@ -468,13 +424,10 @@
           <div class="flex justify-between items-start">
             <div>
               <h3 class="font-semibold text-lg flex items-center"><span class="health-dot ${h.dot}"></span>${o.name}</h3>
-                           <div class="flex items-center mt-2 gap-2">
-               <span class="status-pill ${statusCls}">${o.status}</span>
-               <div class="flex items-center gap-2 text-sm text-slate-700">
-                 <span class="field-label">Target Date</span>
-                 <input type="date" class="text-zone p-1 text-sm w-auto" value="${o.targetDate||''}" data-role="quick-date" />
-               </div>
-             </div>
+              <div class="flex items-center mt-2 gap-2">
+                <span class="status-pill ${statusCls}">${o.status}</span>
+                <input type="date" class="text-zone p-1 text-sm w-auto" value="${o.targetDate||''}" data-role="quick-date" />
+              </div>
             </div>
             <div class="flex items-center gap-2">
               <button class="btn btn-ghost btn-sm" data-role="toggle-expand">${o.expanded?'Hide preview':'Show more'}</button>
@@ -503,12 +456,10 @@
                 <div class="text-xs font-semibold text-slate-600 mb-1">Links</div>
                 ${o.s4Link ? `<a class="linkish text-sm" href="${o.s4Link}" target="_blank">Open S4</a>`: '<div class="text-sm text-slate-400">No links</div>'}
               </div>
-                      </div>` : ''}
-
-          ${kpiListHTML(o)}
+            </div>` : ''}
         </div>`;
     }
- 
+
     function renderObjectives(){
       const cur = $('#objectives-container');
       cur.innerHTML = state.objectives.map(objectiveCardHTML).join('') || '<p class="text-slate-500 text-center py-4">No active objectives.</p>';
@@ -524,10 +475,11 @@
     function renderStakeholders(){
       const c = $('#stakeholders-container');
       c.innerHTML = state.stakeholders.map(s=>`
-        <div id="stakeholder-${s.id}" class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border" data-id="${s.id}">
+        <div id="stakeholder-${s.id}" class="flex items-center justify-between p-3 bg-slate-50 border" style="border-radius:2px;" data-id="${s.id}">
           <div>
             <p class="font-semibold">${s.name}</p>
             <p class="text-sm text-slate-500">${s.title}</p>
+            <p class="text-xs text-slate-500">${s.email || ''}</p>
           </div>
           <button class="text-slate-400 hover:text-red-600" data-role="remove-stakeholder">&times;</button>
         </div>
@@ -539,13 +491,189 @@
       autoSave();
     }
 
-        // Performance Metrics card removed per requirements
+    function renderKPISection(){
+      const root = document.getElementById('kpi-section');
+      if (!root) return;
+      const kpis = state.kpis || [];
+
+      const kpiRows = kpis.map(k => {
+        const type = KPI_TYPES.find(t=>t.key===k.typeKey) || { direction: 'up_is_good', unit: k.unit||'' };
+        const isGood = type.direction === 'up_is_good' ? (k.delta||0) >= 0 : (k.delta||0) <= 0;
+        const deltaSign = (k.delta||0) > 0 ? '+' : '';
+        const unit = k.unit || type.unit || '';
+        const deltaColor = isGood ? 'text-emerald-600' : 'text-rose-600';
+        const chipBg = isGood ? 'bg-gradient-to-r from-emerald-600 to-emerald-500' : 'bg-gradient-to-r from-rose-600 to-rose-500';
+        const linkedObj = k.objectiveId ? findObjectiveById(k.objectiveId) : null;
+        const linkedHtml = linkedObj ? `<div class="text-xs text-slate-500">Linked: <button class="linkish" data-role="view-linked" data-oid="${linkedObj.id}">${linkedObj.name}</button></div>` : '';
+        return `
+          <div class="flex items-center justify-between border p-3 mb-2" data-id="${k.id}">
+            <div class="min-w-0">
+              <div class="font-semibold truncate">${k.name}</div>
+              <div class="text-xs text-slate-500">Unit: ${unit}</div>
+              ${linkedHtml}
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="text-right">
+                <div class="text-xl font-bold">${k.value}<span class="text-sm ml-1">${unit}</span></div>
+                <div class="text-xs ${deltaColor}"><span class="inline-block px-1 ${chipBg} text-white">${deltaSign}${k.delta}${unit ? ' ' + unit : ''}</span> vs prev</div>
+              </div>
+              <button class="text-slate-400 hover:text-red-600" data-role="remove-kpi">&times;</button>
+            </div>
+          </div>`;
+      }).join('');
+
+      const typeOptions = KPI_TYPES.map(t=>`<option value="${t.key}">${t.label}</option>`).join('');
+      const objectiveOptions = [...(state.objectives||[]), ...(state.pastObjectives||[])]
+        .map(o=>`<option value="${o.id}">${o.name}</option>`).join('');
+
+      root.innerHTML = `
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-lg font-semibold">KPIs</h3>
+          <button class="btn btn-success" id="kpi-add-btn">+ Add KPI</button>
+        </div>
+        <div class="space-y-2" id="kpi-list">${kpiRows || '<div class="text-slate-500 text-sm">No KPIs yet.</div>'}</div>
+        <div class="mt-4 border p-3 space-y-3" id="kpi-creator">
+          <div class="grid grid-cols-1 gap-3">
+            <div>
+              <label class="block text-sm font-medium mb-1">KPI Type</label>
+              <select id="kpi-type" class="text-zone p-2 w-full">${typeOptions}</select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Unit</label>
+              <input id="kpi-unit" class="text-zone p-2 w-full bg-slate-50 text-slate-500" readonly />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Link Objective (optional)</label>
+              <select id="kpi-obj" class="text-zone p-2 w-full"><option value="">— None —</option>${objectiveOptions}</select>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+              <div>
+                <label class="block text-sm font-medium mb-1">Current Value</label>
+                <input type="number" id="kpi-value" class="text-zone p-2 w-full" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1">Delta vs Prev</label>
+                <input type="number" id="kpi-delta" class="text-zone p-2 w-full" />
+              </div>
+              <div class="flex items-end">
+                <button id="kpi-create" class="btn btn-primary w-full">Create KPI</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const typeSelect = document.getElementById('kpi-type');
+      const unitInput = document.getElementById('kpi-unit');
+      const applyUnit = () => {
+        const t = KPI_TYPES.find(x=>x.key===typeSelect.value);
+        unitInput.value = t ? t.unit : '';
+      };
+      typeSelect.addEventListener('change', applyUnit);
+      applyUnit();
+
+      document.getElementById('kpi-create').addEventListener('click', () => {
+        const key = typeSelect.value;
+        const t = KPI_TYPES.find(x=>x.key===key);
+        if (!t) return;
+        const v = Number(document.getElementById('kpi-value').value || 0);
+        const d = Number(document.getElementById('kpi-delta').value || 0);
+        const objSel = document.getElementById('kpi-obj');
+        const objectiveId = objSel && objSel.value ? Number(objSel.value) : null;
+        state.kpis = state.kpis || [];
+        state.kpis.unshift({ id: Date.now()+Math.random(), typeKey: key, name: t.label, unit: t.unit, value: v, delta: d, objectiveId });
+        renderKPISection();
+        autoSave();
+        showNotification('KPI created', 'success');
+      });
+
+      root.addEventListener('click', (e)=>{
+        if (e.target && e.target.matches('[data-role="remove-kpi"]')){
+          const id = Number(e.target.closest('[data-id]').dataset.id);
+          state.kpis = (state.kpis||[]).filter(x=>x.id!==id);
+          renderKPISection();
+          autoSave();
+        }
+        if (e.target && e.target.matches('[data-role="view-linked"]')){
+          const oid = Number(e.target.getAttribute('data-oid'));
+          const obj = findObjectiveById(oid);
+          if (obj) showObjectiveDetailsModal(obj);
+        }
+      });
+    }
+
+    function renderMetrics(){
+      const wrap = $('#metrics-section');
+      if (!wrap) return;
+      const m = state.metrics;
+      const active = (t) => m.periodType===t ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm';
+      const periodControls = (
+        m.periodType === 'Month' ? `
+          <div class="mt-3">
+            <label class="block text-sm font-medium mb-1">Month</label>
+            <input type="month" id="metrics-month" class="text-zone p-2 w-full" value="${m.month}">
+          </div>` :
+        m.periodType === 'Quarter' ? `
+          <div class="mt-3 grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-sm font-medium mb-1">Quarter</label>
+              <select id="metrics-quarter" class="text-zone p-2 w-full">
+                ${[1,2,3,4].map(q=>`<option value="${q}" ${Number(m.quarter)===q?'selected':''}>Q${q}</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Year</label>
+              <input type="number" id="metrics-year" class="text-zone p-2 w-full" value="${m.year}">
+            </div>
+          </div>` : `
+          <div class="mt-3">
+            <label class="block text-sm font-medium mb-1">Year</label>
+            <input type="number" id="metrics-year-only" class="text-zone p-2 w-full" value="${m.year}">
+          </div>`
+      );
+
+      const items = (m.items||[]).map(it=>`
+        <div class="flex items-center gap-2 p-2 border" style="border-radius:2px;" data-id="${it.id}">
+          <input class="text-zone p-2 flex-1" placeholder="Metric name" value="${it.name||''}" data-role="metric-name" />
+          <div class="flex items-center gap-1">
+            <input type="number" class="text-zone p-2 w-20" value="${it.valuePercent||0}" min="0" max="999" step="1" data-role="metric-value" />
+            <span class="text-slate-500">%</span>
+          </div>
+          <div class="flex items-center gap-1 text-emerald-700">
+            <span class="text-slate-500">Δ</span>
+            <input type="number" class="text-zone p-2 w-16" value="${it.deltaPercent||0}" step="1" data-role="metric-delta" />
+            <span class="text-slate-500">%</span>
+            <span class="text-xs text-slate-500">vs prev Q</span>
+          </div>
+          <button class="text-slate-400 hover:text-red-600" data-role="remove-metric" title="Remove">&times;</button>
+        </div>
+      `).join('');
+
+      wrap.innerHTML = `
+        <h3 class="text-lg font-semibold mb-3">Performance Metrics</h3>
+        <div class="flex items-center gap-2">
+          <button class="${active('Month')}" data-role="set-period-type" data-value="Month">Month</button>
+          <button class="${active('Quarter')}" data-role="set-period-type" data-value="Quarter">Quarter</button>
+          <button class="${active('Year')}" data-role="set-period-type" data-value="Year">Year</button>
+        </div>
+        ${periodControls}
+        <div class="mt-4 space-y-2" id="metrics-items-list">
+          ${items || '<div class="text-slate-500 text-sm">No metrics yet.</div>'}
+        </div>
+        <div class="mt-3">
+          <button class="btn btn-success" data-role="add-metric">+ Add Metric</button>
+        </div>
+      `;
+      autoSave();
+    }
 
     function renderAll(){
       renderMissionGoals();
       renderValue();
       renderObjectives();
       renderStakeholders();
+      renderMetrics();
+      renderKPISection();
       syncTopControls();
     }
 
@@ -580,14 +708,19 @@
         }
 
         // Metrics actions
-                if (e.target.matches('[data-role="set-period-type"]')){
+        if (e.target.matches('[data-role="set-period-type"]')){
           state.metrics.periodType = e.target.dataset.value;
           renderMetrics();
         }
-        // Metric item actions removed with panel
-        if (e.target && e.target.matches('[data-role="remove-metric"]')){}
-        if (e.target.matches('[data-role="add-metric"]')){}
-        
+        if (e.target.matches('[data-role="add-metric"]')){
+          state.metrics.items.push({ id: Date.now()+Math.random(), name: 'New Metric', valuePercent: 0, deltaPercent: 0 });
+          renderMetrics();
+        }
+        if (e.target && e.target.matches('[data-role="remove-metric"]')){
+          const id = Number(e.target.closest('[data-id]').dataset.id);
+          state.metrics.items = state.metrics.items.filter(m=>m.id!==id);
+          renderMetrics();
+        }
 
         // Value list actions
         if (e.target.matches('[data-role="remove-value"]')){
@@ -602,9 +735,20 @@
           const i = state.missionGoals.findIndex(g=>g.id===id);
           if (i>-1){ state.missionGoals.splice(i,1); renderMissionGoals(); }
         }
-        if (e.target.matches('[data-role="edit-goal"]')){
+        if (e.target.matches('[data-role="add-cf"]')){
           const id = Number(card.dataset.id);
-          showEditMissionGoalModal(id);
+          const g = state.missionGoals.find(x=>x.id===id);
+          if (!g.customFields) g.customFields = [];
+          g.customFields.push({id:Date.now()+Math.random(), label:'New Field', value:''});
+          renderMissionGoals();
+        }
+        if (e.target.matches('[data-role="remove-cf"]')){
+          const id = Number(card.dataset.id);
+          const fieldWrap = e.target.closest('[data-field-id]');
+          const fid = Number(fieldWrap.dataset.fieldId);
+          const g = state.missionGoals.find(x=>x.id===id);
+          g.customFields = (g.customFields||[]).filter(f=>f.id!==fid);
+          renderMissionGoals();
         }
 
         // Objective actions
@@ -659,19 +803,6 @@
           state.stakeholders = state.stakeholders.filter(s=>s.id!==id);
           renderStakeholders();
         }
-        // KPI actions on objective card
-        if (e.target.matches('[data-role="add-kpi"]')){
-          const id = Number(card.dataset.id);
-          showAddKPIModal(id);
-        }
-        if (e.target.matches('[data-role="edit-kpi"]')){
-          const objId = Number(card.dataset.id);
-          const kpiRow = e.target.closest('[data-kpi-id]');
-          if (kpiRow){
-            const kpiId = Number(kpiRow.getAttribute('data-kpi-id'));
-            showEditKPIModal(objId, kpiId);
-          }
-        }
       });
 
       // Global changes
@@ -701,7 +832,28 @@
           }
         }
 
-        // Mission goals are edited via modal; no inline edit handlers
+        // mission goal inline edits
+        if (e.target.matches('[data-role="goal-title"]')){
+          const id = Number(e.target.closest('[data-id]').dataset.id);
+          const g = state.missionGoals.find(x=>x.id===id); if (g) g.title = e.target.value;
+          autoSave();
+        }
+        if (e.target.matches('[data-role="goal-desc"]')){
+          const id = Number(e.target.closest('[data-id]').dataset.id);
+          const g = state.missionGoals.find(x=>x.id===id); if (g) g.description = e.target.value;
+          autoSave();
+        }
+        if (e.target.matches('[data-role="cf-label"], [data-role="cf-value"]')){
+          const id = Number(e.target.closest('[data-id]').dataset.id);
+          const fid = Number(e.target.closest('[data-field-id]').dataset.fieldId);
+          const g = state.missionGoals.find(x=>x.id===id);
+          const f = (g.customFields||[]).find(y=>y.id===fid);
+          if (f){
+            if (e.target.dataset.role==='cf-label') f.label = e.target.value;
+            if (e.target.dataset.role==='cf-value') f.value = e.target.value;
+            autoSave();
+          }
+        }
 
         // Value edits
         if (e.target.closest('#value-container')){
@@ -716,7 +868,23 @@
           autoSave();
         }
 
-        // Metrics panel removed; no metrics edit handlers
+        // Metrics edits
+        if (e.target.id === 'metrics-month'){
+          state.metrics.month = e.target.value;
+          autoSave();
+        }
+        if (e.target.id === 'metrics-quarter'){
+          state.metrics.quarter = Number(e.target.value);
+          autoSave();
+        }
+        if (e.target.id === 'metrics-year'){
+          state.metrics.year = Number(e.target.value);
+          autoSave();
+        }
+        if (e.target.id === 'metrics-year-only'){
+          state.metrics.year = Number(e.target.value);
+          autoSave();
+        }
 
         // Plan Details + Mission Summary
         if (e.target.id === 'health-score'){
@@ -726,9 +894,19 @@
       });
 
       // Metric item live input updates
-             app.addEventListener('input', (e)=>{
-         // metrics inline inputs removed
-       });
+      app.addEventListener('input', (e)=>{
+        if (e.target.closest('#metrics-items-list')){
+          const row = e.target.closest('[data-id]');
+          if (!row) return;
+          const id = Number(row.dataset.id);
+          const m = state.metrics.items.find(x=>x.id===id);
+          if (!m) return;
+          if (e.target.dataset.role === 'metric-name') m.name = e.target.value;
+          if (e.target.dataset.role === 'metric-value') m.valuePercent = Number(e.target.value||0);
+          if (e.target.dataset.role === 'metric-delta') m.deltaPercent = Number(e.target.value||0);
+          autoSave();
+        }
+      });
 
       // Stakeholder add select
       $('#add-stakeholder-select').addEventListener('change', (e)=>{
@@ -841,19 +1019,18 @@
         const periodLabel = (m.periodType==='Quarter') ? `Q${m.quarter} ${m.year}` : (m.periodType==='Month' ? m.month : `${m.year}`);
         const planOverview = [{ MissionSummary: state.missionSummary || '', Health: state.planHealth || 'green', PeriodType: m.periodType, Period: periodLabel }];
 
-                 const missionGoalsData = state.missionGoals.map(g=>({
-           Title: g.title,
-           TargetDate: g.targetDate || '',
-           Description: g.description,
-           CustomFields: (g.customFields||[]).map(cf=>`${cf.label}: ${cf.value}`).join(' | ')
-         }));
+        const missionGoalsData = state.missionGoals.map(g=>({
+          Title: g.title,
+          Description: g.description,
+          CustomFields: (g.customFields||[]).map(cf=>`${cf.label}: ${cf.value}`).join(' | ')
+        }));
         const stakeholdersData = state.stakeholders.map(s=>({ Name: s.name, Title: s.title, Email: s.email||'' }));
         const objectivesData = [
           ...state.objectives.map(o=>({ Type:'Current', Name:o.name, Status:o.status, TargetDate:o.targetDate, KPIGoal:o.kpiGoal, Challenges:o.challenges, NextSteps:o.nextSteps, Link:o.s4Link })),
           ...state.pastObjectives.map(o=>({ Type:'Past', Name:o.name, Status:o.status, TargetDate:o.targetDate, KPIGoal:o.kpiGoal, Challenges:o.challenges, NextSteps:o.nextSteps, Link:o.s4Link }))
         ];
         const valueData = state.valueRealized.map(v=>({ Type:v.type, Description:v.description, Date:v.date, Link:v.link }));
-                   const metricsData = []; // metrics panel removed
+        const metricsData = (m.items||[]).map(x=>({ PeriodType:m.periodType, Period: periodLabel, Metric:x.name, ValuePercent:x.valuePercent, DeltaVsPrevQ:x.deltaPercent }));
         
         const addSheet = (data, name) => {
           const ws = XLSX.utils.json_to_sheet(data.length?data:[{}]);
@@ -864,7 +1041,7 @@
         addSheet(objectivesData, 'Objectives');
         addSheet(valueData, 'Value Realized');
         addSheet(stakeholdersData, 'Stakeholders');
-                   // addSheet(metricsData, 'Metrics');
+        addSheet(metricsData, 'Metrics');
         
         XLSX.writeFile(wb, 'customer-success-plan.xlsx');
         showNotification('Excel exported successfully!', 'success');
@@ -904,23 +1081,23 @@
             
             <div>
               <label class="block text-sm font-medium mb-1 text-slate-600">KPI Goal</label>
-              <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
-                <p>${objective.kpiGoal || 'Not specified'}</p>
-              </div>
+                             <div class="bg-slate-50 border border-slate-200 p-3" style="border-radius:2px;">
+                 <p>${objective.kpiGoal || 'Not specified'}</p>
+               </div>
             </div>
             
             <div>
               <label class="block text-sm font-medium mb-1 text-slate-600">Challenges</label>
-              <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
-                <p>${objective.challenges || 'None identified'}</p>
-              </div>
+                             <div class="bg-slate-50 border border-slate-200 p-3" style="border-radius:2px;">
+                 <p>${objective.challenges || 'None identified'}</p>
+               </div>
             </div>
             
             <div>
               <label class="block text-sm font-medium mb-1 text-slate-600">Next Steps</label>
-              <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
-                <p>${objective.nextSteps || 'Not specified'}</p>
-              </div>
+                             <div class="bg-slate-50 border border-slate-200 p-3" style="border-radius:2px;">
+                 <p>${objective.nextSteps || 'Not specified'}</p>
+               </div>
             </div>
             
             ${objective.s4Link ? `
@@ -954,7 +1131,7 @@
           <div class="space-y-4">
             <div>
               <label class="block text-sm font-medium mb-1">Objective Name</label>
-              <select id="new-objective-name" class="text-zone p-2 w-full text-sm">
+              <select id="new-objective-name" class="text-zone p-2 w-full">
                 <option value="">Select an objective...</option>
                 ${objectiveOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
                 <option value="custom">Create a new objective...</option>
@@ -1059,10 +1236,6 @@
               <input type="text" id="mg-title" class="text-zone p-2 w-full" placeholder="Goal title">
             </div>
             <div>
-              <label class="block text-sm font-medium mb-1">Target Date</label>
-              <input type="date" id="mg-date" class="text-zone p-2 w-full">
-            </div>
-            <div>
               <label class="block text-sm font-medium mb-1">Description</label>
               <textarea id="mg-desc" class="text-zone text-area p-3 w-full" rows="3" placeholder="Goal description..."></textarea>
             </div>
@@ -1097,14 +1270,13 @@
       modal.querySelector('#mg-cancel').addEventListener('click', () => modal.remove());
       modal.querySelector('#mg-save').addEventListener('click', () => {
         const title = modal.querySelector('#mg-title').value.trim() || 'New Goal';
-        const date = modal.querySelector('#mg-date').value;
         const desc = modal.querySelector('#mg-desc').value.trim();
         const customFields = [...modal.querySelectorAll('[data-field-row]')].map((row) => {
           const label = row.querySelector('[data-role="label"]').value.trim() || 'Field';
           const value = row.querySelector('[data-role="value"]').value.trim();
           return { id: Date.now()+Math.random(), label, value };
         });
-        state.missionGoals.push({ id: Date.now(), title: title, targetDate: date, description: desc, customFields });
+        state.missionGoals.push({ id: Date.now(), title: title, description: desc, customFields });
         renderMissionGoals();
         modal.remove();
         showNotification('Mission goal added!', 'success');
@@ -1123,7 +1295,7 @@
           <div class="modal-body space-y-4">
             <div>
               <label class="block text-sm font-medium mb-1">Type</label>
-                             <select id="vr-type" class="text-zone p-2 w-full text-sm">
+              <select id="vr-type" class="text-zone p-2 w-full">
                 ${valueOptions.map(opt=>`<option>${opt}</option>`).join('')}
               </select>
             </div>
@@ -1133,7 +1305,7 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                <label class="block text-sm font-medium mb-1">Target Date</label>
+                <label class="block text-sm font-medium mb-1">Date Realized</label>
                 <input type="date" id="vr-date" class="text-zone p-2 w-full" />
               </div>
               <div>
@@ -1179,6 +1351,10 @@
               <label class="block text-sm font-medium mb-1">Title</label>
               <input type="text" id="new-stakeholder-title" class="text-zone p-2 w-full" placeholder="Enter title">
             </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Email</label>
+              <input type="email" id="new-stakeholder-email" class="text-zone p-2 w-full" placeholder="name@example.com">
+            </div>
           </div>
           <div class="flex justify-end gap-3 mt-6">
             <button id="cancel-new-stakeholder" class="btn btn-ghost">Cancel</button>
@@ -1194,13 +1370,14 @@
       modal.querySelector('#save-new-stakeholder').addEventListener('click', () => {
         const name = modal.querySelector('#new-stakeholder-name').value.trim();
         const title = modal.querySelector('#new-stakeholder-title').value.trim();
+        const email = modal.querySelector('#new-stakeholder-email').value.trim();
         
-        if (name && title) {
+        if (name && title && email) {
           const newStakeholder = {
             id: Date.now() + Math.random(),
             name: name,
             title: title,
-            email: ''
+            email: email
           };
           state.stakeholders.push(newStakeholder);
           renderStakeholders();
@@ -1213,7 +1390,7 @@
     // Notification system
     function showNotification(message, type = 'info') {
       const notification = document.createElement('div');
-      notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+      notification.className = `fixed top-4 right-4 p-4 shadow-lg z-50 ${
         type === 'success' ? 'bg-green-500 text-white' : 
         type === 'error' ? 'bg-red-500 text-white' : 
         'bg-blue-500 text-white'
@@ -1236,32 +1413,30 @@
       }
     }
     
-    function loadFromLocalStorage() {
-      try {
-        const saved = localStorage.getItem('customerSuccessPlan');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          Object.assign(state, parsed);
-          // Ensure metrics shape exists after upgrades
-          if (!state.metrics) {
-            state.metrics = {
-              periodType: 'Quarter',
-              month: new Date().toISOString().slice(0,7),
-              quarter: Math.floor((new Date().getMonth())/3)+1,
-              year: new Date().getFullYear(),
-              items: []
-            };
-          }
-          // Ensure KPIs arrays exist
-          if (Array.isArray(state.objectives)) state.objectives.forEach(o=>{ if (!Array.isArray(o.kpis)) o.kpis = []; });
-          if (Array.isArray(state.pastObjectives)) state.pastObjectives.forEach(o=>{ if (!Array.isArray(o.kpis)) o.kpis = []; });
-          if (typeof state.planHealth === 'undefined') state.planHealth = 'green';
-          if (typeof state.missionSummary === 'undefined') state.missionSummary = '';
-        }
-      } catch (error) {
-        console.warn('Could not load from localStorage:', error);
-      }
-    }
+         function loadFromLocalStorage() {
+       try {
+         const saved = localStorage.getItem('customerSuccessPlan');
+         if (saved) {
+           const parsed = JSON.parse(saved);
+           Object.assign(state, parsed);
+           // Ensure metrics shape exists after upgrades
+           if (!state.metrics) {
+             state.metrics = {
+               periodType: 'Quarter',
+               month: new Date().toISOString().slice(0,7),
+               quarter: Math.floor((new Date().getMonth())/3)+1,
+               year: new Date().getFullYear(),
+               items: []
+             };
+           }
+           if (!state.kpis) state.kpis = [];
+           if (typeof state.planHealth === 'undefined') state.planHealth = 'green';
+           if (typeof state.missionSummary === 'undefined') state.missionSummary = '';
+         }
+       } catch (error) {
+         console.warn('Could not load from localStorage:', error);
+       }
+     }
     
     // Auto-save on any state change
     function autoSave() {
@@ -1270,6 +1445,13 @@
     
     // ---------- Init ----------
     loadFromLocalStorage();
+    // Demo: ensure seeded KPIs are linked to objectives for showcase if not already
+    (function(){
+      const ids = [...(state.objectives||[]).map(o=>o.id), ...(state.pastObjectives||[]).map(o=>o.id)];
+      if ((state.kpis||[]).length && ids.length) {
+        state.kpis = state.kpis.map((k, i) => k.objectiveId ? k : ({...k, objectiveId: ids[i % ids.length]}));
+      }
+    })();
     renderAll();
     setupEvents();
     applyAutoResize();
@@ -1282,187 +1464,9 @@
       autoSave();
       applyAutoResize();
     };
-
-    // KPI Create Modal
-    function showAddKPIModal(objectiveId){
-      const modal = document.createElement('div');
-      modal.className = 'modal-overlay';
-      modal.innerHTML = `
-        <div class="modal-panel p-6 w-[520px] max-w-[90vw]">
-          <h3 class="text-lg font-semibold mb-4">Add KPI</h3>
-          <div class="space-y-3">
-            <div>
-              <label class="block text-sm font-medium mb-1">Name</label>
-              <input type="text" id="kpi-name" class="text-zone p-2 w-full" placeholder="KPI name">
-            </div>
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-sm font-medium mb-1">Current Value</label>
-                <input type="number" id="kpi-current" class="text-zone p-2 w-full" placeholder="0">
-              </div>
-              <div>
-                <label class="block text-sm font-medium mb-1">Previous Value</label>
-                <input type="number" id="kpi-prev" class="text-zone p-2 w-full" placeholder="0">
-              </div>
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Unit (optional, used only at creation)</label>
-              <input type="text" id="kpi-unit" class="text-zone p-2 w-full" placeholder="%, seconds, $ ...">
-            </div>
-          </div>
-          <div class="flex justify-end gap-3 mt-5">
-            <button class="btn btn-ghost" data-role="cancel">Cancel</button>
-            <button class="btn btn-primary" data-role="save">Save KPI</button>
-          </div>
-        </div>`;
-      document.body.appendChild(modal);
-      modal.querySelector('[data-role="cancel"]').addEventListener('click', ()=> modal.remove());
-      modal.querySelector('[data-role="save"]').addEventListener('click', ()=>{
-        const name = modal.querySelector('#kpi-name').value.trim();
-        const currentValue = Number(modal.querySelector('#kpi-current').value||0);
-        const previousValue = Number(modal.querySelector('#kpi-prev').value||0);
-        const unit = modal.querySelector('#kpi-unit').value.trim();
-        if (!name){ showNotification('Please enter a KPI name', 'error'); return; }
-        const obj = state.objectives.find(o=>o.id===objectiveId) || state.pastObjectives.find(o=>o.id===objectiveId);
-        if (!obj){ modal.remove(); return; }
-        if (!Array.isArray(obj.kpis)) obj.kpis = [];
-        obj.kpis.push({ id: Date.now()+Math.random(), name, currentValue, previousValue, unit });
-        renderObjectives();
-        modal.remove();
-        showNotification('KPI added', 'success');
-      });
-    }
-
-    // KPI Edit Modal
-    function showEditKPIModal(objectiveId, kpiId){
-      const obj = state.objectives.find(o=>o.id===objectiveId) || state.pastObjectives.find(o=>o.id===objectiveId);
-      if (!obj) return;
-      const kpi = (obj.kpis||[]).find(k=>k.id===kpiId);
-      if (!kpi) return;
-      const modal = document.createElement('div');
-      modal.className = 'modal-overlay';
-      modal.innerHTML = `
-        <div class="modal-panel p-6 w-[520px] max-w-[90vw]">
-          <h3 class="text-lg font-semibold mb-4">Edit KPI</h3>
-          <div class="space-y-3">
-            <div>
-              <label class="block text-sm font-medium mb-1">Name</label>
-              <input type="text" id="kpi-name" class="text-zone p-2 w-full" value="${kpi.name||''}">
-            </div>
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-sm font-medium mb-1">Current Value</label>
-                <input type="number" id="kpi-current" class="text-zone p-2 w-full" value="${Number(kpi.currentValue||0)}">
-              </div>
-              <div>
-                <label class="block text-sm font-medium mb-1">Previous Value</label>
-                <input type="number" id="kpi-prev" class="text-zone p-2 w-full" value="${Number(kpi.previousValue||0)}">
-              </div>
-            </div>
-            <!-- Unit intentionally not editable here per requirement -->
-          </div>
-          <div class="flex justify-end gap-3 mt-5">
-            <button class="btn btn-ghost" data-role="cancel">Cancel</button>
-            <button class="btn btn-primary" data-role="save">Save</button>
-          </div>
-        </div>`;
-      document.body.appendChild(modal);
-      modal.querySelector('[data-role="cancel"]').addEventListener('click', ()=> modal.remove());
-      modal.querySelector('[data-role="save"]').addEventListener('click', ()=>{
-        kpi.name = modal.querySelector('#kpi-name').value.trim() || kpi.name;
-        kpi.currentValue = Number(modal.querySelector('#kpi-current').value||0);
-        kpi.previousValue = Number(modal.querySelector('#kpi-prev').value||0);
-        renderObjectives();
-        modal.remove();
-        showNotification('KPI updated', 'success');
-      });
-    }
-
-    function showEditMissionGoalModal(goalId){
-      const goal = state.missionGoals.find(g=>g.id===goalId);
-      if (!goal) return;
-      const modal = document.createElement('div');
-      modal.className = 'modal-overlay';
-      modal.innerHTML = `
-        <div class="modal-panel w-[650px] max-w-[90vw]">
-          <div class="modal-header flex items-center justify-between">
-            <h3 class="text-lg font-semibold">Edit Mission Goal</h3>
-            <button id="mg-edit-close" class="text-slate-400 hover:text-slate-600">&times;</button>
-          </div>
-          <div class="modal-body space-y-4">
-            <div>
-              <label class="block text-sm font-medium mb-1">Title</label>
-              <input type="text" id="mg-edit-title" class="text-zone p-2 w-full" value="${goal.title}">
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Target Date</label>
-              <input type="date" id="mg-edit-date" class="text-zone p-2 w-full" value="${goal.targetDate||''}">
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Description</label>
-              <textarea id="mg-edit-desc" class="text-zone text-area p-3 w-full" rows="3">${goal.description||''}</textarea>
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-2">Custom Fields</label>
-              <div id="mg-edit-fields" class="space-y-2">
-                ${(goal.customFields||[]).map(f=>`
-                  <div class="flex items-center gap-2" data-field-row data-field-id="${f.id}">
-                    <input class="text-zone p-2 text-xs font-semibold" value="${f.label}" placeholder="Field name" data-role="label" />
-                    <input class="text-zone p-2 text-xs flex-1" value="${f.value||''}" placeholder="Value or https://link" data-role="value" />
-                    <button class="text-slate-400 hover:text-red-600" title="Remove">&times;</button>
-                  </div>
-                `).join('')}
-              </div>
-              <button id="mg-edit-add-field" class="btn btn-ghost mt-2">+ Add Custom Field</button>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button id="mg-edit-cancel" class="btn btn-ghost">Cancel</button>
-            <button id="mg-edit-save" class="btn btn-primary">Save</button>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(modal);
-      applyAutoResize(modal);
-      const fieldsContainer = modal.querySelector('#mg-edit-fields');
-      const addFieldRow = () => {
-        const row = document.createElement('div');
-        row.className = 'flex items-center gap-2';
-        row.setAttribute('data-field-row','');
-        row.innerHTML = `
-          <input class="text-zone p-2 text-xs font-semibold" placeholder="Field name" data-role="label" />
-          <input class="text-zone p-2 text-xs flex-1" placeholder="Value or https://link" data-role="value" />
-          <button class="text-slate-400 hover:text-red-600" title="Remove">&times;</button>
-        `;
-        row.querySelector('button').addEventListener('click', ()=> row.remove());
-        fieldsContainer.appendChild(row);
-      };
-      fieldsContainer.querySelectorAll('[data-field-row] button').forEach(btn=>{
-        btn.addEventListener('click', (ev)=> ev.currentTarget.closest('[data-field-row]').remove());
-      });
-      modal.querySelector('#mg-edit-add-field').addEventListener('click', addFieldRow);
-      modal.querySelector('#mg-edit-close').addEventListener('click', ()=> modal.remove());
-      modal.querySelector('#mg-edit-cancel').addEventListener('click', ()=> modal.remove());
-      modal.querySelector('#mg-edit-save').addEventListener('click', ()=>{
-        const title = modal.querySelector('#mg-edit-title').value.trim() || goal.title;
-        const date = modal.querySelector('#mg-edit-date').value;
-        const desc = modal.querySelector('#mg-edit-desc').value.trim();
-        const customFields = [...modal.querySelectorAll('[data-field-row]')].map((row) => {
-          const idAttr = row.getAttribute('data-field-id');
-          const id = idAttr ? Number(idAttr) : Date.now()+Math.random();
-          const label = row.querySelector('[data-role="label"]').value.trim() || 'Field';
-          const value = row.querySelector('[data-role="value"]').value.trim();
-          return { id, label, value };
-        });
-        goal.title = title;
-        goal.targetDate = date;
-        goal.description = desc;
-        goal.customFields = customFields;
-        renderMissionGoals();
-        modal.remove();
-        showNotification('Mission goal updated!', 'success');
-      });
-    }
   </script>
-</body>
+<div data-netlify-deploy-id="689c270a4d10af0008374ef2" data-netlify-site-id="0c217ff5-db63-4bc3-8e7c-d7c1212e5343" data-vcs="github" style="position:fixed">
+  
+  <script async src="/.netlify/scripts/cdp"></script>
+</div></body>
 </html>
