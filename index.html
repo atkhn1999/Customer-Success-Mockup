@@ -320,6 +320,10 @@
       return 220;
     }
 
+    // UI edit mode globals (declared early to avoid TDZ in renderers)
+    var uiEditMode = false;
+    var stateSnapshot = null;
+
     // ---------- Renderers ----------
     function renderMissionGoals(){
       const c = $('#mission-goals-container');
@@ -561,184 +565,7 @@
     }
 
     function renderKPISectionRemoved(){ /* removed */ }
-              return; // no-op
-
-      const kpiRows = kpis.map(k => {
-        const { entry } = getKpiEntryForCurrent(k);
-        const delta = Math.round((entry.delta||0)*10)/10;
-        const arrow = (delta||0) >= 0 ? '▲' : '▼';
-        const deltaColor = (delta||0) >= 0 ? 'text-emerald-600' : 'text-rose-600';
-        const linkedObj = k.objectiveId ? findObjectiveById(k.objectiveId) : null;
-        const linkedHtml = linkedObj ? `<div class="text-xs text-slate-500">Linked: <button class="linkish" data-role="view-linked" data-oid="${linkedObj.id}">${linkedObj.name}</button></div>` : '';
-        return `
-          <div class="flex items-center justify-between border p-3 mb-2" data-id="${k.id}">
-            <div class="min-w-0">
-              <div class="font-semibold truncate">${k.name}</div>
-              ${linkedHtml}
-            </div>
-            <div class="flex items-center gap-4">
-              <div class="text-right"> 
-                <div class="text-xl font-bold">${entry.current ?? 0}</div>
-                <div class="text-xs ${deltaColor}">${arrow} ${delta}% vs prev</div>
-              </div>
-              ${uiEditMode ? '<button class="text-slate-400 hover:text-slate-600" data-role="edit-kpi" title="Edit">✎</button>':''}
-              ${uiEditMode ? '<button class="text-slate-400 hover:text-red-600" data-role="remove-kpi">&times;</button>':''}
-            </div>
-          </div>`;
-      }).join('');
-
-      root.innerHTML = `
-        <div class="flex items-center justify-between mb-3"> 
-          <h3 class="text-lg font-semibold">KPIs</h3>
-          <button class="btn ${uiEditMode ? 'bg-gradient-to-r from-rose-600 to-pink-600 text-white border-0' : 'btn-outline'}\" id="kpi-add-btn" ${uiEditMode?'':'disabled'}>+ Add KPI</button>
-        </div>
-        <div class="space-y-2" id="kpi-list">${kpiRows || '<div class=\\"text-slate-500 text-sm\\">No KPIs yet.</div>'}</div>
-      `;
-
-      root.addEventListener('click', (e)=>{
-        if (e.target && e.target.matches('[data-role="remove-kpi"]')){
-          if (!uiEditMode) return;
-          const id = Number(e.target.closest('[data-id]').dataset.id);
-          state.kpis = (state.kpis||[]).filter(x=>x.id!==id);
-          renderObjectives();
-          autoSave();
-        }
-        if (e.target && e.target.matches('[data-role="view-linked"]')){
-          const oid = Number(e.target.getAttribute('data-oid'));
-          const obj = findObjectiveById(oid);
-          if (obj) showObjectiveDetailsModal(obj);
-        }
-        if (e.target && e.target.id === 'kpi-add-btn'){
-          if (!uiEditMode) return;
-          showNewKpiModal();
-        }
-        if (e.target && e.target.matches('[data-role="edit-kpi"]')){
-          if (!uiEditMode) return;
-          const row = e.target.closest('[data-id], [data-kpi-id]');
-          const id = Number((row.dataset.id || row.dataset.kpiId));
-          const kpi = (state.kpis||[]).find(x=>x.id===id);
-          if (kpi) showEditKpiModal(kpi);
-        }
-      });
-    }
-
-    // KPI Modals
-    function showNewKpiModal(prelinkedObjectiveId=null){
-      const modal = document.createElement('div');
-      modal.className = 'modal-overlay';
-      const objectiveOptions = [...(state.objectives||[]), ...(state.pastObjectives||[])]
-        .map(o=>`<option value="${o.id}" ${prelinkedObjectiveId===o.id?'selected':''}>${o.name}</option>`).join('');
-      modal.innerHTML = `
-        <div class="modal-panel w-[560px] max-w-[90vw] relative">
-          <button class="absolute top-2 right-2 text-slate-400 hover:text-slate-600" data-role="modal-x">✕</button>
-          <div class="modal-header">
-            <h3 class="text-lg font-semibold">New KPI</h3>
-          </div>
-          <div class="modal-body space-y-3">
-            <div>
-              <label class="block text-sm font-medium mb-1">KPI Type</label>
-              <select id="nkpi-type" class="text-zone p-2 w-full">${KPI_TYPES.map(t=>`<option value="${t.key}">${t.label}</option>`).join('')}</select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Unit</label>
-              <input id="nkpi-unit" class="text-zone p-2 w-full bg-slate-50 text-slate-500" readonly />
-            </div>
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-sm font-medium mb-1">Current Value</label>
-                <input type="number" id="nkpi-current" class="text-zone p-2 w-full" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium mb-1">Previous Value</label>
-                <input type="number" id="nkpi-previous" class="text-zone p-2 w-full" />
-              </div>
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Link Objective (optional)</label>
-              <select id="nkpi-obj" class="text-zone p-2 w-full"><option value="">— None —</option>${objectiveOptions}</select>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-ghost" data-role="cancel">Cancel</button>
-            <button class="btn btn-primary">Save KPI</button>
-          </div>
-        </div>`;
-      document.body.appendChild(modal);
-      const typeSel = modal.querySelector('#nkpi-type');
-      const unitInput = modal.querySelector('#nkpi-unit');
-      const applyUnit = () => {
-        const t = KPI_TYPES.find(x=>x.key===typeSel.value);
-        unitInput.value = t ? t.unit : '';
-      };
-      typeSel.addEventListener('change', applyUnit);
-      applyUnit();
-      modal.querySelector('[data-role="modal-x"]').addEventListener('click', ()=> modal.remove());
-      modal.querySelector('[data-role="cancel"]').addEventListener('click', ()=> modal.remove());
-      modal.querySelector('.btn.btn-primary').addEventListener('click', ()=>{
-        const t = KPI_TYPES.find(x=>x.key===typeSel.value);
-        if (!t) return;
-        const current = Number(modal.querySelector('#nkpi-current').value || 0);
-        const previous = Number(modal.querySelector('#nkpi-previous').value || 0);
-        const delta = computeDeltaPercent(current, previous);
-        const series = {};
-        series[getCurrentPeriodKey()] = { current, previous, delta };
-        const objSel = modal.querySelector('#nkpi-obj');
-        const objectiveId = prelinkedObjectiveId || (objSel && objSel.value ? Number(objSel.value) : null);
-        state.kpis = state.kpis || [];
-        state.kpis.unshift({ id: Date.now()+Math.random(), typeKey: t.key, name: t.label, unit: t.unit, series, objectiveId });
-        renderObjectives();
-        autoSave();
-        modal.remove();
-        showNotification('KPI created', 'success');
-      });
-    }
-
-    function showEditKpiModal(kpi){
-      const modal = document.createElement('div');
-      modal.className = 'modal-overlay';
-      const { key, entry } = getKpiEntryForCurrent(kpi);
-      modal.innerHTML = `
-        <div class="modal-panel w-[560px] max-w-[90vw] relative">
-          <button class="absolute top-2 right-2 text-slate-400 hover:text-slate-600" data-role="modal-x">✕</button>
-          <div class="modal-header">
-            <h3 class="text-lg font-semibold">Edit KPI</h3>
-          </div>
-          <div class="modal-body space-y-3">
-            <div>
-              <label class="block text-sm font-medium mb-1">KPI Type</label>
-              <input class="text-zone p-2 w-full bg-slate-50 text-slate-500" value="${kpi.name}" readonly />
-            </div>
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-sm font-medium mb-1">Current Value</label>
-                <input type="number" id="ekpi-current" class="text-zone p-2 w-full" value="${entry.current ?? 0}" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium mb-1">Previous Value</label>
-                <input type="number" id="ekpi-previous" class="text-zone p-2 w-full" value="${entry.previous ?? 0}" />
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-ghost" data-role="cancel">Cancel</button>
-            <button class="btn btn-primary">Save</button>
-          </div>
-        </div>`;
-      document.body.appendChild(modal);
-      modal.querySelector('[data-role="modal-x"]').addEventListener('click', ()=> modal.remove());
-      modal.querySelector('[data-role="cancel"]').addEventListener('click', ()=> modal.remove());
-      modal.querySelector('.btn.btn-primary').addEventListener('click', ()=>{
-        const current = Number(modal.querySelector('#ekpi-current').value || 0);
-        const previous = Number(modal.querySelector('#ekpi-previous').value || 0);
-        const delta = computeDeltaPercent(current, previous);
-        ensureKpiSeries(kpi);
-        kpi.series[key] = { current, previous, delta };
-        renderObjectives();
-        autoSave();
-        modal.remove();
-        showNotification('KPI updated', 'success');
-      });
-    }
+    /* KPI sidebar removed */
 
     function renderMetrics(){ /* removed - replaced by renderPeriodControls */
               const wrap = document.createElement('div'); /* dead anchor */
@@ -1671,9 +1498,6 @@
     };
 
     // Edit mode UI state
-    let uiEditMode = false;
-    let stateSnapshot = null;
-    const deepClone = (obj) => JSON.parse(JSON.stringify(obj));
     function setEditMode(on){
       uiEditMode = !!on;
       const enterBtn = document.getElementById('enter-edit-mode');
