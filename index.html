@@ -73,6 +73,17 @@
     .btn-outline:hover { background:#f1f5f9; }
     .btn-ghost { background:transparent; color:#0f172a; }
     .btn-ghost:hover { background:rgba(15,23,42,0.06); }
+    /* Compact, readable select styling */
+    select.text-zone { padding: .375rem .5rem; font-size: .95rem; min-height: 2.25rem; }
+    
+    /* KPI display styles */
+    .kpi-row { display:flex; align-items:center; justify-content:space-between; gap:.75rem; border:1px solid rgb(226 232 240); background:#f8fafc; border-radius:12px; padding:.5rem .75rem; }
+    .kpi-name { font-weight:600; }
+    .kpi-values { display:flex; align-items:baseline; gap:.5rem; color:#475569; }
+    .kpi-delta { font-weight:700; }
+    .kpi-up { color:#047857; }
+    .kpi-down { color:#b91c1c; }
+    .field-label { font-size:.75rem; font-weight:600; color:#475569; }
   </style>
 </head>
 <body>
@@ -138,11 +149,11 @@
 
       <!-- Right -->
       <div class="lg:col-span-1 space-y-8">
-        <section id="metrics-section" class="card p-6"></section>
+        <!-- Performance Metrics panel removed per requirements -->
         <section class="card p-6">
           <h3 class="text-lg font-semibold mb-3">Plan Details</h3>
           <label class="block text-sm font-medium mb-1">Overall Health</label>
-          <select id="health-score" class="text-zone p-2">
+                     <select id="health-score" class="text-zone p-2 text-sm">
             <option value="green">🟢 On Track</option>
             <option value="yellow">🟡 Needs Attention</option>
             <option value="red">🔴 At Risk</option>
@@ -154,7 +165,7 @@
           <div class="space-y-4">
             <div>
               <label class="block text-sm font-medium mb-1">Industry</label>
-              <select id="filter-industry" class="text-zone colored-filter p-2">
+                             <select id="filter-industry" class="text-zone colored-filter p-2 text-sm">
                 <option>Technology</option>
                 <option>Finance</option>
                 <option>Healthcare</option>
@@ -162,7 +173,7 @@
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Segment</label>
-              <select id="filter-segment" class="text-zone colored-filter p-2">
+                             <select id="filter-segment" class="text-zone colored-filter p-2 text-sm">
                 <option>SMB</option>
                 <option>MM</option>
                 <option>Enterprise</option>
@@ -170,7 +181,7 @@
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Products Owned</label>
-              <select id="filter-products" class="text-zone colored-filter p-2">
+                             <select id="filter-products" class="text-zone colored-filter p-2 text-sm">
                 <option value="">Select a product...</option>
                 <option>Content Library</option>
                 <option>AI</option>
@@ -188,7 +199,7 @@
         <section class="card p-6">
           <h3 class="text-lg font-semibold mb-3">Key Stakeholders</h3>
           <div id="stakeholders-container" class="space-y-3 mb-3"></div>
-          <select id="add-stakeholder-select" class="text-zone p-2">
+                     <select id="add-stakeholder-select" class="text-zone p-2 text-sm">
             <option value="">+ Add a contact...</option>
             <option value="new">Add New Stakeholder...</option>
           </select>
@@ -228,8 +239,8 @@
 
     const state = {
       missionGoals: [
-        { id: Date.now(), title: 'Time Savings', description: 'Reduce time spent on manual tasks by 20% through automation and streamlined workflows.', customFields: [{id: 1, label: 'Collateral', value: 'https://example.com/deck'}] },
-        { id: Date.now() + 1, title: 'Winning More Business', description: 'Increase the sales win rate by 10% by leveraging improved content and faster response times.', customFields: [] }
+        { id: Date.now(), title: 'Time Savings', targetDate: '', description: 'Reduce time spent on manual tasks by 20% through automation and streamlined workflows.', customFields: [{id: 1, label: 'Collateral', value: 'https://example.com/deck'}] },
+        { id: Date.now() + 1, title: 'Winning More Business', targetDate: '', description: 'Increase the sales win rate by 10% by leveraging improved content and faster response times.', customFields: [] }
       ],
       stakeholders: [mockContacts[0], mockContacts[1]],
       objectives: [{
@@ -237,12 +248,14 @@
         kpiGoal: 'Reduce average response time from 45s to 30s.',
         challenges: 'Team members are still learning the new workflow.',
         nextSteps: 'Hold a workshop on advanced features.', s4Link: 'https://s4.example.com/ticket/12345',
+        kpis: [],
         editing: false, expanded: false
       }, {
         id: Date.now() + 2, name: 'Content library clean up', targetDate: '2025-10-31', status: 'Not Started',
         kpiGoal: 'Archive 50% of obsolete content.',
         challenges: 'Lack of clear ownership for older content.',
         nextSteps: 'Work with Samantha Ray to identify content owners.', s4Link: 'https://s4.example.com/ticket/12346',
+        kpis: [],
         editing: false, expanded: false
       }],
       pastObjectives: [],
@@ -276,6 +289,47 @@
       return { dot:'bg-green-500', icon:'🟢' };
     };
 
+    // KPI helpers
+    function computeDeltaPercent(previousValue, currentValue){
+      const prev = Number(previousValue||0);
+      const curr = Number(currentValue||0);
+      if (prev === 0){
+        if (curr === 0) return 0;
+        return 100;
+      }
+      return ((curr - prev) / prev) * 100;
+    }
+    function kpiListHTML(objective){
+      const kpis = Array.isArray(objective.kpis) ? objective.kpis : [];
+      const list = kpis.map(k => {
+        const delta = computeDeltaPercent(k.previousValue, k.currentValue);
+        const isUp = delta >= 0;
+        const deltaClass = isUp ? 'kpi-up' : 'kpi-down';
+        const arrow = isUp ? '▲' : '▼';
+        const deltaText = `${arrow} ${Math.abs(delta).toFixed(1)}%`;
+        return `
+          <div class="kpi-row" data-kpi-id="${k.id}">
+            <div class="kpi-name">${k.name||'Untitled KPI'}</div>
+            <div class="kpi-values">
+              <span>Current: <strong>${Number(k.currentValue||0)}</strong></span>
+              <span class="text-slate-400">Prev: ${Number(k.previousValue||0)}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="kpi-delta ${deltaClass}">${deltaText}</span>
+              <button class="btn btn-outline btn-sm" data-role="edit-kpi">Edit</button>
+            </div>
+          </div>`;
+      }).join('');
+      return `
+        <div class="mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-sm font-semibold">KPIs</h4>
+            <button class="btn btn-success btn-sm" data-role="add-kpi">+ Add KPI</button>
+          </div>
+          ${kpis.length ? list : '<div class="text-slate-500 text-sm">No KPIs yet.</div>'}
+        </div>`;
+    }
+
     // Auto-resize and responsive preview
     function autoResizeTextarea(textarea) {
       if (!textarea) return;
@@ -297,22 +351,31 @@
       const c = $('#mission-goals-container');
       c.innerHTML = state.missionGoals.map(g=>`
         <div id="mission-goal-${g.id}" class="card p-4" data-id="${g.id}">
-          <div class="flex items-center justify-between gap-2">
-            <input class="text-zone p-2 font-semibold" value="${g.title}" data-role="goal-title" />
-            <button class="text-slate-400 hover:text-red-600" data-role="remove-goal">&times;</button>
-          </div>
-          <textarea class="text-zone text-area p-3 mt-2 text-sm" rows="3" placeholder="Goal description..." data-role="goal-desc">${g.description||''}</textarea>
-          <div class="mt-3 space-y-2" data-role="custom-fields">
-            ${(g.customFields||[]).map(f=>`
-              <div class="flex items-center gap-2" data-field-id="${f.id}">
-                <input class="text-zone p-2 text-xs font-semibold" value="${f.label}" placeholder="Field name" data-role="cf-label" />
-                <input class="text-zone p-2 text-xs flex-1" value="${f.value||''}" placeholder="Value or https://link" data-role="cf-value" />
-                <a href="${/^https?:\/\//.test(f.value)?f.value:'#'}" target="_blank" class="${/^https?:\/\//.test(f.value)?'linkish':'pointer-events-none opacity-40'} text-xs">Attach</a>
-                <button class="text-slate-400 hover:text-red-600" title="Remove" data-role="remove-cf">🗑️</button>
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex-1">
+              <div class="flex items-center justify-between">
+                <h3 class="font-semibold text-lg">${g.title}</h3>
+                <div class="text-sm text-slate-600">
+                  <span class="field-label mr-2">Target Date</span>
+                  <span>${g.targetDate || 'Not set'}</span>
+                </div>
               </div>
-            `).join('')}
+              <p class="text-sm text-slate-700 mt-2">${g.description||'<span class=\'text-slate-400\'>No description</span>'}</p>
+              ${(g.customFields&&g.customFields.length)?`
+                <div class="mt-3 space-y-2">
+                  ${(g.customFields||[]).map(f=>`
+                    <div class="flex items-center gap-2 text-sm" data-field-id="${f.id}">
+                      <span class="px-2 py-1 bg-slate-100 rounded border text-xs font-semibold">${f.label}</span>
+                      ${/^https?:\/\//.test(f.value) ? `<a href="${f.value}" target="_blank" class="linkish">${f.value}</a>` : `<span class="text-slate-600">${f.value||''}</span>`}
+                    </div>
+                  `).join('')}
+                </div>`:''}
+            </div>
+            <div class="flex items-center gap-2">
+              <button class="btn btn-outline btn-sm" data-role="edit-goal">Edit</button>
+              <button class="text-slate-400 hover:text-red-600" data-role="remove-goal" title="Remove">&times;</button>
+            </div>
           </div>
-          <button class="text-cyan-700 font-semibold mt-2" data-role="add-cf">+ Add Custom Field</button>
         </div>
       `).join('');
       applyAutoResize(c);
@@ -323,7 +386,7 @@
       return `
         <div id="value-${item.id}" class="card p-4" data-id="${item.id}">
           <div class="flex items-center justify-between">
-            <select class="text-zone p-2 text-sm font-semibold value-type-select">
+                         <select class="text-zone p-2 text-sm value-type-select">
               ${valueOptions.map(opt=>`<option ${opt===item.type?'selected':''}>${opt}</option>`).join('')}
             </select>
             <button class="text-slate-400 hover:text-slate-600" data-role="remove-value">&times;</button>
@@ -332,12 +395,12 @@
             <label class="block text-xs font-medium mb-1">Description</label>
             <textarea class="text-zone text-area p-3 text-sm" rows="3" data-role="value-desc">${item.description||''}</textarea>
           </div>
-          <div class="grid grid-cols-2 gap-3 mt-3">
-            <div>
-              <label class="block text-xs font-medium mb-1">Date Realized</label>
-              <input type="date" value="${item.date||''}" class="text-zone p-2" data-role="value-date" />
-            </div>
-            <div>
+                       <div class="grid grid-cols-2 gap-3 mt-3">
+              <div>
+                <label class="block text-xs font-medium mb-1">Target Date</label>
+                <input type="date" value="${item.date||''}" class="text-zone p-2" data-role="value-date" />
+              </div>
+              <div>
               <label class="block text-xs font-medium mb-1">Reference Link</label>
               <input type="text" value="${item.link||''}" placeholder="https://" class="text-zone p-2" data-role="value-link" />
             </div>
@@ -370,7 +433,7 @@
                   <select class="text-zone p-1 text-xs ${statusCls}" data-role="edit-status">
                     ${['Not Started','In Progress','At Risk','Completed'].map(s=>`<option ${o.status===s?'selected':''}>${s}</option>`).join('')}
                   </select>
-                  <input type="date" class="text-zone p-1 text-sm w-auto" value="${o.targetDate||''}" data-role="edit-date" />
+                                     <div class="flex items-center gap-2 text-sm text-slate-700"><span class="field-label">Target Date</span><input type="date" class="text-zone p-1 text-sm w-auto" value="${o.targetDate||''}" data-role="edit-date" /></div>
                 </div>
               </div>
               <div class="flex items-center gap-2">
@@ -407,10 +470,13 @@
           <div class="flex justify-between items-start">
             <div>
               <h3 class="font-semibold text-lg flex items-center"><span class="health-dot ${h.dot}"></span>${o.name}</h3>
-              <div class="flex items-center mt-2 gap-2">
-                <span class="status-pill ${statusCls}">${o.status}</span>
-                <input type="date" class="text-zone p-1 text-sm w-auto" value="${o.targetDate||''}" data-role="quick-date" />
-              </div>
+                           <div class="flex items-center mt-2 gap-2">
+               <span class="status-pill ${statusCls}">${o.status}</span>
+               <div class="flex items-center gap-2 text-sm text-slate-700">
+                 <span class="field-label">Target Date</span>
+                 <input type="date" class="text-zone p-1 text-sm w-auto" value="${o.targetDate||''}" data-role="quick-date" />
+               </div>
+             </div>
             </div>
             <div class="flex items-center gap-2">
               <button class="btn btn-ghost btn-sm" data-role="toggle-expand">${o.expanded?'Hide preview':'Show more'}</button>
@@ -439,10 +505,12 @@
                 <div class="text-xs font-semibold text-slate-600 mb-1">Links</div>
                 ${o.s4Link ? `<a class="linkish text-sm" href="${o.s4Link}" target="_blank">Open S4</a>`: '<div class="text-sm text-slate-400">No links</div>'}
               </div>
-            </div>` : ''}
+                      </div>` : ''}
+
+          ${kpiListHTML(o)}
         </div>`;
     }
-
+ 
     function renderObjectives(){
       const cur = $('#objectives-container');
       cur.innerHTML = state.objectives.map(objectiveCardHTML).join('') || '<p class="text-slate-500 text-center py-4">No active objectives.</p>';
@@ -476,67 +544,18 @@
     function renderMetrics(){
       const wrap = $('#metrics-section');
       if (!wrap) return;
-      const m = state.metrics;
-      const active = (t) => m.periodType===t ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm';
+                   const m = state.metrics;
       const periodControls = (
-        m.periodType === 'Month' ? `
-          <div class="mt-3">
-            <label class="block text-sm font-medium mb-1">Month</label>
-            <input type="month" id="metrics-month" class="text-zone p-2 w-full" value="${m.month}">
-          </div>` :
-        m.periodType === 'Quarter' ? `
-          <div class="mt-3 grid grid-cols-2 gap-2">
-            <div>
-              <label class="block text-sm font-medium mb-1">Quarter</label>
-              <select id="metrics-quarter" class="text-zone p-2 w-full">
-                ${[1,2,3,4].map(q=>`<option value="${q}" ${Number(m.quarter)===q?'selected':''}>Q${q}</option>`).join('')}
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Year</label>
-              <input type="number" id="metrics-year" class="text-zone p-2 w-full" value="${m.year}">
-            </div>
-          </div>` : `
-          <div class="mt-3">
-            <label class="block text-sm font-medium mb-1">Year</label>
-            <input type="number" id="metrics-year-only" class="text-zone p-2 w-full" value="${m.year}">
-          </div>`
-      );
+                 ''
 
-      const items = (m.items||[]).map(it=>`
-        <div class="flex items-center gap-2 p-2 border rounded-lg" data-id="${it.id}">
-          <input class="text-zone p-2 flex-1" placeholder="Metric name" value="${it.name||''}" data-role="metric-name" />
-          <div class="flex items-center gap-1">
-            <input type="number" class="text-zone p-2 w-20" value="${it.valuePercent||0}" min="0" max="999" step="1" data-role="metric-value" />
-            <span class="text-slate-500">%</span>
-          </div>
-          <div class="flex items-center gap-1 text-emerald-700">
-            <span class="text-slate-500">Δ</span>
-            <input type="number" class="text-zone p-2 w-16" value="${it.deltaPercent||0}" step="1" data-role="metric-delta" />
-            <span class="text-slate-500">%</span>
-            <span class="text-xs text-slate-500">vs prev Q</span>
-          </div>
-          <button class="text-slate-400 hover:text-red-600" data-role="remove-metric" title="Remove">&times;</button>
-        </div>
-      `).join('');
+             const items = '';
 
       wrap.innerHTML = `
-        <h3 class="text-lg font-semibold mb-3">Performance Metrics</h3>
-        <div class="flex items-center gap-2">
-          <button class="${active('Month')}" data-role="set-period-type" data-value="Month">Month</button>
-          <button class="${active('Quarter')}" data-role="set-period-type" data-value="Quarter">Quarter</button>
-          <button class="${active('Year')}" data-role="set-period-type" data-value="Year">Year</button>
-        </div>
-        ${periodControls}
-        <div class="mt-4 space-y-2" id="metrics-items-list">
-          ${items || '<div class="text-slate-500 text-sm">No metrics yet.</div>'}
-        </div>
-        <div class="mt-3">
-          <button class="btn btn-success" data-role="add-metric">+ Add Metric</button>
-        </div>
-      `;
-      autoSave();
-    }
+                 <h3 class="text-lg font-semibold mb-3">Performance Metrics</h3>
+         <div class="text-slate-500 text-sm">This panel has been removed.</div>
+       `;
+       autoSave();
+     }
 
     function renderAll(){
       renderMissionGoals();
@@ -578,19 +597,14 @@
         }
 
         // Metrics actions
-        if (e.target.matches('[data-role="set-period-type"]')){
+                if (e.target.matches('[data-role="set-period-type"]')){
           state.metrics.periodType = e.target.dataset.value;
           renderMetrics();
         }
-        if (e.target.matches('[data-role="add-metric"]')){
-          state.metrics.items.push({ id: Date.now()+Math.random(), name: 'New Metric', valuePercent: 0, deltaPercent: 0 });
-          renderMetrics();
-        }
-        if (e.target && e.target.matches('[data-role="remove-metric"]')){
-          const id = Number(e.target.closest('[data-id]').dataset.id);
-          state.metrics.items = state.metrics.items.filter(m=>m.id!==id);
-          renderMetrics();
-        }
+        // Metric item actions removed with panel
+        if (e.target && e.target.matches('[data-role="remove-metric"]')){}
+        if (e.target.matches('[data-role="add-metric"]')){}
+        
 
         // Value list actions
         if (e.target.matches('[data-role="remove-value"]')){
@@ -605,20 +619,9 @@
           const i = state.missionGoals.findIndex(g=>g.id===id);
           if (i>-1){ state.missionGoals.splice(i,1); renderMissionGoals(); }
         }
-        if (e.target.matches('[data-role="add-cf"]')){
+        if (e.target.matches('[data-role="edit-goal"]')){
           const id = Number(card.dataset.id);
-          const g = state.missionGoals.find(x=>x.id===id);
-          if (!g.customFields) g.customFields = [];
-          g.customFields.push({id:Date.now()+Math.random(), label:'New Field', value:''});
-          renderMissionGoals();
-        }
-        if (e.target.matches('[data-role="remove-cf"]')){
-          const id = Number(card.dataset.id);
-          const fieldWrap = e.target.closest('[data-field-id]');
-          const fid = Number(fieldWrap.dataset.fieldId);
-          const g = state.missionGoals.find(x=>x.id===id);
-          g.customFields = (g.customFields||[]).filter(f=>f.id!==fid);
-          renderMissionGoals();
+          showEditMissionGoalModal(id);
         }
 
         // Objective actions
@@ -673,6 +676,19 @@
           state.stakeholders = state.stakeholders.filter(s=>s.id!==id);
           renderStakeholders();
         }
+        // KPI actions on objective card
+        if (e.target.matches('[data-role="add-kpi"]')){
+          const id = Number(card.dataset.id);
+          showAddKPIModal(id);
+        }
+        if (e.target.matches('[data-role="edit-kpi"]')){
+          const objId = Number(card.dataset.id);
+          const kpiRow = e.target.closest('[data-kpi-id]');
+          if (kpiRow){
+            const kpiId = Number(kpiRow.getAttribute('data-kpi-id'));
+            showEditKPIModal(objId, kpiId);
+          }
+        }
       });
 
       // Global changes
@@ -702,28 +718,7 @@
           }
         }
 
-        // mission goal inline edits
-        if (e.target.matches('[data-role="goal-title"]')){
-          const id = Number(e.target.closest('[data-id]').dataset.id);
-          const g = state.missionGoals.find(x=>x.id===id); if (g) g.title = e.target.value;
-          autoSave();
-        }
-        if (e.target.matches('[data-role="goal-desc"]')){
-          const id = Number(e.target.closest('[data-id]').dataset.id);
-          const g = state.missionGoals.find(x=>x.id===id); if (g) g.description = e.target.value;
-          autoSave();
-        }
-        if (e.target.matches('[data-role="cf-label"], [data-role="cf-value"]')){
-          const id = Number(e.target.closest('[data-id]').dataset.id);
-          const fid = Number(e.target.closest('[data-field-id]').dataset.fieldId);
-          const g = state.missionGoals.find(x=>x.id===id);
-          const f = (g.customFields||[]).find(y=>y.id===fid);
-          if (f){
-            if (e.target.dataset.role==='cf-label') f.label = e.target.value;
-            if (e.target.dataset.role==='cf-value') f.value = e.target.value;
-            autoSave();
-          }
-        }
+        // Mission goals are edited via modal; no inline edit handlers
 
         // Value edits
         if (e.target.closest('#value-container')){
@@ -764,19 +759,9 @@
       });
 
       // Metric item live input updates
-      app.addEventListener('input', (e)=>{
-        if (e.target.closest('#metrics-items-list')){
-          const row = e.target.closest('[data-id]');
-          if (!row) return;
-          const id = Number(row.dataset.id);
-          const m = state.metrics.items.find(x=>x.id===id);
-          if (!m) return;
-          if (e.target.dataset.role === 'metric-name') m.name = e.target.value;
-          if (e.target.dataset.role === 'metric-value') m.valuePercent = Number(e.target.value||0);
-          if (e.target.dataset.role === 'metric-delta') m.deltaPercent = Number(e.target.value||0);
-          autoSave();
-        }
-      });
+             app.addEventListener('input', (e)=>{
+         // metrics inline inputs removed
+       });
 
       // Stakeholder add select
       $('#add-stakeholder-select').addEventListener('change', (e)=>{
@@ -889,18 +874,19 @@
         const periodLabel = (m.periodType==='Quarter') ? `Q${m.quarter} ${m.year}` : (m.periodType==='Month' ? m.month : `${m.year}`);
         const planOverview = [{ MissionSummary: state.missionSummary || '', Health: state.planHealth || 'green', PeriodType: m.periodType, Period: periodLabel }];
 
-        const missionGoalsData = state.missionGoals.map(g=>({
-          Title: g.title,
-          Description: g.description,
-          CustomFields: (g.customFields||[]).map(cf=>`${cf.label}: ${cf.value}`).join(' | ')
-        }));
+                 const missionGoalsData = state.missionGoals.map(g=>({
+           Title: g.title,
+           TargetDate: g.targetDate || '',
+           Description: g.description,
+           CustomFields: (g.customFields||[]).map(cf=>`${cf.label}: ${cf.value}`).join(' | ')
+         }));
         const stakeholdersData = state.stakeholders.map(s=>({ Name: s.name, Title: s.title, Email: s.email||'' }));
         const objectivesData = [
           ...state.objectives.map(o=>({ Type:'Current', Name:o.name, Status:o.status, TargetDate:o.targetDate, KPIGoal:o.kpiGoal, Challenges:o.challenges, NextSteps:o.nextSteps, Link:o.s4Link })),
           ...state.pastObjectives.map(o=>({ Type:'Past', Name:o.name, Status:o.status, TargetDate:o.targetDate, KPIGoal:o.kpiGoal, Challenges:o.challenges, NextSteps:o.nextSteps, Link:o.s4Link }))
         ];
         const valueData = state.valueRealized.map(v=>({ Type:v.type, Description:v.description, Date:v.date, Link:v.link }));
-        const metricsData = (m.items||[]).map(x=>({ PeriodType:m.periodType, Period: periodLabel, Metric:x.name, ValuePercent:x.valuePercent, DeltaVsPrevQ:x.deltaPercent }));
+                   const metricsData = []; // metrics panel removed
         
         const addSheet = (data, name) => {
           const ws = XLSX.utils.json_to_sheet(data.length?data:[{}]);
@@ -911,7 +897,7 @@
         addSheet(objectivesData, 'Objectives');
         addSheet(valueData, 'Value Realized');
         addSheet(stakeholdersData, 'Stakeholders');
-        addSheet(metricsData, 'Metrics');
+                   // addSheet(metricsData, 'Metrics');
         
         XLSX.writeFile(wb, 'customer-success-plan.xlsx');
         showNotification('Excel exported successfully!', 'success');
@@ -1001,7 +987,7 @@
           <div class="space-y-4">
             <div>
               <label class="block text-sm font-medium mb-1">Objective Name</label>
-              <select id="new-objective-name" class="text-zone p-2 w-full">
+              <select id="new-objective-name" class="text-zone p-2 w-full text-sm">
                 <option value="">Select an objective...</option>
                 ${objectiveOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
                 <option value="custom">Create a new objective...</option>
@@ -1106,6 +1092,10 @@
               <input type="text" id="mg-title" class="text-zone p-2 w-full" placeholder="Goal title">
             </div>
             <div>
+              <label class="block text-sm font-medium mb-1">Target Date</label>
+              <input type="date" id="mg-date" class="text-zone p-2 w-full">
+            </div>
+            <div>
               <label class="block text-sm font-medium mb-1">Description</label>
               <textarea id="mg-desc" class="text-zone text-area p-3 w-full" rows="3" placeholder="Goal description..."></textarea>
             </div>
@@ -1140,13 +1130,14 @@
       modal.querySelector('#mg-cancel').addEventListener('click', () => modal.remove());
       modal.querySelector('#mg-save').addEventListener('click', () => {
         const title = modal.querySelector('#mg-title').value.trim() || 'New Goal';
+        const date = modal.querySelector('#mg-date').value;
         const desc = modal.querySelector('#mg-desc').value.trim();
         const customFields = [...modal.querySelectorAll('[data-field-row]')].map((row) => {
           const label = row.querySelector('[data-role="label"]').value.trim() || 'Field';
           const value = row.querySelector('[data-role="value"]').value.trim();
           return { id: Date.now()+Math.random(), label, value };
         });
-        state.missionGoals.push({ id: Date.now(), title: title, description: desc, customFields });
+        state.missionGoals.push({ id: Date.now(), title: title, targetDate: date, description: desc, customFields });
         renderMissionGoals();
         modal.remove();
         showNotification('Mission goal added!', 'success');
@@ -1165,7 +1156,7 @@
           <div class="modal-body space-y-4">
             <div>
               <label class="block text-sm font-medium mb-1">Type</label>
-              <select id="vr-type" class="text-zone p-2 w-full">
+                             <select id="vr-type" class="text-zone p-2 w-full text-sm">
                 ${valueOptions.map(opt=>`<option>${opt}</option>`).join('')}
               </select>
             </div>
@@ -1175,7 +1166,7 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                <label class="block text-sm font-medium mb-1">Date Realized</label>
+                <label class="block text-sm font-medium mb-1">Target Date</label>
                 <input type="date" id="vr-date" class="text-zone p-2 w-full" />
               </div>
               <div>
@@ -1294,6 +1285,9 @@
               items: []
             };
           }
+          // Ensure KPIs arrays exist
+          if (Array.isArray(state.objectives)) state.objectives.forEach(o=>{ if (!Array.isArray(o.kpis)) o.kpis = []; });
+          if (Array.isArray(state.pastObjectives)) state.pastObjectives.forEach(o=>{ if (!Array.isArray(o.kpis)) o.kpis = []; });
           if (typeof state.planHealth === 'undefined') state.planHealth = 'green';
           if (typeof state.missionSummary === 'undefined') state.missionSummary = '';
         }
@@ -1321,6 +1315,187 @@
       autoSave();
       applyAutoResize();
     };
+
+    // KPI Create Modal
+    function showAddKPIModal(objectiveId){
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.innerHTML = `
+        <div class="modal-panel p-6 w-[520px] max-w-[90vw]">
+          <h3 class="text-lg font-semibold mb-4">Add KPI</h3>
+          <div class="space-y-3">
+            <div>
+              <label class="block text-sm font-medium mb-1">Name</label>
+              <input type="text" id="kpi-name" class="text-zone p-2 w-full" placeholder="KPI name">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-sm font-medium mb-1">Current Value</label>
+                <input type="number" id="kpi-current" class="text-zone p-2 w-full" placeholder="0">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1">Previous Value</label>
+                <input type="number" id="kpi-prev" class="text-zone p-2 w-full" placeholder="0">
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Unit (optional, used only at creation)</label>
+              <input type="text" id="kpi-unit" class="text-zone p-2 w-full" placeholder="%, seconds, $ ...">
+            </div>
+          </div>
+          <div class="flex justify-end gap-3 mt-5">
+            <button class="btn btn-ghost" data-role="cancel">Cancel</button>
+            <button class="btn btn-primary" data-role="save">Save KPI</button>
+          </div>
+        </div>`;
+      document.body.appendChild(modal);
+      modal.querySelector('[data-role="cancel"]').addEventListener('click', ()=> modal.remove());
+      modal.querySelector('[data-role="save"]').addEventListener('click', ()=>{
+        const name = modal.querySelector('#kpi-name').value.trim();
+        const currentValue = Number(modal.querySelector('#kpi-current').value||0);
+        const previousValue = Number(modal.querySelector('#kpi-prev').value||0);
+        const unit = modal.querySelector('#kpi-unit').value.trim();
+        if (!name){ showNotification('Please enter a KPI name', 'error'); return; }
+        const obj = state.objectives.find(o=>o.id===objectiveId) || state.pastObjectives.find(o=>o.id===objectiveId);
+        if (!obj){ modal.remove(); return; }
+        if (!Array.isArray(obj.kpis)) obj.kpis = [];
+        obj.kpis.push({ id: Date.now()+Math.random(), name, currentValue, previousValue, unit });
+        renderObjectives();
+        modal.remove();
+        showNotification('KPI added', 'success');
+      });
+    }
+
+    // KPI Edit Modal
+    function showEditKPIModal(objectiveId, kpiId){
+      const obj = state.objectives.find(o=>o.id===objectiveId) || state.pastObjectives.find(o=>o.id===objectiveId);
+      if (!obj) return;
+      const kpi = (obj.kpis||[]).find(k=>k.id===kpiId);
+      if (!kpi) return;
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.innerHTML = `
+        <div class="modal-panel p-6 w-[520px] max-w-[90vw]">
+          <h3 class="text-lg font-semibold mb-4">Edit KPI</h3>
+          <div class="space-y-3">
+            <div>
+              <label class="block text-sm font-medium mb-1">Name</label>
+              <input type="text" id="kpi-name" class="text-zone p-2 w-full" value="${kpi.name||''}">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-sm font-medium mb-1">Current Value</label>
+                <input type="number" id="kpi-current" class="text-zone p-2 w-full" value="${Number(kpi.currentValue||0)}">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1">Previous Value</label>
+                <input type="number" id="kpi-prev" class="text-zone p-2 w-full" value="${Number(kpi.previousValue||0)}">
+              </div>
+            </div>
+            <!-- Unit intentionally not editable here per requirement -->
+          </div>
+          <div class="flex justify-end gap-3 mt-5">
+            <button class="btn btn-ghost" data-role="cancel">Cancel</button>
+            <button class="btn btn-primary" data-role="save">Save</button>
+          </div>
+        </div>`;
+      document.body.appendChild(modal);
+      modal.querySelector('[data-role="cancel"]').addEventListener('click', ()=> modal.remove());
+      modal.querySelector('[data-role="save"]').addEventListener('click', ()=>{
+        kpi.name = modal.querySelector('#kpi-name').value.trim() || kpi.name;
+        kpi.currentValue = Number(modal.querySelector('#kpi-current').value||0);
+        kpi.previousValue = Number(modal.querySelector('#kpi-prev').value||0);
+        renderObjectives();
+        modal.remove();
+        showNotification('KPI updated', 'success');
+      });
+    }
+
+    function showEditMissionGoalModal(goalId){
+      const goal = state.missionGoals.find(g=>g.id===goalId);
+      if (!goal) return;
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.innerHTML = `
+        <div class="modal-panel w-[650px] max-w-[90vw]">
+          <div class="modal-header flex items-center justify-between">
+            <h3 class="text-lg font-semibold">Edit Mission Goal</h3>
+            <button id="mg-edit-close" class="text-slate-400 hover:text-slate-600">&times;</button>
+          </div>
+          <div class="modal-body space-y-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">Title</label>
+              <input type="text" id="mg-edit-title" class="text-zone p-2 w-full" value="${goal.title}">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Target Date</label>
+              <input type="date" id="mg-edit-date" class="text-zone p-2 w-full" value="${goal.targetDate||''}">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Description</label>
+              <textarea id="mg-edit-desc" class="text-zone text-area p-3 w-full" rows="3">${goal.description||''}</textarea>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2">Custom Fields</label>
+              <div id="mg-edit-fields" class="space-y-2">
+                ${(goal.customFields||[]).map(f=>`
+                  <div class="flex items-center gap-2" data-field-row data-field-id="${f.id}">
+                    <input class="text-zone p-2 text-xs font-semibold" value="${f.label}" placeholder="Field name" data-role="label" />
+                    <input class="text-zone p-2 text-xs flex-1" value="${f.value||''}" placeholder="Value or https://link" data-role="value" />
+                    <button class="text-slate-400 hover:text-red-600" title="Remove">&times;</button>
+                  </div>
+                `).join('')}
+              </div>
+              <button id="mg-edit-add-field" class="btn btn-ghost mt-2">+ Add Custom Field</button>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button id="mg-edit-cancel" class="btn btn-ghost">Cancel</button>
+            <button id="mg-edit-save" class="btn btn-primary">Save</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      applyAutoResize(modal);
+      const fieldsContainer = modal.querySelector('#mg-edit-fields');
+      const addFieldRow = () => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-2';
+        row.setAttribute('data-field-row','');
+        row.innerHTML = `
+          <input class="text-zone p-2 text-xs font-semibold" placeholder="Field name" data-role="label" />
+          <input class="text-zone p-2 text-xs flex-1" placeholder="Value or https://link" data-role="value" />
+          <button class="text-slate-400 hover:text-red-600" title="Remove">&times;</button>
+        `;
+        row.querySelector('button').addEventListener('click', ()=> row.remove());
+        fieldsContainer.appendChild(row);
+      };
+      fieldsContainer.querySelectorAll('[data-field-row] button').forEach(btn=>{
+        btn.addEventListener('click', (ev)=> ev.currentTarget.closest('[data-field-row]').remove());
+      });
+      modal.querySelector('#mg-edit-add-field').addEventListener('click', addFieldRow);
+      modal.querySelector('#mg-edit-close').addEventListener('click', ()=> modal.remove());
+      modal.querySelector('#mg-edit-cancel').addEventListener('click', ()=> modal.remove());
+      modal.querySelector('#mg-edit-save').addEventListener('click', ()=>{
+        const title = modal.querySelector('#mg-edit-title').value.trim() || goal.title;
+        const date = modal.querySelector('#mg-edit-date').value;
+        const desc = modal.querySelector('#mg-edit-desc').value.trim();
+        const customFields = [...modal.querySelectorAll('[data-field-row]')].map((row) => {
+          const idAttr = row.getAttribute('data-field-id');
+          const id = idAttr ? Number(idAttr) : Date.now()+Math.random();
+          const label = row.querySelector('[data-role="label"]').value.trim() || 'Field';
+          const value = row.querySelector('[data-role="value"]').value.trim();
+          return { id, label, value };
+        });
+        goal.title = title;
+        goal.targetDate = date;
+        goal.description = desc;
+        goal.customFields = customFields;
+        renderMissionGoals();
+        modal.remove();
+        showNotification('Mission goal updated!', 'success');
+      });
+    }
   </script>
 </body>
 </html>
