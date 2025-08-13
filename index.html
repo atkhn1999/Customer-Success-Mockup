@@ -14,26 +14,28 @@
     :root { --ink:#0f172a; --ink-2:#334155; --ink-3:#64748b; }
     body { font-family: 'Inter', sans-serif; background:#f1f5f9; color:var(--ink); }
 
-    /* Unified text zones: every text/edit surface is clearly bordered and resizable where applicable */
-    .text-zone { @apply w-full rounded-lg border shadow-sm bg-white/60 border-slate-300 focus:ring-2 focus:ring-cyan-600 focus:border-cyan-600 transition-all; }
-    .text-area { resize: both; min-height: 2.75rem; }
-    .chip { @apply inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md border; }
+    /* Unified text zones: every text/edit surface is clearly bordered with squircle borders and auto-sizing textareas */
+    .text-zone { width:100%; border-radius:14px; border:1px solid rgb(203 213 225); background: rgba(255,255,255,0.8); box-shadow: 0 1px 2px rgba(0,0,0,0.04); transition: box-shadow .2s, border-color .2s, background-color .2s; outline: none; }
+    .text-zone:focus { border-color: rgb(8 145 178); box-shadow: 0 0 0 4px rgba(8,145,178,0.2); }
+    .text-area { resize: none; min-height: 2.75rem; overflow: hidden; font-size: clamp(0.9rem, 0.88rem + 0.2vw, 1rem); line-height: 1.6; }
+    .chip { display:inline-flex; align-items:center; gap:.25rem; padding:.25rem .5rem; font-size:.75rem; font-weight:600; border-radius:.5rem; border:1px solid rgba(15,23,42,.15); }
 
     /* Status pills */
-    .status-pill { @apply text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full; }
-    .status-green { @apply bg-green-100 text-green-800; }
-    .status-yellow { @apply bg-yellow-100 text-yellow-800; }
-    .status-red { @apply bg-red-100 text-red-800; }
-    .status-gray { @apply bg-slate-200 text-slate-800; }
-    .status-cyan { @apply bg-cyan-100 text-cyan-800; }
+    .status-pill { font-size: .75rem; font-weight: 600; margin-right: .5rem; padding: .125rem .625rem; border-radius: 9999px; display:inline-flex; align-items:center; }
+    .status-green { background:#dcfce7; color:#166534; }
+    .status-yellow { background:#fef9c3; color:#854d0e; }
+    .status-red { background:#fee2e2; color:#991b1b; }
+    .status-gray { background:#e2e8f0; color:#1f2937; }
+    .status-cyan { background:#cffafe; color:#155e75; }
 
     /* Colored filters for "Find Similar" area */
-    .colored-filter { @apply bg-emerald-50 border-emerald-300 focus:ring-emerald-500 focus:border-emerald-500; }
+    .colored-filter { background:#ecfdf5; border:1px solid #6ee7b7; }
+    .colored-filter:focus { border-color:#10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.25); }
 
     /* Cards + micro-transitions */
-    .card { @apply bg-white rounded-xl shadow-sm border border-slate-200/80; }
+    .card { background:#fff; border-radius:14px; box-shadow: 0 1px 2px rgba(16,24,40,0.04); border:1px solid rgba(226,232,240,0.8); }
     .fade { transition: all .2s ease; }
-    .removing { transform: scale(.98); opacity:.0; max-height:0; padding-top:0; padding-bottom:0; margin-top:0; margin-bottom:0; border-width:0; }
+    .removing { transform: scale(.98); opacity:0; max-height:0; padding-top:0; padding-bottom:0; margin-top:0; margin-bottom:0; border-width:0; }
     
     /* Enhanced desktop layout */
     .desktop-optimized { @apply max-w-screen-xl mx-auto; }
@@ -46,11 +48,18 @@
     }
 
     /* Preview blocks inside objective cards */
-    .preview-box { @apply bg-slate-50 border border-slate-200 rounded-lg p-3; }
+    .preview-box { background: linear-gradient(180deg, #f8fafc, #f1f5f9); border:1px solid rgb(226 232 240); border-radius:12px; padding:0.75rem; }
 
     /* Small helpers */
-    .health-dot { @apply w-3 h-3 rounded-full inline-block mr-2; }
-    .linkish { @apply underline decoration-dotted text-cyan-700 hover:text-cyan-900; }
+    .health-dot { width:0.75rem; height:0.75rem; border-radius:9999px; display:inline-block; margin-right:0.5rem; }
+    .linkish { text-decoration-line: underline; text-decoration-style: dotted; color:#0e7490; }
+    .linkish:hover { color:#0a3f56; }
+    /* Modal aesthetics */
+    .modal-overlay { position:fixed; inset:0; background: rgba(0,0,0,0.55); backdrop-filter: blur(2px); display:flex; align-items:center; justify-content:center; z-index:50; }
+    .modal-panel { border-radius:16px; border:1px solid rgba(226,232,240,0.9); box-shadow: 0 20px 40px rgba(2,6,23,0.25); max-height:90vh; overflow-y:auto; background: linear-gradient(135deg, #ffffff, #f8fafc, #ecfeff); }
+    .modal-header { padding:1rem 1.5rem; border-bottom:1px solid rgba(226,232,240,0.7); background: linear-gradient(90deg, rgba(8,145,178,0.08), rgba(16,185,129,0.08)); border-top-left-radius:16px; border-top-right-radius:16px; }
+    .modal-body { padding:1.5rem; }
+    .modal-footer { padding:1rem 1.5rem; border-top:1px solid rgba(226,232,240,0.7); display:flex; justify-content:flex-end; gap:.75rem; }
   </style>
 </head>
 <body>
@@ -229,6 +238,22 @@
       return { dot:'bg-green-500', icon:'🟢' };
     };
 
+    // Auto-resize and responsive preview
+    function autoResizeTextarea(textarea) {
+      if (!textarea) return;
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+    function applyAutoResize(root=document) {
+      ($$('.text-area', root) || []).forEach(autoResizeTextarea);
+    }
+    function getPreviewLimit() {
+      const w = window.innerWidth || 1024;
+      if (w < 640) return 120;
+      if (w < 1024) return 160;
+      return 220;
+    }
+
     // ---------- Renderers ----------
     function renderMissionGoals(){
       const c = $('#mission-goals-container');
@@ -252,13 +277,14 @@
           <button class="text-cyan-700 font-semibold mt-2" data-role="add-cf">+ Add Custom Field</button>
         </div>
       `).join('');
+      applyAutoResize(c);
     }
 
     function valueItemHTML(item){
       return `
         <div id="value-${item.id}" class="card p-4" data-id="${item.id}">
           <div class="flex items-center justify-between">
-            <select class="text-zone p-2 text-sm font-semibold bg-white/60 border-0 value-type-select">
+            <select class="text-zone p-2 text-sm font-semibold value-type-select">
               ${valueOptions.map(opt=>`<option ${opt===item.type?'selected':''}>${opt}</option>`).join('')}
             </select>
             <button class="text-slate-400 hover:text-slate-600" data-role="remove-value">&times;</button>
@@ -284,6 +310,7 @@
       const c = $('#value-container');
       c.innerHTML = state.valueRealized.map(valueItemHTML).join('');
       $('#no-value-message').classList.toggle('hidden', state.valueRealized.length!==0);
+      applyAutoResize(c);
     }
 
     function objectiveCardHTML(o){
@@ -355,11 +382,11 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div class="preview-box">
               <div class="text-xs font-semibold text-slate-600 mb-1">KPI Goal</div>
-              <div class="text-sm text-slate-700">${truncate(o.kpiGoal, o.expanded?1000:140) || '<span class=\'text-slate-400\'>Not set</span>'}</div>
+              <div class="text-sm text-slate-700">${truncate(o.kpiGoal, o.expanded?1000:getPreviewLimit()) || '<span class=\'text-slate-400\'>Not set</span>'}</div>
             </div>
             <div class="preview-box">
               <div class="text-xs font-semibold text-slate-600 mb-1">Challenges</div>
-              <div class="text-sm text-slate-700">${truncate(o.challenges, o.expanded?1000:140) || '<span class=\'text-slate-400\'>None</span>'}</div>
+              <div class="text-sm text-slate-700">${truncate(o.challenges, o.expanded?1000:getPreviewLimit()) || '<span class=\'text-slate-400\'>None</span>'}</div>
             </div>
           </div>
           ${o.expanded ? `
@@ -383,6 +410,8 @@
       const past = $('#past-objectives-container');
       past.innerHTML = state.pastObjectives.map(objectiveCardHTML).join('');
       $('#no-past-objectives').classList.toggle('hidden', state.pastObjectives.length!==0);
+      applyAutoResize(cur);
+      applyAutoResize(past);
     }
 
     function renderStakeholders(){
@@ -411,20 +440,21 @@
 
     // ---------- Event wiring ----------
     function setupEvents(){
-      const app = $('#app');
+            const app = $('#app');
 
-      // Global clicks
+       // Auto-resize on input
+       document.addEventListener('input', (e)=>{ if (e.target && e.target.classList && e.target.classList.contains('text-area')) autoResizeTextarea(e.target); });
+
+       // Global clicks
       app.addEventListener('click', (e)=>{
         const card = e.target.closest('[data-id]');
 
         if (e.target.id === 'add-mission-goal-btn'){
-          state.missionGoals.push({id:Date.now(), title:'New Goal', description:'', customFields:[]});
-          renderMissionGoals();
+          showAddMissionGoalModal();
         }
 
         if (e.target.id === 'add-value-btn'){
-          state.valueRealized.push({id:Date.now(), type:'Time Savings', description:'', date:'', link:''});
-          renderValue();
+          showAddValueRealizedModal();
         }
 
         if (e.target.id === 'add-objective-btn'){
@@ -611,6 +641,12 @@
       
       // PDF Export button
       $('#export-pdf-btn').addEventListener('click', exportToPDF);
+
+      // Reflow on resize
+      window.addEventListener('resize', () => {
+        applyAutoResize();
+        renderObjectives();
+      });
     }
 
     // ---------- PDF Export ----------
@@ -676,9 +712,9 @@
     // View Objective Details Modal
     function showObjectiveDetailsModal(objective) {
       const modal = document.createElement('div');
-      modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+      modal.className = 'modal-overlay';
       modal.innerHTML = `
-        <div class="bg-white rounded-lg p-6 w-[700px] max-w-[90vw] max-h-[90vh] overflow-y-auto">
+        <div class="modal-panel p-6 w-[700px] max-w-[90vw] max-h-[90vh] overflow-y-auto">
           <div class="flex justify-between items-start mb-4">
             <h3 class="text-lg font-semibold">Objective Details</h3>
             <button id="close-details-modal" class="text-slate-400 hover:text-slate-600">&times;</button>
@@ -746,9 +782,9 @@
     // Add Objective Modal
     function showAddObjectiveModal() {
       const modal = document.createElement('div');
-      modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+      modal.className = 'modal-overlay';
       modal.innerHTML = `
-        <div class="bg-white rounded-lg p-6 w-[600px] max-w-[90vw] max-h-[90vh] overflow-y-auto">
+        <div class="modal-panel p-6 w-[600px] max-w-[90vw] max-h-[90vh] overflow-y-auto">
           <h3 class="text-lg font-semibold mb-4">Add New Objective</h3>
           <div class="space-y-4">
             <div>
@@ -804,6 +840,7 @@
           customInput.classList.add('hidden');
         }
       });
+      applyAutoResize(modal);
       
       // Event handlers
       modal.querySelector('#cancel-new-objective').addEventListener('click', () => modal.remove());
@@ -842,12 +879,126 @@
       });
     }
     
+    // Add Mission Goal Modal
+    function showAddMissionGoalModal() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.innerHTML = `
+        <div class="modal-panel w-[600px] max-w-[90vw]">
+          <div class="modal-header">
+            <h3 class="text-lg font-semibold">Add Mission Goal</h3>
+          </div>
+          <div class="modal-body space-y-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">Title</label>
+              <input type="text" id="mg-title" class="text-zone p-2 w-full" placeholder="Goal title">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Description</label>
+              <textarea id="mg-desc" class="text-zone text-area p-3 w-full" rows="3" placeholder="Goal description..."></textarea>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2">Custom Fields</label>
+              <div id="mg-fields" class="space-y-2"></div>
+              <button id="mg-add-field" class="text-cyan-700 font-semibold mt-2">+ Add Custom Field</button>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button id="mg-cancel" class="px-4 py-2 text-slate-600 hover:text-slate-800">Cancel</button>
+            <button id="mg-save" class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">Save Goal</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      applyAutoResize(modal);
+      const fieldsContainer = modal.querySelector('#mg-fields');
+      const addFieldRow = () => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-2';
+        row.setAttribute('data-field-row','');
+        row.innerHTML = `
+          <input class="text-zone p-2 text-xs font-semibold" placeholder="Field name" data-role="label" />
+          <input class="text-zone p-2 text-xs flex-1" placeholder="Value or https://link" data-role="value" />
+          <button class="text-slate-400 hover:text-red-600" title="Remove">&times;</button>
+        `;
+        row.querySelector('button').addEventListener('click', ()=> row.remove());
+        fieldsContainer.appendChild(row);
+      };
+      modal.querySelector('#mg-add-field').addEventListener('click', addFieldRow);
+      modal.querySelector('#mg-cancel').addEventListener('click', () => modal.remove());
+      modal.querySelector('#mg-save').addEventListener('click', () => {
+        const title = modal.querySelector('#mg-title').value.trim() || 'New Goal';
+        const desc = modal.querySelector('#mg-desc').value.trim();
+        const customFields = [...modal.querySelectorAll('[data-field-row]')].map((row) => {
+          const label = row.querySelector('[data-role="label"]').value.trim() || 'Field';
+          const value = row.querySelector('[data-role="value"]').value.trim();
+          return { id: Date.now()+Math.random(), label, value };
+        });
+        state.missionGoals.push({ id: Date.now(), title: title, description: desc, customFields });
+        renderMissionGoals();
+        modal.remove();
+        showNotification('Mission goal added!', 'success');
+      });
+    }
+
+    // Add Value Realized Modal
+    function showAddValueRealizedModal() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.innerHTML = `
+        <div class="modal-panel w-[600px] max-w-[90vw]">
+          <div class="modal-header">
+            <h3 class="text-lg font-semibold">Add Value Realized</h3>
+          </div>
+          <div class="modal-body space-y-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">Type</label>
+              <select id="vr-type" class="text-zone p-2 w-full">
+                ${valueOptions.map(opt=>`<option>${opt}</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Description</label>
+              <textarea id="vr-desc" class="text-zone text-area p-3 w-full" rows="3" placeholder="Describe the value realized..."></textarea>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-sm font-medium mb-1">Date Realized</label>
+                <input type="date" id="vr-date" class="text-zone p-2 w-full" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1">Reference Link</label>
+                <input type="text" id="vr-link" class="text-zone p-2 w-full" placeholder="https://" />
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button id="vr-cancel" class="px-4 py-2 text-slate-600 hover:text-slate-800">Cancel</button>
+            <button id="vr-save" class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">Save</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      applyAutoResize(modal);
+      modal.querySelector('#vr-cancel').addEventListener('click', ()=> modal.remove());
+      modal.querySelector('#vr-save').addEventListener('click', ()=>{
+        const type = modal.querySelector('#vr-type').value;
+        const description = modal.querySelector('#vr-desc').value.trim();
+        const date = modal.querySelector('#vr-date').value;
+        const link = modal.querySelector('#vr-link').value.trim();
+        state.valueRealized.push({ id: Date.now(), type, description, date, link });
+        renderValue();
+        modal.remove();
+        showNotification('Value realized item added!', 'success');
+      });
+    }
+
     // New Stakeholder Modal
     function showNewStakeholderModal() {
       const modal = document.createElement('div');
-      modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+      modal.className = 'modal-overlay';
       modal.innerHTML = `
-        <div class="bg-white rounded-lg p-6 w-96 max-w-md mx-4">
+        <div class="modal-panel p-6 w-96 max-w-md mx-4">
           <h3 class="text-lg font-semibold mb-4">Add New Stakeholder</h3>
           <div class="space-y-4">
             <div>
@@ -936,12 +1087,14 @@
     loadFromLocalStorage();
     renderAll();
     setupEvents();
+    applyAutoResize();
     
     // Set up auto-save for all state changes
     const originalRenderAll = renderAll;
     renderAll = function() {
       originalRenderAll();
       autoSave();
+      applyAutoResize();
     };
   </script>
 </body>
