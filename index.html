@@ -12,79 +12,319 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    :root { --ink:#0f172a; --ink-2:#334155; --ink-3:#64748b; }
-    body { font-family: 'Inter', sans-serif; background:#f1f5f9; color:var(--ink); }
+    :root { 
+      --ink:#0f172a; 
+      --ink-2:#334155; 
+      --ink-3:#64748b;
+      --primary-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      --danger-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+    body { font-family: 'Inter', sans-serif; background:#f8fafc; color:var(--ink); }
 
-    /* Unified text zones: every text/edit surface is clearly bordered with squircle borders and auto-sizing textareas */
-    .text-zone { width:100%; border-radius:2px; border:1px solid rgb(203 213 225); background:#fff; box-shadow:none; transition: border-color .2s, background-color .2s; outline: none; }
-    .text-zone:focus { border-color: rgb(8 145 178); box-shadow: 0 0 0 4px rgba(8,145,178,0.2); }
-    .text-area { resize: none; min-height: 2.75rem; overflow: hidden; font-size: clamp(0.9rem, 0.88rem + 0.2vw, 1rem); line-height: 1.6; }
-    .chip { display:inline-flex; align-items:center; gap:.25rem; padding:.25rem .5rem; font-size:.75rem; font-weight:600; border-radius:2px; border:1px solid rgba(15,23,42,.15); }
+    /* Typography scale */
+    h1 { font-size: 2.5rem; font-weight: 700; line-height: 1.2; }
+    h2 { font-size: 1.875rem; font-weight: 700; line-height: 1.3; }
+    h3 { font-size: 1.25rem; font-weight: 600; line-height: 1.4; }
+    .text-xs { font-size: 0.75rem; }
+    .text-sm { font-size: 0.875rem; }
+    .text-base { font-size: 1rem; }
+    .text-lg { font-size: 1.125rem; }
+    .text-xl { font-size: 1.25rem; }
+    .text-2xl { font-size: 1.5rem; }
+    .text-3xl { font-size: 1.875rem; }
+    .text-4xl { font-size: 2.25rem; }
 
-    /* Status pills */
-    .status-pill { font-size: .75rem; font-weight: 600; margin-right: .5rem; padding: .125rem .625rem; border-radius: 2px; display:inline-flex; align-items:center; }
-    .status-green { background:#dcfce7; color:#166534; }
-    .status-yellow { background:#fef9c3; color:#854d0e; }
-    .status-red { background:#fee2e2; color:#991b1b; }
-    .status-gray { background:#e2e8f0; color:#1f2937; }
-    .status-cyan { background:#cffafe; color:#155e75; }
-
-    /* Colored filters for "Find Similar" area */
-    .colored-filter { background:#ecfdf5; border:1px solid #6ee7b7; }
-    .colored-filter:focus { border-color:#10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.25); }
-
-    /* Cards + micro-transitions */
-    .card { background:#fff; border-radius:2px; box-shadow:none; border:1px solid rgba(226,232,240,1); }
-    .fade { transition: all .2s ease; }
-    .removing { transform: scale(.98); opacity:0; max-height:0; padding-top:0; padding-bottom:0; margin-top:0; margin-bottom:0; border-width:0; }
-    
-    /* Enhanced desktop layout */
-    .desktop-optimized { @apply max-w-screen-xl mx-auto; }
-    
-    /* Better spacing for wide screens */
-    @media (min-width: 1280px) {
-      .lg\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-      .lg\:col-span-3 { grid-column: span 3 / span 3; }
-      .lg\:col-span-1 { grid-column: span 1 / span 1; }
+    /* Unified text zones: sharp corners, clear borders */
+    .text-zone { 
+      width:100%; 
+      border-radius:0; 
+      border:1px solid #e2e8f0; 
+      background:#fff; 
+      box-shadow:none; 
+      transition: border-color .15s, box-shadow .15s; 
+      outline: none; 
+    }
+    .text-zone:focus { 
+      border-color: #3b82f6; 
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.1); 
+    }
+    .text-area { 
+      resize: none; 
+      min-height: 3rem; 
+      overflow: hidden; 
+      line-height: 1.5; 
+    }
+    .chip { 
+      display:inline-flex; 
+      align-items:center; 
+      gap:.375rem; 
+      padding:.375rem .75rem; 
+      font-size:.875rem; 
+      font-weight:500; 
+      border-radius:0; 
+      border:1px solid #e2e8f0; 
     }
 
-    /* Preview blocks inside objective cards */
-    .preview-box { background:#f8fafc; border:1px solid rgb(226 232 240); border-radius:2px; padding:0.75rem; }
+    /* Status pills - sharp corners */
+    .status-pill { 
+      font-size: .75rem; 
+      font-weight: 600; 
+      padding: .25rem .75rem; 
+      border-radius: 0; 
+      display:inline-flex; 
+      align-items:center; 
+    }
+    .status-green { background:#10b981; color:#fff; }
+    .status-yellow { background:#f59e0b; color:#fff; }
+    .status-red { background:#ef4444; color:#fff; }
+    .status-gray { background:#6b7280; color:#fff; }
+    .status-cyan { background:#06b6d4; color:#fff; }
+
+    /* Colored filters */
+    .colored-filter { 
+      background:#f0fdf4; 
+      border:1px solid #86efac; 
+    }
+    .colored-filter:focus { 
+      border-color:#22c55e; 
+      box-shadow: 0 0 0 3px rgba(34,197,94,0.1); 
+    }
+
+    /* Cards - sharp corners, subtle borders */
+    .card { 
+      background:#fff; 
+      border-radius:0; 
+      box-shadow:0 1px 3px rgba(0,0,0,0.1); 
+      border:1px solid #e5e7eb; 
+    }
+    .fade { transition: all .2s ease; }
+    .removing { 
+      transform: scale(.98); 
+      opacity:0; 
+      max-height:0; 
+      overflow:hidden;
+    }
+
+    /* Preview blocks */
+    .preview-box { 
+      background:#f9fafb; 
+      border:1px solid #e5e7eb; 
+      border-radius:0; 
+      padding:1rem; 
+    }
+
+    /* KPI display enhancement */
+    .kpi-value {
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .kpi-unit {
+      font-size: 1rem;
+      font-weight: 400;
+      color: #6b7280;
+    }
+    .kpi-delta {
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 0.25rem 0.5rem;
+      display: inline-block;
+    }
 
     /* Small helpers */
-    .health-dot { width:0.75rem; height:0.75rem; border-radius:9999px; display:inline-block; margin-right:0.5rem; }
-    .linkish { text-decoration-line: underline; text-decoration-style: dotted; color:#0e7490; }
-    .linkish:hover { color:#0a3f56; }
-    /* Modal aesthetics */
-    .modal-overlay { position:fixed; inset:0; background: rgba(0,0,0,0.55); backdrop-filter: blur(2px); display:flex; align-items:center; justify-content:center; z-index:50; }
-    .modal-panel { border-radius:2px; border:1px solid rgba(226,232,240,0.9); box-shadow: 0 20px 40px rgba(2,6,23,0.25); max-height:90vh; overflow-y:auto; background:#ffffff; }
-    .modal-header { padding:1rem 1.5rem; border-bottom:1px solid rgba(226,232,240,0.7); background: linear-gradient(90deg, rgba(8,145,178,0.08), rgba(16,185,129,0.08)); border-top-left-radius:2px; border-top-right-radius:2px; }
-    .modal-body { padding:1.5rem; }
-    .modal-footer { padding:1rem 1.5rem; border-top:1px solid rgba(226,232,240,0.7); display:flex; justify-content:flex-end; gap:.75rem; }
+    .health-dot { 
+      width:0.625rem; 
+      height:0.625rem; 
+      border-radius:9999px; 
+      display:inline-block; 
+      margin-right:0.5rem; 
+    }
+    .linkish { 
+      text-decoration: underline; 
+      color:#3b82f6; 
+      cursor: pointer;
+    }
+    .linkish:hover { 
+      color:#2563eb; 
+    }
 
-    /* Buttons: high-contrast, modern */
-    .btn { display:inline-flex; align-items:center; gap:.5rem; font-weight:600; border-radius:2px; padding:.5rem .75rem; border:1px solid transparent; transition: all .2s ease; }
-    .btn-sm { padding:.25rem .5rem; font-size:.875rem; border-radius:2px; }
-    .btn-primary { background:#0f172a; color:#fff; }
-    .btn-primary:hover { background:#111827; }
-    .btn-success { background:#059669; color:#fff; }
-    .btn-success:hover { background:#047857; }
-    .btn-outline { background:#fff; color:#0f172a; border-color:#cbd5e1; }
-    .btn-outline:hover { background:#f1f5f9; }
-    .btn-ghost { background:transparent; color:#0f172a; }
-    .btn-ghost:hover { background:rgba(15,23,42,0.06); }
+    /* Modal aesthetics - sharp corners */
+    .modal-overlay { 
+      position:fixed; 
+      inset:0; 
+      background: rgba(0,0,0,0.5); 
+      backdrop-filter: blur(4px); 
+      display:flex; 
+      align-items:center; 
+      justify-content:center; 
+      z-index:50; 
+    }
+    .modal-panel { 
+      border-radius:0; 
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15); 
+      max-height:90vh; 
+      overflow-y:auto; 
+      background:#ffffff; 
+      position: relative;
+    }
+    .modal-header { 
+      padding:1.5rem; 
+      border-bottom:1px solid #e5e7eb; 
+      background: #f9fafb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-body { 
+      padding:1.5rem; 
+    }
+    .modal-footer { 
+      padding:1rem 1.5rem; 
+      border-top:1px solid #e5e7eb; 
+      display:flex; 
+      justify-content:flex-end; 
+      gap:1rem; 
+      background: #f9fafb;
+    }
+    .modal-close {
+      width: 2rem;
+      height: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      color: #6b7280;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    .modal-close:hover {
+      color: #374151;
+    }
+
+    /* Buttons: high-contrast, modern with gradients for primary */
+    .btn { 
+      display:inline-flex; 
+      align-items:center; 
+      gap:.5rem; 
+      font-weight:600; 
+      border-radius:0; 
+      padding:.625rem 1.25rem; 
+      border:1px solid transparent; 
+      transition: all .15s ease; 
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .btn-sm { 
+      padding:.375rem .875rem; 
+      font-size:.875rem; 
+    }
+    .btn-primary { 
+      background: var(--primary-gradient);
+      color:#fff; 
+      border: none;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .btn-primary:hover:not(:disabled) { 
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transform: translateY(-1px);
+    }
+    .btn-success { 
+      background: var(--success-gradient);
+      color:#fff;
+      border: none;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .btn-success:hover:not(:disabled) { 
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transform: translateY(-1px);
+    }
+    .btn-danger {
+      background: var(--danger-gradient);
+      color:#fff;
+      border: none;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .btn-danger:hover:not(:disabled) {
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transform: translateY(-1px);
+    }
+    .btn-outline { 
+      background:#fff; 
+      color:#374151; 
+      border:1px solid #d1d5db; 
+    }
+    .btn-outline:hover:not(:disabled) { 
+      background:#f9fafb; 
+      border-color:#9ca3af;
+    }
+    .btn-ghost { 
+      background:transparent; 
+      color:#6b7280; 
+      border: none;
+    }
+    .btn-ghost:hover:not(:disabled) { 
+      background:#f3f4f6; 
+      color:#374151;
+    }
+
+    /* Form improvements */
+    label {
+      font-weight: 500;
+      color: #374151;
+    }
+    select {
+      cursor: pointer;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    /* Metric display enhancement */
+    .metric-value-display {
+      font-size: 2.5rem;
+      font-weight: 700;
+      line-height: 1;
+      color: #111827;
+    }
+    .metric-delta-display {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    /* Loading spinner */
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
   </style>
 </head>
 <body>
   <div id="app" class="max-w-screen-xl mx-auto p-4 sm:p-6 lg:p-8">
-    <header class="mb-10 p-8 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 text-white flex justify-between items-center" style="border-radius:2px;">
+    <header class="mb-10 p-8 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 text-white flex justify-between items-center">
       <div>
         <h1 class="text-4xl font-bold">Customer Success Plan</h1>
-        <p class="text-cyan-200 mt-2">A collaborative plan to track and achieve outcomes. Last updated: Aug 12, 2025</p>
+        <p class="text-cyan-200 mt-2">A collaborative plan to track and achieve outcomes. Last updated: <span id="last-updated-date"></span></p>
       </div>
       <div class="flex items-center gap-3">
-        <button id="export-excel-btn" class="btn btn-outline bg-gradient-to-r from-emerald-600 to-teal-500 text-white border-0">Export Excel</button>
-        <button id="export-pdf-btn" class="btn btn-primary flex items-center bg-gradient-to-r from-sky-600 to-indigo-500 border-0">
+        <button id="export-excel-btn" class="btn btn-outline">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M13 7h-2v4H9v2h2v4h2v-4h4v-2h-4V7zm-8 6h4v2H5v-2z"/></svg>
+          Export Excel
+        </button>
+        <button id="export-pdf-btn" class="btn btn-primary flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>
           Export PDF
         </button>
@@ -239,31 +479,138 @@
 
     const state = {
       missionGoals: [
-        { id: Date.now(), title: 'Time Savings', description: 'Reduce time spent on manual tasks by 20% through automation and streamlined workflows.', customFields: [{id: 1, label: 'Collateral', value: 'https://example.com/deck'}] },
-        { id: Date.now() + 1, title: 'Winning More Business', description: 'Increase the sales win rate by 10% by leveraging improved content and faster response times.', customFields: [] }
+        { 
+          id: Date.now(), 
+          title: 'Accelerate Deal Velocity', 
+          description: 'Reduce average deal cycle time by 25% through intelligent content recommendations and automated workflows, enabling our sales team to close deals faster while maintaining quality.', 
+          customFields: [
+            {id: 1, label: 'Success Metric Dashboard', value: 'https://analytics.company.com/deal-velocity'},
+            {id: 2, label: 'Enablement Deck', value: 'https://docs.company.com/sales-acceleration-guide'}
+          ] 
+        },
+        { 
+          id: Date.now() + 1, 
+          title: 'Content Excellence Program', 
+          description: 'Achieve 90% content relevancy score by implementing AI-driven content curation, regular audits, and stakeholder feedback loops to ensure our sales materials remain cutting-edge.', 
+          customFields: [
+            {id: 3, label: 'ROI Calculator', value: 'https://tools.company.com/content-roi'},
+            {id: 4, label: 'Best Practices Guide', value: 'https://wiki.company.com/content-excellence'}
+          ] 
+        },
+        {
+          id: Date.now() + 2,
+          title: 'Revenue Growth Through Adoption',
+          description: 'Drive $2.5M in incremental revenue by achieving 85% platform adoption across all sales teams and demonstrating measurable impact on win rates.',
+          customFields: [
+            {id: 5, label: 'Adoption Playbook', value: 'https://resources.company.com/adoption-strategy'}
+          ]
+        }
       ],
-      stakeholders: [mockContacts[0], mockContacts[1]],
+      stakeholders: [
+        mockContacts[0], 
+        mockContacts[1], 
+        mockContacts[2],
+        { id: 1001, name: 'Sarah Chen', title: 'Chief Revenue Officer', email: 'sarah.chen@company.com' },
+        { id: 1002, name: 'Marcus Johnson', title: 'VP Sales Operations', email: 'marcus.j@company.com' }
+      ],
       objectives: [{
-        id: Date.now(), name: 'Reduce time spent per response', targetDate: '2025-09-30', status: 'In Progress',
-        kpiGoal: 'Reduce average response time from 45s to 30s.',
-        challenges: 'Team members are still learning the new workflow.',
-        nextSteps: 'Hold a workshop on advanced features.', s4Link: 'https://s4.example.com/ticket/12345',
-        editing: false, expanded: false
+        id: Date.now(), 
+        name: 'Implement AI-Powered Content Recommendations', 
+        targetDate: '2025-03-31', 
+        status: 'In Progress',
+        kpiGoal: 'Deploy AI recommendation engine to 100% of sales team, achieving 75% positive feedback score and 40% reduction in content search time.',
+        challenges: 'Integration complexity with existing CRM systems and ensuring AI recommendations align with different sales methodologies across teams.',
+        nextSteps: 'Complete Phase 2 integration testing with Salesforce by March 15. Schedule training sessions with Enterprise and SMB teams.', 
+        s4Link: 'https://jira.company.com/browse/AI-2345',
+        editing: false, 
+        expanded: false
       }, {
-        id: Date.now() + 2, name: 'Content library clean up', targetDate: '2025-10-31', status: 'Not Started',
-        kpiGoal: 'Archive 50% of obsolete content.',
-        challenges: 'Lack of clear ownership for older content.',
-        nextSteps: 'Work with Samantha Ray to identify content owners.', s4Link: 'https://s4.example.com/ticket/12346',
-        editing: false, expanded: false
+        id: Date.now() + 2, 
+        name: 'Establish Content Governance Framework', 
+        targetDate: '2025-04-15', 
+        status: 'In Progress',
+        kpiGoal: 'Create automated content lifecycle management reducing outdated content by 60% and improving content accuracy scores to 95%.',
+        challenges: 'Resistance from product marketing teams who own content creation. Need executive alignment on content retirement policies.',
+        nextSteps: 'Present governance framework to Product Marketing leadership on March 20. Pilot automated archival process with competitive battlecards.', 
+        s4Link: 'https://jira.company.com/browse/GOV-1122',
+        editing: false, 
+        expanded: false
+      }, {
+        id: Date.now() + 3,
+        name: 'Launch Sales Coaching Integration',
+        targetDate: '2025-05-30',
+        status: 'Not Started',
+        kpiGoal: 'Enable real-time coaching recommendations during customer calls, improving new rep ramp time by 30% and deal conversion rates by 15%.',
+        challenges: 'Privacy concerns around call recording and analysis. Need to ensure compliance with regional data protection regulations.',
+        nextSteps: 'Finalize vendor selection between Gong and Chorus. Work with Legal team on data handling policies.',
+        s4Link: 'https://jira.company.com/browse/COACH-789',
+        editing: false,
+        expanded: false
       }],
-      pastObjectives: [{ id: Date.now()+100, name: 'Increase win rate', targetDate: '2025-06-30', status: 'Completed', kpiGoal: 'Raise win rate from 30% to 35% by Q2.', challenges: 'Competitive pricing pressure.', nextSteps: 'Monitor sustainment and share best practices.', s4Link: 'https://s4.example.com/ticket/12001', editing: false, expanded: false }],
-      valueRealized: [{ id: Date.now(), type: 'Time Savings', description: 'Saved ~5 hours/week per agent in Q3.', date: '2025-07-30', link: 'https://datastudio.example.com/report/1' }],
+      pastObjectives: [
+        { 
+          id: Date.now()+100, 
+          name: 'Migrate Legacy Content Repository', 
+          targetDate: '2024-12-31', 
+          status: 'Completed', 
+          kpiGoal: 'Successfully migrate 10,000+ sales assets from SharePoint to new platform with 99.9% accuracy and zero downtime.', 
+          challenges: 'Discovered 3,000 duplicate assets requiring manual review. SharePoint API limitations caused initial delays.', 
+          nextSteps: 'Monitor adoption metrics post-migration. Schedule quarterly content audit reviews.', 
+          s4Link: 'https://jira.company.com/browse/MIG-5000', 
+          editing: false, 
+          expanded: false 
+        },
+        {
+          id: Date.now()+101,
+          name: 'Implement Single Sign-On (SSO)',
+          targetDate: '2024-11-15',
+          status: 'Completed',
+          kpiGoal: 'Deploy SSO across all regions reducing login time by 80% and improving security compliance to 100%.',
+          challenges: 'APAC region had unique authentication requirements. Initial rollout caused temporary access issues for 200 users.',
+          nextSteps: 'Continue monitoring authentication metrics. Plan for MFA implementation in Q2.',
+          s4Link: 'https://jira.company.com/browse/SSO-3333',
+          editing: false,
+          expanded: false
+        }
+      ],
+      valueRealized: [
+        { 
+          id: Date.now(), 
+          type: 'Time Savings', 
+          description: 'Sales team saves average of 6.5 hours/week per rep through intelligent content search and automated workflows. Validated through time-tracking study across 150 reps.', 
+          date: '2025-01-15', 
+          link: 'https://analytics.company.com/time-savings-report-q4' 
+        },
+        {
+          id: Date.now()+1,
+          type: 'Revenue Growth',
+          description: 'Generated $1.8M in incremental revenue attributed to faster content access improving deal velocity by 22% in Enterprise segment.',
+          date: '2024-12-30',
+          link: 'https://analytics.company.com/revenue-impact-2024'
+        },
+        {
+          id: Date.now()+2,
+          type: 'Win Rate Increase',
+          description: 'Improved competitive win rate from 34% to 41% after implementing battlecard recommendations and competitive intelligence features.',
+          date: '2025-01-20',
+          link: 'https://bi.company.com/win-rate-analysis'
+        },
+        {
+          id: Date.now()+3,
+          type: 'Cost Reduction',
+          description: 'Reduced content creation costs by $450K annually through AI-assisted content generation and reuse of high-performing materials.',
+          date: '2024-11-28',
+          link: 'https://finance.company.com/cost-savings-report'
+        }
+      ],
       planHealth: 'green',
-      missionSummary: 'To empower the sales team by centralizing our content, reducing response times, and providing data-driven insights that directly contribute to winning more business and increasing revenue.',
+      missionSummary: 'Transform our sales organization into a data-driven revenue engine by implementing AI-powered content intelligence, reducing response times by 50%, and enabling our 500+ sales professionals to deliver personalized, compelling customer experiences that drive 25% year-over-year growth.',
       kpis: [
-        { id: Date.now()+401, typeKey: 'content_utilization', name: 'Content Utilization', unit: '%', value: 68, delta: 6 },
-        { id: Date.now()+402, typeKey: 'obsolete_content_pct', name: 'Obsolete Content Percentage', unit: '%', value: 22, delta: -4 },
-        { id: Date.now()+403, typeKey: 'avg_response_time', name: 'Average Response Time', unit: 'seconds', value: 37, delta: -5 }
+        { id: Date.now()+401, typeKey: 'content_utilization', name: 'Content Utilization', unit: '%', value: 78, delta: 12, objectiveId: Date.now() },
+        { id: Date.now()+402, typeKey: 'obsolete_content_pct', name: 'Obsolete Content Percentage', unit: '%', value: 18, delta: -7, objectiveId: Date.now() + 2 },
+        { id: Date.now()+403, typeKey: 'avg_response_time', name: 'Average Response Time', unit: 'seconds', value: 28, delta: -9, objectiveId: Date.now() },
+        { id: Date.now()+404, typeKey: 'customer_satisfaction', name: 'Customer Satisfaction', unit: '%', value: 92, delta: 5 },
+        { id: Date.now()+405, typeKey: 'escalation_rate', name: 'Escalation Rate', unit: '%', value: 8, delta: -3 }
       ],
       metrics: {
         periodType: 'Quarter',
@@ -271,8 +618,11 @@
         quarter: Math.floor((new Date().getMonth())/3)+1,
         year: new Date().getFullYear(),
         items: [
-          { id: Date.now()+101, name: 'Win Rate', valuePercent: 37, deltaPercent: 5 },
-          { id: Date.now()+102, name: 'Adoption', valuePercent: 62, deltaPercent: 8 }
+          { id: Date.now()+101, name: 'Overall Win Rate', valuePercent: 41, deltaPercent: 7 },
+          { id: Date.now()+102, name: 'Platform Adoption', valuePercent: 73, deltaPercent: 15 },
+          { id: Date.now()+103, name: 'Content Accuracy Score', valuePercent: 89, deltaPercent: 11 },
+          { id: Date.now()+104, name: 'Sales Productivity Index', valuePercent: 82, deltaPercent: 9 },
+          { id: Date.now()+105, name: 'Deal Velocity', valuePercent: 67, deltaPercent: 22 }
         ]
       }
     };
@@ -454,7 +804,7 @@
               </div>
               <div class="preview-box">
                 <div class="text-xs font-semibold text-slate-600 mb-1">Links</div>
-                ${o.s4Link ? `<a class="linkish text-sm" href="${o.s4Link}" target="_blank">Open S4</a>`: '<div class="text-sm text-slate-400">No links</div>'}
+                ${o.s4Link ? `<a class="linkish text-sm" href="${o.s4Link}" target="_blank">View in Jira</a>`: '<div class="text-sm text-slate-400">No links</div>'}
               </div>
             </div>` : ''}
         </div>`;
@@ -502,22 +852,24 @@
         const deltaSign = (k.delta||0) > 0 ? '+' : '';
         const unit = k.unit || type.unit || '';
         const deltaColor = isGood ? 'text-emerald-600' : 'text-rose-600';
-        const chipBg = isGood ? 'bg-gradient-to-r from-emerald-600 to-emerald-500' : 'bg-gradient-to-r from-rose-600 to-rose-500';
+        const deltaBg = isGood ? 'bg-emerald-100' : 'bg-rose-100';
         const linkedObj = k.objectiveId ? findObjectiveById(k.objectiveId) : null;
-        const linkedHtml = linkedObj ? `<div class="text-xs text-slate-500">Linked: <button class="linkish" data-role="view-linked" data-oid="${linkedObj.id}">${linkedObj.name}</button></div>` : '';
+        const linkedHtml = linkedObj ? `<div class="text-xs text-slate-500 mt-1">Linked: <button class="linkish" data-role="view-linked" data-oid="${linkedObj.id}">${linkedObj.name}</button></div>` : '';
         return `
-          <div class="flex items-center justify-between border p-3 mb-2" data-id="${k.id}">
-            <div class="min-w-0">
-              <div class="font-semibold truncate">${k.name}</div>
-              <div class="text-xs text-slate-500">Unit: ${unit}</div>
-              ${linkedHtml}
-            </div>
-            <div class="flex items-center gap-4">
-              <div class="text-right">
-                <div class="text-xl font-bold">${k.value}<span class="text-sm ml-1">${unit}</span></div>
-                <div class="text-xs ${deltaColor}"><span class="inline-block px-1 ${chipBg} text-white">${deltaSign}${k.delta}${unit ? ' ' + unit : ''}</span> vs prev</div>
+          <div class="border p-4 mb-3" data-id="${k.id}">
+            <div class="flex items-start justify-between">
+              <div class="min-w-0">
+                <div class="font-semibold text-base">${k.name}</div>
+                ${linkedHtml}
               </div>
-              <button class="text-slate-400 hover:text-red-600" data-role="remove-kpi">&times;</button>
+              <button class="text-slate-400 hover:text-red-600 ml-2" data-role="remove-kpi">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+              </button>
+            </div>
+            <div class="mt-3 flex items-baseline gap-2">
+              <span class="kpi-value">${k.value}</span>
+              <span class="kpi-unit">${unit}</span>
+              <span class="kpi-delta ${deltaBg} ${deltaColor} px-2 py-1">${deltaSign}${k.delta}${unit ? ' ' + unit : ''}</span>
             </div>
           </div>`;
       }).join('');
@@ -532,32 +884,37 @@
           <button class="btn btn-success" id="kpi-add-btn">+ Add KPI</button>
         </div>
         <div class="space-y-2" id="kpi-list">${kpiRows || '<div class="text-slate-500 text-sm">No KPIs yet.</div>'}</div>
-        <div class="mt-4 border p-3 space-y-3" id="kpi-creator">
+        <div class="mt-4 border p-4 space-y-3 hidden" id="kpi-creator">
+          <h4 class="font-semibold">Add New KPI</h4>
           <div class="grid grid-cols-1 gap-3">
             <div>
               <label class="block text-sm font-medium mb-1">KPI Type</label>
-              <select id="kpi-type" class="text-zone p-2 w-full">${typeOptions}</select>
+              <select id="kpi-type" class="text-zone p-2 w-full">
+                <option value="">Select a KPI type...</option>
+                ${typeOptions}
+              </select>
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Unit</label>
-              <input id="kpi-unit" class="text-zone p-2 w-full bg-slate-50 text-slate-500" readonly />
+              <input id="kpi-unit" class="text-zone p-2 w-full bg-slate-50 text-slate-500" readonly placeholder="Auto-filled based on type" />
             </div>
             <div>
-              <label class="block text-sm font-medium mb-1">Link Objective (optional)</label>
+              <label class="block text-sm font-medium mb-1">Link to Objective (optional)</label>
               <select id="kpi-obj" class="text-zone p-2 w-full"><option value="">— None —</option>${objectiveOptions}</select>
             </div>
-            <div class="grid grid-cols-3 gap-3">
+            <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="block text-sm font-medium mb-1">Current Value</label>
-                <input type="number" id="kpi-value" class="text-zone p-2 w-full" />
+                <input type="number" id="kpi-value" class="text-zone p-2 w-full" placeholder="0" />
               </div>
               <div>
-                <label class="block text-sm font-medium mb-1">Delta vs Prev</label>
-                <input type="number" id="kpi-delta" class="text-zone p-2 w-full" />
+                <label class="block text-sm font-medium mb-1">Change vs Previous Period</label>
+                <input type="number" id="kpi-delta" class="text-zone p-2 w-full" placeholder="0" />
               </div>
-              <div class="flex items-end">
-                <button id="kpi-create" class="btn btn-primary w-full">Create KPI</button>
-              </div>
+            </div>
+            <div class="flex gap-2">
+              <button id="kpi-cancel" class="btn btn-ghost">Cancel</button>
+              <button id="kpi-create" class="btn btn-success" disabled>Create KPI</button>
             </div>
           </div>
         </div>
@@ -565,14 +922,36 @@
 
       const typeSelect = document.getElementById('kpi-type');
       const unitInput = document.getElementById('kpi-unit');
+      const createBtn = document.getElementById('kpi-create');
+      const cancelBtn = document.getElementById('kpi-cancel');
+      const creatorDiv = document.getElementById('kpi-creator');
+      const addBtn = document.getElementById('kpi-add-btn');
+      
       const applyUnit = () => {
         const t = KPI_TYPES.find(x=>x.key===typeSelect.value);
         unitInput.value = t ? t.unit : '';
+        createBtn.disabled = !t;
       };
+      
       typeSelect.addEventListener('change', applyUnit);
       applyUnit();
 
-      document.getElementById('kpi-create').addEventListener('click', () => {
+      addBtn.addEventListener('click', () => {
+        creatorDiv.classList.remove('hidden');
+        addBtn.classList.add('hidden');
+      });
+
+      cancelBtn.addEventListener('click', () => {
+        creatorDiv.classList.add('hidden');
+        addBtn.classList.remove('hidden');
+        typeSelect.value = '';
+        document.getElementById('kpi-value').value = '';
+        document.getElementById('kpi-delta').value = '';
+        document.getElementById('kpi-obj').value = '';
+        applyUnit();
+      });
+
+      createBtn.addEventListener('click', () => {
         const key = typeSelect.value;
         const t = KPI_TYPES.find(x=>x.key===key);
         if (!t) return;
@@ -584,7 +963,10 @@
         state.kpis.unshift({ id: Date.now()+Math.random(), typeKey: key, name: t.label, unit: t.unit, value: v, delta: d, objectiveId });
         renderKPISection();
         autoSave();
-        showNotification('KPI created', 'success');
+        showNotification('KPI created successfully!', 'success');
+        
+        // Reset and hide form
+        cancelBtn.click();
       });
 
       root.addEventListener('click', (e)=>{
@@ -632,22 +1014,31 @@
           </div>`
       );
 
-      const items = (m.items||[]).map(it=>`
-        <div class="flex items-center gap-2 p-2 border" style="border-radius:2px;" data-id="${it.id}">
-          <input class="text-zone p-2 flex-1" placeholder="Metric name" value="${it.name||''}" data-role="metric-name" />
-          <div class="flex items-center gap-1">
-            <input type="number" class="text-zone p-2 w-20" value="${it.valuePercent||0}" min="0" max="999" step="1" data-role="metric-value" />
-            <span class="text-slate-500">%</span>
+      const items = (m.items||[]).map(it=>{
+        const deltaColor = (it.deltaPercent||0) >= 0 ? 'text-emerald-600' : 'text-rose-600';
+        const deltaBg = (it.deltaPercent||0) >= 0 ? 'bg-emerald-100' : 'bg-rose-100';
+        const deltaSign = (it.deltaPercent||0) >= 0 ? '+' : '';
+        return `
+        <div class="border p-4 mb-3" data-id="${it.id}">
+          <div class="flex items-start justify-between mb-2">
+            <input class="text-zone p-2 flex-1 font-semibold" placeholder="Metric name" value="${it.name||''}" data-role="metric-name" />
+            <button class="text-slate-400 hover:text-red-600" data-role="remove-metric" title="Remove">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
           </div>
-          <div class="flex items-center gap-1 text-emerald-700">
-            <span class="text-slate-500">Δ</span>
-            <input type="number" class="text-zone p-2 w-16" value="${it.deltaPercent||0}" step="1" data-role="metric-delta" />
-            <span class="text-slate-500">%</span>
-            <span class="text-xs text-slate-500">vs prev Q</span>
+          <div class="flex items-center gap-4">
+            <div class="flex items-baseline gap-1">
+              <input type="number" class="text-zone p-2 w-20 text-xl font-bold" value="${it.valuePercent||0}" min="0" max="999" step="1" data-role="metric-value" />
+              <span class="text-lg text-slate-500">%</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <span class="text-sm text-slate-500">Δ</span>
+              <input type="number" class="text-zone p-2 w-16 ${deltaColor}" value="${it.deltaPercent||0}" step="1" data-role="metric-delta" />
+              <span class="text-sm text-slate-500">%</span>
+            </div>
           </div>
-          <button class="text-slate-400 hover:text-red-600" data-role="remove-metric" title="Remove">&times;</button>
         </div>
-      `).join('');
+      `}).join('');
 
       wrap.innerHTML = `
         <h3 class="text-lg font-semibold mb-3">Performance Metrics</h3>
@@ -886,12 +1277,16 @@
           autoSave();
         }
 
-        // Plan Details + Mission Summary
-        if (e.target.id === 'health-score'){
-          state.planHealth = e.target.value;
-          autoSave();
-        }
-      });
+              // Plan Details + Mission Summary
+      if (e.target.id === 'health-score'){
+        state.planHealth = e.target.value;
+        autoSave();
+      }
+      if (e.target.id === 'mission-summary'){
+        state.missionSummary = e.target.value;
+        autoSave();
+      }
+    });
 
       // Metric item live input updates
       app.addEventListener('input', (e)=>{
@@ -1056,59 +1451,59 @@
       const modal = document.createElement('div');
       modal.className = 'modal-overlay';
       modal.innerHTML = `
-        <div class="modal-panel p-6 w-[700px] max-w-[90vw] max-h-[90vh] overflow-y-auto">
-          <div class="flex justify-between items-start mb-4">
+        <div class="modal-panel w-[700px] max-w-[90vw]">
+          <div class="modal-header">
             <h3 class="text-lg font-semibold">Objective Details</h3>
-            <button id="close-details-modal" class="text-slate-400 hover:text-slate-600">&times;</button>
+            <button id="close-details-modal" class="modal-close">&times;</button>
           </div>
-          
-          <div class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium mb-1 text-slate-600">Objective Name</label>
-              <p class="text-lg font-semibold">${objective.name}</p>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-4">
+          <div class="modal-body">
+            <div class="space-y-4">
               <div>
-                <label class="block text-sm font-medium mb-1 text-slate-600">Status</label>
-                <span class="status-pill ${pillClass(objective.status)}">${objective.status}</span>
+                <label class="block text-sm font-medium mb-1 text-slate-600">Objective Name</label>
+                <p class="text-lg font-semibold">${objective.name}</p>
               </div>
+              
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-slate-600">Status</label>
+                  <span class="status-pill ${pillClass(objective.status)}">${objective.status}</span>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-slate-600">Target Date</label>
+                  <p>${objective.targetDate || 'Not set'}</p>
+                </div>
+              </div>
+              
               <div>
-                <label class="block text-sm font-medium mb-1 text-slate-600">Target Date</label>
-                <p>${objective.targetDate || 'Not set'}</p>
+                <label class="block text-sm font-medium mb-1 text-slate-600">KPI Goal</label>
+                <div class="bg-slate-50 border border-slate-200 p-3">
+                  <p>${objective.kpiGoal || 'Not specified'}</p>
+                </div>
               </div>
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium mb-1 text-slate-600">KPI Goal</label>
-                             <div class="bg-slate-50 border border-slate-200 p-3" style="border-radius:2px;">
-                 <p>${objective.kpiGoal || 'Not specified'}</p>
-               </div>
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium mb-1 text-slate-600">Challenges</label>
-                             <div class="bg-slate-50 border border-slate-200 p-3" style="border-radius:2px;">
-                 <p>${objective.challenges || 'None identified'}</p>
-               </div>
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium mb-1 text-slate-600">Next Steps</label>
-                             <div class="bg-slate-50 border border-slate-200 p-3" style="border-radius:2px;">
-                 <p>${objective.nextSteps || 'Not specified'}</p>
-               </div>
-            </div>
-            
-            ${objective.s4Link ? `
+              
               <div>
-                <label class="block text-sm font-medium mb-1 text-slate-600">External Links</label>
-                <a href="${objective.s4Link}" target="_blank" class="linkish">${objective.s4Link}</a>
+                <label class="block text-sm font-medium mb-1 text-slate-600">Challenges</label>
+                <div class="bg-slate-50 border border-slate-200 p-3">
+                  <p>${objective.challenges || 'None identified'}</p>
+                </div>
               </div>
-            ` : ''}
+              
+              <div>
+                <label class="block text-sm font-medium mb-1 text-slate-600">Next Steps</label>
+                <div class="bg-slate-50 border border-slate-200 p-3">
+                  <p>${objective.nextSteps || 'Not specified'}</p>
+                </div>
+              </div>
+              
+              ${objective.s4Link ? `
+                <div>
+                  <label class="block text-sm font-medium mb-1 text-slate-600">External Links</label>
+                  <a href="${objective.s4Link}" target="_blank" class="linkish">${objective.s4Link}</a>
+                </div>
+              ` : ''}
+            </div>
           </div>
-          
-          <div class="flex justify-end mt-6">
+          <div class="modal-footer">
             <button id="close-details-modal-2" class="btn btn-outline">Close</button>
           </div>
         </div>
@@ -1126,9 +1521,13 @@
       const modal = document.createElement('div');
       modal.className = 'modal-overlay';
       modal.innerHTML = `
-        <div class="modal-panel p-6 w-[600px] max-w-[90vw] max-h-[90vh] overflow-y-auto">
-          <h3 class="text-lg font-semibold mb-4">Add New Objective</h3>
-          <div class="space-y-4">
+        <div class="modal-panel w-[600px] max-w-[90vw]">
+          <div class="modal-header">
+            <h3 class="text-lg font-semibold">Add New Objective</h3>
+            <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="space-y-4">
             <div>
               <label class="block text-sm font-medium mb-1">Objective Name</label>
               <select id="new-objective-name" class="text-zone p-2 w-full">
@@ -1161,8 +1560,9 @@
               <label class="block text-sm font-medium mb-1">S4 / External Link</label>
               <input type="text" id="new-objective-link" class="text-zone p-2 w-full" placeholder="https://">
             </div>
+            </div>
           </div>
-          <div class="flex justify-end gap-3 mt-6">
+          <div class="modal-footer">
             <button id="cancel-new-objective" class="btn btn-ghost">Cancel</button>
             <button id="save-new-objective" class="btn btn-primary">Save Objective</button>
           </div>
@@ -1340,9 +1740,13 @@
       const modal = document.createElement('div');
       modal.className = 'modal-overlay';
       modal.innerHTML = `
-        <div class="modal-panel p-6 w-96 max-w-md mx-4">
-          <h3 class="text-lg font-semibold mb-4">Add New Stakeholder</h3>
-          <div class="space-y-4">
+        <div class="modal-panel w-96 max-w-md">
+          <div class="modal-header">
+            <h3 class="text-lg font-semibold">Add New Stakeholder</h3>
+            <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="space-y-4">
             <div>
               <label class="block text-sm font-medium mb-1">Name</label>
               <input type="text" id="new-stakeholder-name" class="text-zone p-2 w-full" placeholder="Enter name">
@@ -1355,8 +1759,9 @@
               <label class="block text-sm font-medium mb-1">Email</label>
               <input type="email" id="new-stakeholder-email" class="text-zone p-2 w-full" placeholder="name@example.com">
             </div>
+            </div>
           </div>
-          <div class="flex justify-end gap-3 mt-6">
+          <div class="modal-footer">
             <button id="cancel-new-stakeholder" class="btn btn-ghost">Cancel</button>
             <button id="save-new-stakeholder" class="btn btn-primary">Save</button>
           </div>
@@ -1372,35 +1777,59 @@
         const title = modal.querySelector('#new-stakeholder-title').value.trim();
         const email = modal.querySelector('#new-stakeholder-email').value.trim();
         
-        if (name && title && email) {
-          const newStakeholder = {
-            id: Date.now() + Math.random(),
-            name: name,
-            title: title,
-            email: email
-          };
-          state.stakeholders.push(newStakeholder);
-          renderStakeholders();
-          modal.remove();
-          showNotification('New stakeholder added successfully!', 'success');
+        if (!name) {
+          showNotification('Please enter a name', 'error');
+          return;
         }
+        if (!title) {
+          showNotification('Please enter a title', 'error');
+          return;
+        }
+        if (!email || !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+          showNotification('Please enter a valid email address', 'error');
+          return;
+        }
+        
+        const newStakeholder = {
+          id: Date.now() + Math.random(),
+          name: name,
+          title: title,
+          email: email
+        };
+        state.stakeholders.push(newStakeholder);
+        renderStakeholders();
+        modal.remove();
+        showNotification('New stakeholder added successfully!', 'success');
       });
     }
     
     // Notification system
     function showNotification(message, type = 'info') {
       const notification = document.createElement('div');
-      notification.className = `fixed top-4 right-4 p-4 shadow-lg z-50 ${
-        type === 'success' ? 'bg-green-500 text-white' : 
-        type === 'error' ? 'bg-red-500 text-white' : 
-        'bg-blue-500 text-white'
+      notification.className = `fixed top-4 right-4 p-4 shadow-lg z-50 font-medium ${
+        type === 'success' ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white' : 
+        type === 'error' ? 'bg-gradient-to-r from-red-500 to-red-600 text-white' : 
+        'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
       }`;
       notification.textContent = message;
+      notification.style.minWidth = '250px';
       
       document.body.appendChild(notification);
       
+      // Fade in
+      notification.style.opacity = '0';
+      notification.style.transform = 'translateX(100%)';
+      notification.style.transition = 'all 0.3s ease';
+      
       setTimeout(() => {
-        notification.remove();
+        notification.style.opacity = '1';
+        notification.style.transform = 'translateX(0)';
+      }, 10);
+      
+      setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => notification.remove(), 300);
       }, 3000);
     }
     
@@ -1452,6 +1881,15 @@
         state.kpis = state.kpis.map((k, i) => k.objectiveId ? k : ({...k, objectiveId: ids[i % ids.length]}));
       }
     })();
+    
+    // Set last updated date
+    const updateDateElement = document.getElementById('last-updated-date');
+    if (updateDateElement) {
+      const today = new Date();
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      updateDateElement.textContent = today.toLocaleDateString('en-US', options);
+    }
+    
     renderAll();
     setupEvents();
     applyAutoResize();
