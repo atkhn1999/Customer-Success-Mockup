@@ -16,13 +16,13 @@
     body { font-family: 'Inter', sans-serif; background:#f1f5f9; color:var(--ink); }
 
     /* Unified text zones: every text/edit surface is clearly bordered with squircle borders and auto-sizing textareas */
-    .text-zone { width:100%; border-radius:14px; border:1px solid rgb(203 213 225); background: rgba(255,255,255,0.8); box-shadow: 0 1px 2px rgba(0,0,0,0.04); transition: box-shadow .2s, border-color .2s, background-color .2s; outline: none; }
+    .text-zone { width:100%; border-radius:2px; border:1px solid rgb(203 213 225); background:#fff; box-shadow:none; transition: border-color .2s, background-color .2s; outline: none; }
     .text-zone:focus { border-color: rgb(8 145 178); box-shadow: 0 0 0 4px rgba(8,145,178,0.2); }
     .text-area { resize: none; min-height: 2.75rem; overflow: hidden; font-size: clamp(0.9rem, 0.88rem + 0.2vw, 1rem); line-height: 1.6; }
-    .chip { display:inline-flex; align-items:center; gap:.25rem; padding:.25rem .5rem; font-size:.75rem; font-weight:600; border-radius:.5rem; border:1px solid rgba(15,23,42,.15); }
+    .chip { display:inline-flex; align-items:center; gap:.25rem; padding:.25rem .5rem; font-size:.75rem; font-weight:600; border-radius:2px; border:1px solid rgba(15,23,42,.15); }
 
     /* Status pills */
-    .status-pill { font-size: .75rem; font-weight: 600; margin-right: .5rem; padding: .125rem .625rem; border-radius: 9999px; display:inline-flex; align-items:center; }
+    .status-pill { font-size: .75rem; font-weight: 600; margin-right: .5rem; padding: .125rem .625rem; border-radius: 2px; display:inline-flex; align-items:center; }
     .status-green { background:#dcfce7; color:#166534; }
     .status-yellow { background:#fef9c3; color:#854d0e; }
     .status-red { background:#fee2e2; color:#991b1b; }
@@ -34,7 +34,7 @@
     .colored-filter:focus { border-color:#10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.25); }
 
     /* Cards + micro-transitions */
-    .card { background:#fff; border-radius:14px; box-shadow: 0 1px 2px rgba(16,24,40,0.04); border:1px solid rgba(226,232,240,0.8); }
+    .card { background:#fff; border-radius:2px; box-shadow:none; border:1px solid rgba(226,232,240,1); }
     .fade { transition: all .2s ease; }
     .removing { transform: scale(.98); opacity:0; max-height:0; padding-top:0; padding-bottom:0; margin-top:0; margin-bottom:0; border-width:0; }
     
@@ -49,7 +49,7 @@
     }
 
     /* Preview blocks inside objective cards */
-    .preview-box { background: linear-gradient(180deg, #f8fafc, #f1f5f9); border:1px solid rgb(226 232 240); border-radius:12px; padding:0.75rem; }
+    .preview-box { background:#f8fafc; border:1px solid rgb(226 232 240); border-radius:2px; padding:0.75rem; }
 
     /* Small helpers */
     .health-dot { width:0.75rem; height:0.75rem; border-radius:9999px; display:inline-block; margin-right:0.5rem; }
@@ -57,14 +57,14 @@
     .linkish:hover { color:#0a3f56; }
     /* Modal aesthetics */
     .modal-overlay { position:fixed; inset:0; background: rgba(0,0,0,0.55); backdrop-filter: blur(2px); display:flex; align-items:center; justify-content:center; z-index:50; }
-    .modal-panel { border-radius:16px; border:1px solid rgba(226,232,240,0.9); box-shadow: 0 20px 40px rgba(2,6,23,0.25); max-height:90vh; overflow-y:auto; background: linear-gradient(135deg, #ffffff, #f8fafc, #ecfeff); }
-    .modal-header { padding:1rem 1.5rem; border-bottom:1px solid rgba(226,232,240,0.7); background: linear-gradient(90deg, rgba(8,145,178,0.08), rgba(16,185,129,0.08)); border-top-left-radius:16px; border-top-right-radius:16px; }
+    .modal-panel { border-radius:2px; border:1px solid rgba(226,232,240,0.9); box-shadow: 0 20px 40px rgba(2,6,23,0.25); max-height:90vh; overflow-y:auto; background:#ffffff; }
+    .modal-header { padding:1rem 1.5rem; border-bottom:1px solid rgba(226,232,240,0.7); background: linear-gradient(90deg, rgba(8,145,178,0.08), rgba(16,185,129,0.08)); border-top-left-radius:2px; border-top-right-radius:2px; }
     .modal-body { padding:1.5rem; }
     .modal-footer { padding:1rem 1.5rem; border-top:1px solid rgba(226,232,240,0.7); display:flex; justify-content:flex-end; gap:.75rem; }
 
     /* Buttons: high-contrast, modern */
-    .btn { display:inline-flex; align-items:center; gap:.5rem; font-weight:600; border-radius:10px; padding:.5rem .75rem; border:1px solid transparent; transition: all .2s ease; }
-    .btn-sm { padding:.25rem .5rem; font-size:.875rem; border-radius:8px; }
+    .btn { display:inline-flex; align-items:center; gap:.5rem; font-weight:600; border-radius:2px; padding:.5rem .75rem; border:1px solid transparent; transition: all .2s ease; }
+    .btn-sm { padding:.25rem .5rem; font-size:.875rem; border-radius:2px; }
     .btn-primary { background:#0f172a; color:#fff; }
     .btn-primary:hover { background:#111827; }
     .btn-success { background:#059669; color:#fff; }
@@ -77,14 +77,14 @@
 </head>
 <body>
   <div id="app" class="max-w-screen-xl mx-auto p-4 sm:p-6 lg:p-8">
-    <header class="mb-10 p-8 rounded-xl bg-gradient-to-r from-cyan-800 to-emerald-600 text-white shadow-lg flex justify-between items-center">
+    <header class="mb-10 p-8 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 text-white flex justify-between items-center" style="border-radius:2px;">
       <div>
         <h1 class="text-4xl font-bold">Customer Success Plan</h1>
         <p class="text-cyan-200 mt-2">A collaborative plan to track and achieve outcomes. Last updated: Aug 12, 2025</p>
       </div>
       <div class="flex items-center gap-3">
-        <button id="export-excel-btn" class="btn btn-outline">Export Excel</button>
-        <button id="export-pdf-btn" class="btn btn-primary flex items-center">
+        <button id="export-excel-btn" class="btn btn-outline bg-gradient-to-r from-emerald-600 to-teal-500 text-white border-0">Export Excel</button>
+        <button id="export-pdf-btn" class="btn btn-primary flex items-center bg-gradient-to-r from-sky-600 to-indigo-500 border-0">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>
           Export PDF
         </button>
@@ -138,6 +138,7 @@
 
       <!-- Right -->
       <div class="lg:col-span-1 space-y-8">
+        <section id="kpi-section" class="card p-6"></section>
         <section id="metrics-section" class="card p-6"></section>
         <section class="card p-6">
           <h3 class="text-lg font-semibold mb-3">Plan Details</h3>
@@ -201,7 +202,17 @@
     // ---------- Data ----------
     const objectiveOptions = ['Reduce time spent per response', 'Adoption', 'Content library clean up', 'Increase win rate'];
     const valueOptions = ['Time Savings', 'Win Rate Increase', 'Adoption Rate', 'Cost Reduction', 'Revenue Growth', 'Productivity Gain'];
-    
+
+    // Predefined KPI types catalogue for auto unit + delta direction
+    const KPI_TYPES = [
+      { key: 'content_utilization', label: 'Content Utilization', unit: '%', direction: 'up_is_good' },
+      { key: 'obsolete_content_pct', label: 'Obsolete Content Percentage', unit: '%', direction: 'down_is_good' },
+      { key: 'avg_response_time', label: 'Average Response Time', unit: 'seconds', direction: 'down_is_good' },
+      { key: 'customer_satisfaction', label: 'Customer Satisfaction', unit: '%', direction: 'up_is_good' },
+      { key: 'tickets_resolved', label: 'Support Tickets Resolved', unit: 'count', direction: 'up_is_good' },
+      { key: 'escalation_rate', label: 'Escalation Rate', unit: '%', direction: 'down_is_good' }
+    ];
+
     // Suggested KPIs based on product selection
     const productKPIs = {
       'AI': ['Unedited AI responses', '% answer with AI', 'AI response quality score', 'AI adoption rate'],
@@ -245,10 +256,15 @@
         nextSteps: 'Work with Samantha Ray to identify content owners.', s4Link: 'https://s4.example.com/ticket/12346',
         editing: false, expanded: false
       }],
-      pastObjectives: [],
+      pastObjectives: [{ id: Date.now()+100, name: 'Increase win rate', targetDate: '2025-06-30', status: 'Completed', kpiGoal: 'Raise win rate from 30% to 35% by Q2.', challenges: 'Competitive pricing pressure.', nextSteps: 'Monitor sustainment and share best practices.', s4Link: 'https://s4.example.com/ticket/12001', editing: false, expanded: false }],
       valueRealized: [{ id: Date.now(), type: 'Time Savings', description: 'Saved ~5 hours/week per agent in Q3.', date: '2025-07-30', link: 'https://datastudio.example.com/report/1' }],
       planHealth: 'green',
       missionSummary: 'To empower the sales team by centralizing our content, reducing response times, and providing data-driven insights that directly contribute to winning more business and increasing revenue.',
+      kpis: [
+        { id: Date.now()+401, typeKey: 'content_utilization', name: 'Content Utilization', unit: '%', value: 68, delta: 6 },
+        { id: Date.now()+402, typeKey: 'obsolete_content_pct', name: 'Obsolete Content Percentage', unit: '%', value: 22, delta: -4 },
+        { id: Date.now()+403, typeKey: 'avg_response_time', name: 'Average Response Time', unit: 'seconds', value: 37, delta: -5 }
+      ],
       metrics: {
         periodType: 'Quarter',
         month: new Date().toISOString().slice(0,7),
@@ -275,6 +291,7 @@
       if (days <= 90) return { dot:'bg-yellow-500', icon:'🟡' };
       return { dot:'bg-green-500', icon:'🟢' };
     };
+    const findObjectiveById = (id) => state.objectives.find(x=>x.id===id) || state.pastObjectives.find(x=>x.id===id) || null;
 
     // Auto-resize and responsive preview
     function autoResizeTextarea(textarea) {
@@ -458,10 +475,11 @@
     function renderStakeholders(){
       const c = $('#stakeholders-container');
       c.innerHTML = state.stakeholders.map(s=>`
-        <div id="stakeholder-${s.id}" class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border" data-id="${s.id}">
+        <div id="stakeholder-${s.id}" class="flex items-center justify-between p-3 bg-slate-50 border" style="border-radius:2px;" data-id="${s.id}">
           <div>
             <p class="font-semibold">${s.name}</p>
             <p class="text-sm text-slate-500">${s.title}</p>
+            <p class="text-xs text-slate-500">${s.email || ''}</p>
           </div>
           <button class="text-slate-400 hover:text-red-600" data-role="remove-stakeholder">&times;</button>
         </div>
@@ -471,6 +489,117 @@
       const unselected = mockContacts.filter(mc => !state.stakeholders.find(sc=>sc.id===mc.id));
       sel.innerHTML = '<option value="">+ Select a contact...</option>' + unselected.map(c=>`<option value="${c.id}">${c.name}</option>`).join('') + '<option value="new">Add New Stakeholder...</option>';
       autoSave();
+    }
+
+    function renderKPISection(){
+      const root = document.getElementById('kpi-section');
+      if (!root) return;
+      const kpis = state.kpis || [];
+
+      const kpiRows = kpis.map(k => {
+        const type = KPI_TYPES.find(t=>t.key===k.typeKey) || { direction: 'up_is_good', unit: k.unit||'' };
+        const isGood = type.direction === 'up_is_good' ? (k.delta||0) >= 0 : (k.delta||0) <= 0;
+        const deltaSign = (k.delta||0) > 0 ? '+' : '';
+        const unit = k.unit || type.unit || '';
+        const deltaColor = isGood ? 'text-emerald-600' : 'text-rose-600';
+        const chipBg = isGood ? 'bg-gradient-to-r from-emerald-600 to-emerald-500' : 'bg-gradient-to-r from-rose-600 to-rose-500';
+        const linkedObj = k.objectiveId ? findObjectiveById(k.objectiveId) : null;
+        const linkedHtml = linkedObj ? `<div class="text-xs text-slate-500">Linked: <button class="linkish" data-role="view-linked" data-oid="${linkedObj.id}">${linkedObj.name}</button></div>` : '';
+        return `
+          <div class="flex items-center justify-between border p-3 mb-2" data-id="${k.id}">
+            <div class="min-w-0">
+              <div class="font-semibold truncate">${k.name}</div>
+              <div class="text-xs text-slate-500">Unit: ${unit}</div>
+              ${linkedHtml}
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="text-right">
+                <div class="text-xl font-bold">${k.value}<span class="text-sm ml-1">${unit}</span></div>
+                <div class="text-xs ${deltaColor}"><span class="inline-block px-1 ${chipBg} text-white">${deltaSign}${k.delta}${unit ? ' ' + unit : ''}</span> vs prev</div>
+              </div>
+              <button class="text-slate-400 hover:text-red-600" data-role="remove-kpi">&times;</button>
+            </div>
+          </div>`;
+      }).join('');
+
+      const typeOptions = KPI_TYPES.map(t=>`<option value="${t.key}">${t.label}</option>`).join('');
+      const objectiveOptions = [...(state.objectives||[]), ...(state.pastObjectives||[])]
+        .map(o=>`<option value="${o.id}">${o.name}</option>`).join('');
+
+      root.innerHTML = `
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-lg font-semibold">KPIs</h3>
+          <button class="btn btn-success" id="kpi-add-btn">+ Add KPI</button>
+        </div>
+        <div class="space-y-2" id="kpi-list">${kpiRows || '<div class="text-slate-500 text-sm">No KPIs yet.</div>'}</div>
+        <div class="mt-4 border p-3 space-y-3" id="kpi-creator">
+          <div class="grid grid-cols-1 gap-3">
+            <div>
+              <label class="block text-sm font-medium mb-1">KPI Type</label>
+              <select id="kpi-type" class="text-zone p-2 w-full">${typeOptions}</select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Unit</label>
+              <input id="kpi-unit" class="text-zone p-2 w-full bg-slate-50 text-slate-500" readonly />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Link Objective (optional)</label>
+              <select id="kpi-obj" class="text-zone p-2 w-full"><option value="">— None —</option>${objectiveOptions}</select>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+              <div>
+                <label class="block text-sm font-medium mb-1">Current Value</label>
+                <input type="number" id="kpi-value" class="text-zone p-2 w-full" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1">Delta vs Prev</label>
+                <input type="number" id="kpi-delta" class="text-zone p-2 w-full" />
+              </div>
+              <div class="flex items-end">
+                <button id="kpi-create" class="btn btn-primary w-full">Create KPI</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const typeSelect = document.getElementById('kpi-type');
+      const unitInput = document.getElementById('kpi-unit');
+      const applyUnit = () => {
+        const t = KPI_TYPES.find(x=>x.key===typeSelect.value);
+        unitInput.value = t ? t.unit : '';
+      };
+      typeSelect.addEventListener('change', applyUnit);
+      applyUnit();
+
+      document.getElementById('kpi-create').addEventListener('click', () => {
+        const key = typeSelect.value;
+        const t = KPI_TYPES.find(x=>x.key===key);
+        if (!t) return;
+        const v = Number(document.getElementById('kpi-value').value || 0);
+        const d = Number(document.getElementById('kpi-delta').value || 0);
+        const objSel = document.getElementById('kpi-obj');
+        const objectiveId = objSel && objSel.value ? Number(objSel.value) : null;
+        state.kpis = state.kpis || [];
+        state.kpis.unshift({ id: Date.now()+Math.random(), typeKey: key, name: t.label, unit: t.unit, value: v, delta: d, objectiveId });
+        renderKPISection();
+        autoSave();
+        showNotification('KPI created', 'success');
+      });
+
+      root.addEventListener('click', (e)=>{
+        if (e.target && e.target.matches('[data-role="remove-kpi"]')){
+          const id = Number(e.target.closest('[data-id]').dataset.id);
+          state.kpis = (state.kpis||[]).filter(x=>x.id!==id);
+          renderKPISection();
+          autoSave();
+        }
+        if (e.target && e.target.matches('[data-role="view-linked"]')){
+          const oid = Number(e.target.getAttribute('data-oid'));
+          const obj = findObjectiveById(oid);
+          if (obj) showObjectiveDetailsModal(obj);
+        }
+      });
     }
 
     function renderMetrics(){
@@ -504,7 +633,7 @@
       );
 
       const items = (m.items||[]).map(it=>`
-        <div class="flex items-center gap-2 p-2 border rounded-lg" data-id="${it.id}">
+        <div class="flex items-center gap-2 p-2 border" style="border-radius:2px;" data-id="${it.id}">
           <input class="text-zone p-2 flex-1" placeholder="Metric name" value="${it.name||''}" data-role="metric-name" />
           <div class="flex items-center gap-1">
             <input type="number" class="text-zone p-2 w-20" value="${it.valuePercent||0}" min="0" max="999" step="1" data-role="metric-value" />
@@ -544,6 +673,7 @@
       renderObjectives();
       renderStakeholders();
       renderMetrics();
+      renderKPISection();
       syncTopControls();
     }
 
@@ -951,23 +1081,23 @@
             
             <div>
               <label class="block text-sm font-medium mb-1 text-slate-600">KPI Goal</label>
-              <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
-                <p>${objective.kpiGoal || 'Not specified'}</p>
-              </div>
+                             <div class="bg-slate-50 border border-slate-200 p-3" style="border-radius:2px;">
+                 <p>${objective.kpiGoal || 'Not specified'}</p>
+               </div>
             </div>
             
             <div>
               <label class="block text-sm font-medium mb-1 text-slate-600">Challenges</label>
-              <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
-                <p>${objective.challenges || 'None identified'}</p>
-              </div>
+                             <div class="bg-slate-50 border border-slate-200 p-3" style="border-radius:2px;">
+                 <p>${objective.challenges || 'None identified'}</p>
+               </div>
             </div>
             
             <div>
               <label class="block text-sm font-medium mb-1 text-slate-600">Next Steps</label>
-              <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
-                <p>${objective.nextSteps || 'Not specified'}</p>
-              </div>
+                             <div class="bg-slate-50 border border-slate-200 p-3" style="border-radius:2px;">
+                 <p>${objective.nextSteps || 'Not specified'}</p>
+               </div>
             </div>
             
             ${objective.s4Link ? `
@@ -1221,6 +1351,10 @@
               <label class="block text-sm font-medium mb-1">Title</label>
               <input type="text" id="new-stakeholder-title" class="text-zone p-2 w-full" placeholder="Enter title">
             </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Email</label>
+              <input type="email" id="new-stakeholder-email" class="text-zone p-2 w-full" placeholder="name@example.com">
+            </div>
           </div>
           <div class="flex justify-end gap-3 mt-6">
             <button id="cancel-new-stakeholder" class="btn btn-ghost">Cancel</button>
@@ -1236,13 +1370,14 @@
       modal.querySelector('#save-new-stakeholder').addEventListener('click', () => {
         const name = modal.querySelector('#new-stakeholder-name').value.trim();
         const title = modal.querySelector('#new-stakeholder-title').value.trim();
+        const email = modal.querySelector('#new-stakeholder-email').value.trim();
         
-        if (name && title) {
+        if (name && title && email) {
           const newStakeholder = {
             id: Date.now() + Math.random(),
             name: name,
             title: title,
-            email: ''
+            email: email
           };
           state.stakeholders.push(newStakeholder);
           renderStakeholders();
@@ -1255,7 +1390,7 @@
     // Notification system
     function showNotification(message, type = 'info') {
       const notification = document.createElement('div');
-      notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+      notification.className = `fixed top-4 right-4 p-4 shadow-lg z-50 ${
         type === 'success' ? 'bg-green-500 text-white' : 
         type === 'error' ? 'bg-red-500 text-white' : 
         'bg-blue-500 text-white'
@@ -1278,29 +1413,30 @@
       }
     }
     
-    function loadFromLocalStorage() {
-      try {
-        const saved = localStorage.getItem('customerSuccessPlan');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          Object.assign(state, parsed);
-          // Ensure metrics shape exists after upgrades
-          if (!state.metrics) {
-            state.metrics = {
-              periodType: 'Quarter',
-              month: new Date().toISOString().slice(0,7),
-              quarter: Math.floor((new Date().getMonth())/3)+1,
-              year: new Date().getFullYear(),
-              items: []
-            };
-          }
-          if (typeof state.planHealth === 'undefined') state.planHealth = 'green';
-          if (typeof state.missionSummary === 'undefined') state.missionSummary = '';
-        }
-      } catch (error) {
-        console.warn('Could not load from localStorage:', error);
-      }
-    }
+         function loadFromLocalStorage() {
+       try {
+         const saved = localStorage.getItem('customerSuccessPlan');
+         if (saved) {
+           const parsed = JSON.parse(saved);
+           Object.assign(state, parsed);
+           // Ensure metrics shape exists after upgrades
+           if (!state.metrics) {
+             state.metrics = {
+               periodType: 'Quarter',
+               month: new Date().toISOString().slice(0,7),
+               quarter: Math.floor((new Date().getMonth())/3)+1,
+               year: new Date().getFullYear(),
+               items: []
+             };
+           }
+           if (!state.kpis) state.kpis = [];
+           if (typeof state.planHealth === 'undefined') state.planHealth = 'green';
+           if (typeof state.missionSummary === 'undefined') state.missionSummary = '';
+         }
+       } catch (error) {
+         console.warn('Could not load from localStorage:', error);
+       }
+     }
     
     // Auto-save on any state change
     function autoSave() {
@@ -1309,6 +1445,13 @@
     
     // ---------- Init ----------
     loadFromLocalStorage();
+    // Demo: ensure seeded KPIs are linked to objectives for showcase if not already
+    (function(){
+      const ids = [...(state.objectives||[]).map(o=>o.id), ...(state.pastObjectives||[]).map(o=>o.id)];
+      if ((state.kpis||[]).length && ids.length) {
+        state.kpis = state.kpis.map((k, i) => k.objectiveId ? k : ({...k, objectiveId: ids[i % ids.length]}));
+      }
+    })();
     renderAll();
     setupEvents();
     applyAutoResize();
