@@ -83,7 +83,7 @@
         <p class="text-cyan-200 mt-2">A collaborative plan to track and achieve outcomes. Last updated: Aug 12, 2025</p>
       </div>
       <div class="flex items-center gap-3">
-        <button id="export-excel-btn" class="btn btn-outline bg-gradient-to-r from-emerald-600 to-teal-500 text-white border-0">Export Excel</button>
+        <button id="export-excel-btn" class="btn btn-outline text-white/90 border-white/40 hover:bg-white/10">Export Excel</button>
         <button id="export-pdf-btn" class="btn btn-primary flex items-center bg-gradient-to-r from-sky-600 to-indigo-500 border-0">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>
           Export PDF
@@ -94,7 +94,7 @@
     <!-- Mission Summary -->
     <section class="card mb-6 p-6">
       <h2 class="text-2xl font-bold mb-4">Mission Summary</h2>
-      <textarea id="mission-summary" class="text-zone text-area p-3" rows="3" placeholder="Describe the primary business outcome and vision..."></textarea>
+                 <textarea id="mission-summary" class="text-zone text-area p-3" rows="3" placeholder="Describe the primary business outcome and vision..." disabled></textarea>
     </section>
 
     <!-- Mission Goals -->
@@ -108,7 +108,7 @@
 
     <main class="grid grid-cols-1 lg:grid-cols-4 gap-8">
       <!-- Left -->
-      <div class="lg:col-span-3 space-y-8">
+      <div class="lg:col-span-3 space-y-8" id="main-left">
         <!-- Value Realized -->
         <section id="value-realized" class="card p-6">
           <div class="flex justify-between items-center mb-4">
@@ -120,16 +120,16 @@
         </section>
 
         <!-- Current Objectives -->
-        <section id="current-objectives" class="card p-6">
+                 <section id="current-objectives" class="card p-6" data-role="objectives">
           <div class="flex justify-between items-center mb-4">
             <h2 class="text-2xl font-bold">Current Objectives</h2>
-            <button id="add-objective-btn" class="btn btn-primary">+ Add Objective</button>
+            <button id="add-objective-btn" class="btn bg-gradient-to-r from-sky-600 to-indigo-500 text-white border-0">+ Add Objective</button>
           </div>
           <div id="objectives-container" class="space-y-6"></div>
         </section>
 
         <!-- Past Objectives -->
-        <section id="past-objectives" class="card p-6">
+                 <section id="past-objectives" class="card p-6" data-role="objectives">
           <h2 class="text-2xl font-bold mb-4">Past Objectives Achieved</h2>
           <div id="past-objectives-container" class="space-y-6"></div>
           <div id="no-past-objectives" class="hidden text-center py-10 px-4 text-slate-500">Completed objectives will appear here.</div>
@@ -138,8 +138,9 @@
 
       <!-- Right -->
       <div class="lg:col-span-1 space-y-8">
-        <section id="kpi-section" class="card p-6"></section>
-        <section id="metrics-section" class="card p-6"></section>
+                 <section id="kpi-section" class="card p-6"></section>
+         <section id="period-controls" class="card p-6"></section>
+        
         <section class="card p-6">
           <h3 class="text-lg font-semibold mb-3">Plan Details</h3>
           <label class="block text-sm font-medium mb-1">Overall Health</label>
@@ -194,8 +195,17 @@
             <option value="new">Add New Stakeholder...</option>
           </select>
         </section>
+            </div>
+      
+      <!-- View lock toolbar -->
+      <div id="view-lock-toolbar" class="sticky bottom-4 left-0 right-0 flex justify-center pointer-events-none">
+        <div class="pointer-events-auto flex gap-2 bg-white/80 backdrop-blur border rounded-sm px-3 py-2 shadow" style="border-radius:2px;">
+          <button id="enter-edit-mode" class="btn btn-primary">Edit</button>
+          <button id="save-edits" class="btn btn-success hidden">Save</button>
+          <button id="cancel-edits" class="btn btn-outline hidden">Cancel</button>
+        </div>
       </div>
-    </main>
+     </main>
   </div>
 
   <script>
@@ -210,7 +220,12 @@
       { key: 'avg_response_time', label: 'Average Response Time', unit: 'seconds', direction: 'down_is_good' },
       { key: 'customer_satisfaction', label: 'Customer Satisfaction', unit: '%', direction: 'up_is_good' },
       { key: 'tickets_resolved', label: 'Support Tickets Resolved', unit: 'count', direction: 'up_is_good' },
-      { key: 'escalation_rate', label: 'Escalation Rate', unit: '%', direction: 'down_is_good' }
+      { key: 'escalation_rate', label: 'Escalation Rate', unit: '%', direction: 'down_is_good' },
+      // Examples requested
+      { key: 'csat', label: 'CSAT', unit: '%', direction: 'up_is_good' },
+      { key: 'content_utilization_pct', label: 'Content Utilization (%)', unit: '%', direction: 'up_is_good' },
+      { key: 'obsolete_content_rate', label: 'Obsolete Content %', unit: '%', direction: 'down_is_good' },
+      { key: 'avg_response_time_s', label: 'Avg Response Time (s)', unit: 's', direction: 'down_is_good' }
     ];
 
     // Suggested KPIs based on product selection
@@ -270,10 +285,7 @@
         month: new Date().toISOString().slice(0,7),
         quarter: Math.floor((new Date().getMonth())/3)+1,
         year: new Date().getFullYear(),
-        items: [
-          { id: Date.now()+101, name: 'Win Rate', valuePercent: 37, deltaPercent: 5 },
-          { id: Date.now()+102, name: 'Adoption', valuePercent: 62, deltaPercent: 8 }
-        ]
+        items: []
       }
     };
 
@@ -312,24 +324,25 @@
     // ---------- Renderers ----------
     function renderMissionGoals(){
       const c = $('#mission-goals-container');
+      const dis = uiEditMode ? '' : 'disabled';
       c.innerHTML = state.missionGoals.map(g=>`
         <div id="mission-goal-${g.id}" class="card p-4" data-id="${g.id}">
           <div class="flex items-center justify-between gap-2">
-            <input class="text-zone p-2 font-semibold" value="${g.title}" data-role="goal-title" />
-            <button class="text-slate-400 hover:text-red-600" data-role="remove-goal">&times;</button>
+            <input class="text-zone p-2 font-semibold" value="${g.title}" data-role="goal-title" ${dis}/>
+            <button class="text-slate-400 hover:text-red-600" data-role="remove-goal" ${dis}>&times;</button>
           </div>
-          <textarea class="text-zone text-area p-3 mt-2 text-sm" rows="3" placeholder="Goal description..." data-role="goal-desc">${g.description||''}</textarea>
+          <textarea class="text-zone text-area p-3 mt-2 text-sm" rows="3" placeholder="Goal description..." data-role="goal-desc" ${dis}>${g.description||''}</textarea>
           <div class="mt-3 space-y-2" data-role="custom-fields">
             ${(g.customFields||[]).map(f=>`
               <div class="flex items-center gap-2" data-field-id="${f.id}">
-                <input class="text-zone p-2 text-xs font-semibold" value="${f.label}" placeholder="Field name" data-role="cf-label" />
-                <input class="text-zone p-2 text-xs flex-1" value="${f.value||''}" placeholder="Value or https://link" data-role="cf-value" />
+                <input class="text-zone p-2 text-xs font-semibold w-40" value="${f.label}" placeholder="Field name" data-role="cf-label" ${dis}/>
+                <input class="text-zone p-2 text-xs flex-1 min-w-[16rem]" value="${f.value||''}" placeholder="Value or https://link" data-role="cf-value" ${dis}/>
                 <a href="${/^https?:\/\//.test(f.value)?f.value:'#'}" target="_blank" class="${/^https?:\/\//.test(f.value)?'linkish':'pointer-events-none opacity-40'} text-xs">Attach</a>
-                <button class="text-slate-400 hover:text-red-600" title="Remove" data-role="remove-cf">🗑️</button>
+                <button class="text-slate-400 hover:text-red-600" title="Remove" data-role="remove-cf" ${dis}>🗑️</button>
               </div>
             `).join('')}
           </div>
-          <button class="text-cyan-700 font-semibold mt-2" data-role="add-cf">+ Add Custom Field</button>
+          <button class="text-cyan-700 font-semibold mt-2" data-role="add-cf" ${dis}>+ Add Custom Field</button>
         </div>
       `).join('');
       applyAutoResize(c);
@@ -337,26 +350,27 @@
     }
 
     function valueItemHTML(item){
+      const dis = uiEditMode ? '' : 'disabled';
       return `
         <div id="value-${item.id}" class="card p-4" data-id="${item.id}">
           <div class="flex items-center justify-between">
-            <select class="text-zone p-2 text-sm font-semibold value-type-select">
+            <select class="text-zone p-2 text-sm font-semibold value-type-select" ${dis}>
               ${valueOptions.map(opt=>`<option ${opt===item.type?'selected':''}>${opt}</option>`).join('')}
             </select>
-            <button class="text-slate-400 hover:text-slate-600" data-role="remove-value">&times;</button>
+            <button class="text-slate-400 hover:text-slate-600" data-role="remove-value" ${dis}>&times;</button>
           </div>
           <div class="mt-3">
             <label class="block text-xs font-medium mb-1">Description</label>
-            <textarea class="text-zone text-area p-3 text-sm" rows="3" data-role="value-desc">${item.description||''}</textarea>
+            <textarea class="text-zone text-area p-3 text-sm" rows="3" data-role="value-desc" ${dis}>${item.description||''}</textarea>
           </div>
           <div class="grid grid-cols-2 gap-3 mt-3">
             <div>
               <label class="block text-xs font-medium mb-1">Date Realized</label>
-              <input type="date" value="${item.date||''}" class="text-zone p-2" data-role="value-date" />
+              <input type="date" value="${item.date||''}" class="text-zone p-2" data-role="value-date" ${dis} />
             </div>
             <div>
               <label class="block text-xs font-medium mb-1">Reference Link</label>
-              <input type="text" value="${item.link||''}" placeholder="https://" class="text-zone p-2" data-role="value-link" />
+              <input type="text" value="${item.link||''}" placeholder="https://" class="text-zone p-2" data-role="value-link" ${dis} />
             </div>
           </div>
         </div>`;
@@ -412,8 +426,36 @@
               </div>
               <div>
                 <label class="block text-sm font-medium mb-1">S4 / External Link</label>
-                <input class="text-zone p-2" value="${o.s4Link||''}" placeholder="https://" data-role="edit-link" />
+                <input class="text-zone p-2 w-full" value="${o.s4Link||''}" placeholder="https://" data-role="edit-link" />
                 ${o.s4Link?`<a class="linkish text-sm mt-1 inline-block" href="${o.s4Link}" target="_blank">Open</a>`:''}
+              </div>
+            </div>
+            <div class="mt-4">
+              <div class="flex items-center justify-between mb-2">
+                <div class="text-sm font-semibold">KPIs</div>
+                <button class="btn bg-gradient-to-r from-emerald-600 to-teal-500 text-white border-0 btn-sm" data-role="add-kpi-in-objective" ${uiEditMode?'':'disabled'}>+ Add KPI</button>
+              </div>
+              <div class="space-y-2">
+                ${(state.kpis||[]).filter(k=>k.objectiveId===o.id).map(k=>{
+                  const { entry } = getKpiEntryForCurrent(k);
+                  const delta = Math.round((entry.delta||0)*10)/10;
+                  const arrow = (delta||0) >= 0 ? '▲' : '▼';
+                  const deltaColor = (delta||0) >= 0 ? 'text-emerald-600' : 'text-rose-600';
+                  return `
+                    <div class="flex items-center justify-between border p-2" data-kpi-id="${k.id}">
+                      <div class="min-w-0">
+                        <div class="font-semibold truncate">${k.name}</div>
+                      </div>
+                      <div class="flex items-center gap-3">
+                        <div class="text-right">
+                          <div class="text-lg font-bold">${entry.current ?? 0}</div>
+                          <div class="text-xs ${deltaColor}">${arrow} ${delta}% vs prev</div>
+                        </div>
+                        ${uiEditMode ? `<button class="text-slate-400 hover:text-slate-600" data-role="edit-kpi" title="Edit">✎</button>`:''}
+                        ${uiEditMode ? `<button class="text-slate-400 hover:text-red-600" data-role="remove-kpi" title="Remove">&times;</button>`:''}
+                      </div>
+                    </div>`;
+                }).join('') || '<div class="text-slate-500 text-sm">No KPIs linked.</div>'}
               </div>
             </div>
           </div>`;
@@ -432,7 +474,7 @@
             <div class="flex items-center gap-2">
               <button class="btn btn-ghost btn-sm" data-role="toggle-expand">${o.expanded?'Hide preview':'Show more'}</button>
               <button class="btn btn-ghost btn-sm" data-role="view-details">View Details</button>
-              <button class="btn btn-outline btn-sm" data-role="edit">Edit</button>
+              <button class="btn btn-outline btn-sm" data-role="edit" ${uiEditMode?'':'disabled'}>Edit</button>
             </div>
           </div>
 
@@ -457,6 +499,34 @@
                 ${o.s4Link ? `<a class="linkish text-sm" href="${o.s4Link}" target="_blank">Open S4</a>`: '<div class="text-sm text-slate-400">No links</div>'}
               </div>
             </div>` : ''}
+          <div class="mt-4">
+            <div class="flex items-center justify-between mb-2">
+              <div class="text-sm font-semibold">KPIs</div>
+              <button class="btn bg-gradient-to-r from-emerald-600 to-teal-500 text-white border-0 btn-sm" data-role="add-kpi-in-objective" ${uiEditMode?'':'disabled'}>+ Add KPI</button>
+            </div>
+            <div class="space-y-2">
+              ${(state.kpis||[]).filter(k=>k.objectiveId===o.id).map(k=>{
+                const { entry } = getKpiEntryForCurrent(k);
+                const delta = Math.round((entry.delta||0)*10)/10;
+                const arrow = (delta||0) >= 0 ? '▲' : '▼';
+                const deltaColor = (delta||0) >= 0 ? 'text-emerald-600' : 'text-rose-600';
+                return `
+                  <div class="flex items-center justify-between border p-2" data-kpi-id="${k.id}">
+                    <div class="min-w-0">
+                      <div class="font-semibold truncate">${k.name}</div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <div class="text-right">
+                        <div class="text-lg font-bold">${entry.current ?? 0}</div>
+                        <div class="text-xs ${deltaColor}">${arrow} ${delta}% vs prev</div>
+                      </div>
+                      ${uiEditMode ? `<button class="text-slate-400 hover:text-slate-600" data-role="edit-kpi" title="Edit">✎</button>`:''}
+                      ${uiEditMode ? `<button class="text-slate-400 hover:text-red-600" data-role="remove-kpi" title="Remove">&times;</button>`:''}
+                    </div>
+                  </div>`;
+              }).join('') || '<div class="text-slate-500 text-sm">No KPIs linked.</div>'}
+            </div>
+          </div>
         </div>`;
     }
 
@@ -497,101 +567,44 @@
       const kpis = state.kpis || [];
 
       const kpiRows = kpis.map(k => {
-        const type = KPI_TYPES.find(t=>t.key===k.typeKey) || { direction: 'up_is_good', unit: k.unit||'' };
-        const isGood = type.direction === 'up_is_good' ? (k.delta||0) >= 0 : (k.delta||0) <= 0;
-        const deltaSign = (k.delta||0) > 0 ? '+' : '';
-        const unit = k.unit || type.unit || '';
-        const deltaColor = isGood ? 'text-emerald-600' : 'text-rose-600';
-        const chipBg = isGood ? 'bg-gradient-to-r from-emerald-600 to-emerald-500' : 'bg-gradient-to-r from-rose-600 to-rose-500';
+        const { entry } = getKpiEntryForCurrent(k);
+        const delta = Math.round((entry.delta||0)*10)/10;
+        const arrow = (delta||0) >= 0 ? '▲' : '▼';
+        const deltaColor = (delta||0) >= 0 ? 'text-emerald-600' : 'text-rose-600';
         const linkedObj = k.objectiveId ? findObjectiveById(k.objectiveId) : null;
         const linkedHtml = linkedObj ? `<div class="text-xs text-slate-500">Linked: <button class="linkish" data-role="view-linked" data-oid="${linkedObj.id}">${linkedObj.name}</button></div>` : '';
         return `
           <div class="flex items-center justify-between border p-3 mb-2" data-id="${k.id}">
             <div class="min-w-0">
               <div class="font-semibold truncate">${k.name}</div>
-              <div class="text-xs text-slate-500">Unit: ${unit}</div>
               ${linkedHtml}
             </div>
             <div class="flex items-center gap-4">
               <div class="text-right">
-                <div class="text-xl font-bold">${k.value}<span class="text-sm ml-1">${unit}</span></div>
-                <div class="text-xs ${deltaColor}"><span class="inline-block px-1 ${chipBg} text-white">${deltaSign}${k.delta}${unit ? ' ' + unit : ''}</span> vs prev</div>
+                <div class="text-xl font-bold">${entry.current ?? 0}</div>
+                <div class="text-xs ${deltaColor}">${arrow} ${delta}% vs prev</div>
               </div>
-              <button class="text-slate-400 hover:text-red-600" data-role="remove-kpi">&times;</button>
+              ${uiEditMode ? '<button class="text-slate-400 hover:text-slate-600" data-role="edit-kpi" title="Edit">✎</button>':''}
+              ${uiEditMode ? '<button class="text-slate-400 hover:text-red-600" data-role="remove-kpi">&times;</button>':''}
             </div>
           </div>`;
       }).join('');
 
-      const typeOptions = KPI_TYPES.map(t=>`<option value="${t.key}">${t.label}</option>`).join('');
-      const objectiveOptions = [...(state.objectives||[]), ...(state.pastObjectives||[])]
-        .map(o=>`<option value="${o.id}">${o.name}</option>`).join('');
-
       root.innerHTML = `
         <div class="flex items-center justify-between mb-3">
           <h3 class="text-lg font-semibold">KPIs</h3>
-          <button class="btn btn-success" id="kpi-add-btn">+ Add KPI</button>
+          <button class="btn ${uiEditMode ? 'bg-gradient-to-r from-rose-600 to-pink-600 text-white border-0' : 'btn-outline'}" id="kpi-add-btn" ${uiEditMode?'':'disabled'}>+ Add KPI</button>
         </div>
-        <div class="space-y-2" id="kpi-list">${kpiRows || '<div class="text-slate-500 text-sm">No KPIs yet.</div>'}</div>
-        <div class="mt-4 border p-3 space-y-3" id="kpi-creator">
-          <div class="grid grid-cols-1 gap-3">
-            <div>
-              <label class="block text-sm font-medium mb-1">KPI Type</label>
-              <select id="kpi-type" class="text-zone p-2 w-full">${typeOptions}</select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Unit</label>
-              <input id="kpi-unit" class="text-zone p-2 w-full bg-slate-50 text-slate-500" readonly />
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Link Objective (optional)</label>
-              <select id="kpi-obj" class="text-zone p-2 w-full"><option value="">— None —</option>${objectiveOptions}</select>
-            </div>
-            <div class="grid grid-cols-3 gap-3">
-              <div>
-                <label class="block text-sm font-medium mb-1">Current Value</label>
-                <input type="number" id="kpi-value" class="text-zone p-2 w-full" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium mb-1">Delta vs Prev</label>
-                <input type="number" id="kpi-delta" class="text-zone p-2 w-full" />
-              </div>
-              <div class="flex items-end">
-                <button id="kpi-create" class="btn btn-primary w-full">Create KPI</button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <div class="space-y-2" id="kpi-list">${kpiRows || '<div class=\"text-slate-500 text-sm\">No KPIs yet.</div>'}</div>
       `;
-
-      const typeSelect = document.getElementById('kpi-type');
-      const unitInput = document.getElementById('kpi-unit');
-      const applyUnit = () => {
-        const t = KPI_TYPES.find(x=>x.key===typeSelect.value);
-        unitInput.value = t ? t.unit : '';
-      };
-      typeSelect.addEventListener('change', applyUnit);
-      applyUnit();
-
-      document.getElementById('kpi-create').addEventListener('click', () => {
-        const key = typeSelect.value;
-        const t = KPI_TYPES.find(x=>x.key===key);
-        if (!t) return;
-        const v = Number(document.getElementById('kpi-value').value || 0);
-        const d = Number(document.getElementById('kpi-delta').value || 0);
-        const objSel = document.getElementById('kpi-obj');
-        const objectiveId = objSel && objSel.value ? Number(objSel.value) : null;
-        state.kpis = state.kpis || [];
-        state.kpis.unshift({ id: Date.now()+Math.random(), typeKey: key, name: t.label, unit: t.unit, value: v, delta: d, objectiveId });
-        renderKPISection();
-        autoSave();
-        showNotification('KPI created', 'success');
-      });
 
       root.addEventListener('click', (e)=>{
         if (e.target && e.target.matches('[data-role="remove-kpi"]')){
+          if (!uiEditMode) return;
           const id = Number(e.target.closest('[data-id]').dataset.id);
           state.kpis = (state.kpis||[]).filter(x=>x.id!==id);
           renderKPISection();
+          renderObjectives();
           autoSave();
         }
         if (e.target && e.target.matches('[data-role="view-linked"]')){
@@ -599,11 +612,142 @@
           const obj = findObjectiveById(oid);
           if (obj) showObjectiveDetailsModal(obj);
         }
+        if (e.target && e.target.id === 'kpi-add-btn'){
+          if (!uiEditMode) return;
+          showNewKpiModal();
+        }
+        if (e.target && e.target.matches('[data-role="edit-kpi"]')){
+          if (!uiEditMode) return;
+          const row = e.target.closest('[data-id], [data-kpi-id]');
+          const id = Number((row.dataset.id || row.dataset.kpiId));
+          const kpi = (state.kpis||[]).find(x=>x.id===id);
+          if (kpi) showEditKpiModal(kpi);
+        }
       });
     }
 
-    function renderMetrics(){
-      const wrap = $('#metrics-section');
+    // KPI Modals
+    function showNewKpiModal(prelinkedObjectiveId=null){
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      const objectiveOptions = [...(state.objectives||[]), ...(state.pastObjectives||[])]
+        .map(o=>`<option value="${o.id}" ${prelinkedObjectiveId===o.id?'selected':''}>${o.name}</option>`).join('');
+      modal.innerHTML = `
+        <div class="modal-panel w-[560px] max-w-[90vw] relative">
+          <button class="absolute top-2 right-2 text-slate-400 hover:text-slate-600" data-role="modal-x">✕</button>
+          <div class="modal-header">
+            <h3 class="text-lg font-semibold">New KPI</h3>
+          </div>
+          <div class="modal-body space-y-3">
+            <div>
+              <label class="block text-sm font-medium mb-1">KPI Type</label>
+              <select id="nkpi-type" class="text-zone p-2 w-full">${KPI_TYPES.map(t=>`<option value="${t.key}">${t.label}</option>`).join('')}</select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Unit</label>
+              <input id="nkpi-unit" class="text-zone p-2 w-full bg-slate-50 text-slate-500" readonly />
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-sm font-medium mb-1">Current Value</label>
+                <input type="number" id="nkpi-current" class="text-zone p-2 w-full" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1">Previous Value</label>
+                <input type="number" id="nkpi-previous" class="text-zone p-2 w-full" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Link Objective (optional)</label>
+              <select id="nkpi-obj" class="text-zone p-2 w-full"><option value="">— None —</option>${objectiveOptions}</select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-ghost" data-role="cancel">Cancel</button>
+            <button class="btn btn-primary">Save KPI</button>
+          </div>
+        </div>`;
+      document.body.appendChild(modal);
+      const typeSel = modal.querySelector('#nkpi-type');
+      const unitInput = modal.querySelector('#nkpi-unit');
+      const applyUnit = () => {
+        const t = KPI_TYPES.find(x=>x.key===typeSel.value);
+        unitInput.value = t ? t.unit : '';
+      };
+      typeSel.addEventListener('change', applyUnit);
+      applyUnit();
+      modal.querySelector('[data-role="modal-x"]').addEventListener('click', ()=> modal.remove());
+      modal.querySelector('[data-role="cancel"]').addEventListener('click', ()=> modal.remove());
+      modal.querySelector('.btn.btn-primary').addEventListener('click', ()=>{
+        const t = KPI_TYPES.find(x=>x.key===typeSel.value);
+        if (!t) return;
+        const current = Number(modal.querySelector('#nkpi-current').value || 0);
+        const previous = Number(modal.querySelector('#nkpi-previous').value || 0);
+        const delta = computeDeltaPercent(current, previous);
+        const series = {};
+        series[getCurrentPeriodKey()] = { current, previous, delta };
+        const objSel = modal.querySelector('#nkpi-obj');
+        const objectiveId = prelinkedObjectiveId || (objSel && objSel.value ? Number(objSel.value) : null);
+        state.kpis = state.kpis || [];
+        state.kpis.unshift({ id: Date.now()+Math.random(), typeKey: t.key, name: t.label, unit: t.unit, series, objectiveId });
+        renderKPISection();
+        renderObjectives();
+        autoSave();
+        modal.remove();
+        showNotification('KPI created', 'success');
+      });
+    }
+
+    function showEditKpiModal(kpi){
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      const { key, entry } = getKpiEntryForCurrent(kpi);
+      modal.innerHTML = `
+        <div class="modal-panel w-[560px] max-w-[90vw] relative">
+          <button class="absolute top-2 right-2 text-slate-400 hover:text-slate-600" data-role="modal-x">✕</button>
+          <div class="modal-header">
+            <h3 class="text-lg font-semibold">Edit KPI</h3>
+          </div>
+          <div class="modal-body space-y-3">
+            <div>
+              <label class="block text-sm font-medium mb-1">KPI Type</label>
+              <input class="text-zone p-2 w-full bg-slate-50 text-slate-500" value="${kpi.name}" readonly />
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-sm font-medium mb-1">Current Value</label>
+                <input type="number" id="ekpi-current" class="text-zone p-2 w-full" value="${entry.current ?? 0}" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1">Previous Value</label>
+                <input type="number" id="ekpi-previous" class="text-zone p-2 w-full" value="${entry.previous ?? 0}" />
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-ghost" data-role="cancel">Cancel</button>
+            <button class="btn btn-primary">Save</button>
+          </div>
+        </div>`;
+      document.body.appendChild(modal);
+      modal.querySelector('[data-role="modal-x"]').addEventListener('click', ()=> modal.remove());
+      modal.querySelector('[data-role="cancel"]').addEventListener('click', ()=> modal.remove());
+      modal.querySelector('.btn.btn-primary').addEventListener('click', ()=>{
+        const current = Number(modal.querySelector('#ekpi-current').value || 0);
+        const previous = Number(modal.querySelector('#ekpi-previous').value || 0);
+        const delta = computeDeltaPercent(current, previous);
+        ensureKpiSeries(kpi);
+        kpi.series[key] = { current, previous, delta };
+        renderKPISection();
+        renderObjectives();
+        autoSave();
+        modal.remove();
+        showNotification('KPI updated', 'success');
+      });
+    }
+
+    function renderMetrics(){ /* removed - replaced by renderPeriodControls */
+              const wrap = document.createElement('div'); /* dead anchor */
       if (!wrap) return;
       const m = state.metrics;
       const active = (t) => m.periodType===t ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm';
@@ -672,8 +816,8 @@
       renderValue();
       renderObjectives();
       renderStakeholders();
-      renderMetrics();
       renderKPISection();
+      renderPeriodControls();
       syncTopControls();
     }
 
@@ -695,35 +839,57 @@
       app.addEventListener('click', (e)=>{
         const card = e.target.closest('[data-id]');
 
+        // Objective KPI actions (edit/remove)
+        if (card && e.target.matches('[data-role="edit-kpi"], [data-role="remove-kpi"]')){
+          if (!uiEditMode) return;
+          const kpiRow = e.target.closest('[data-kpi-id]');
+          const kpiId = kpiRow ? Number(kpiRow.dataset.kpiId) : null;
+          const kpi = (state.kpis||[]).find(x=>x.id===kpiId);
+          if (!kpi) return;
+          if (e.target.matches('[data-role="edit-kpi"]')){
+            showEditKpiModal(kpi);
+            return;
+          }
+          if (e.target.matches('[data-role\="remove-kpi\"]')){
+            state.kpis = (state.kpis||[]).filter(x=>x.id!==kpiId);
+            renderObjectives();
+            renderKPISection();
+            autoSave();
+            return;
+          }
+        }
+
         if (e.target.id === 'add-mission-goal-btn'){
+          if (!uiEditMode) return;
           showAddMissionGoalModal();
         }
 
         if (e.target.id === 'add-value-btn'){
+          if (!uiEditMode) return;
           showAddValueRealizedModal();
         }
 
         if (e.target.id === 'add-objective-btn'){
+          if (!uiEditMode) return;
           showAddObjectiveModal();
         }
 
         // Metrics actions
         if (e.target.matches('[data-role="set-period-type"]')){
           state.metrics.periodType = e.target.dataset.value;
-          renderMetrics();
+          renderPeriodControls();
+          renderKPISection();
         }
         if (e.target.matches('[data-role="add-metric"]')){
-          state.metrics.items.push({ id: Date.now()+Math.random(), name: 'New Metric', valuePercent: 0, deltaPercent: 0 });
-          renderMetrics();
+          return; // metrics removed
         }
         if (e.target && e.target.matches('[data-role="remove-metric"]')){
-          const id = Number(e.target.closest('[data-id]').dataset.id);
-          state.metrics.items = state.metrics.items.filter(m=>m.id!==id);
-          renderMetrics();
+          return; // metrics removed
         }
 
         // Value list actions
         if (e.target.matches('[data-role="remove-value"]')){
+          if (!uiEditMode) return;
           const id = Number(e.target.closest('[data-id]').dataset.id);
           const i = state.valueRealized.findIndex(v=>v.id===id);
           if (i>-1){ state.valueRealized.splice(i,1); renderValue(); }
@@ -731,11 +897,13 @@
 
         // Mission goal actions
         if (e.target.matches('[data-role="remove-goal"]')){
+          if (!uiEditMode) return;
           const id = Number(card.dataset.id);
           const i = state.missionGoals.findIndex(g=>g.id===id);
           if (i>-1){ state.missionGoals.splice(i,1); renderMissionGoals(); }
         }
-        if (e.target.matches('[data-role="add-cf"]')){
+        if (e.target.matches('[data-role\="add-cf\"]')){
+          if (!uiEditMode) return;
           const id = Number(card.dataset.id);
           const g = state.missionGoals.find(x=>x.id===id);
           if (!g.customFields) g.customFields = [];
@@ -743,6 +911,7 @@
           renderMissionGoals();
         }
         if (e.target.matches('[data-role="remove-cf"]')){
+          if (!uiEditMode) return;
           const id = Number(card.dataset.id);
           const fieldWrap = e.target.closest('[data-field-id]');
           const fid = Number(fieldWrap.dataset.fieldId);
@@ -755,7 +924,7 @@
         if (e.target.matches('[data-role="edit"]')){
           const id = Number(card.dataset.id);
           const o = state.objectives.find(x=>x.id===id) || state.pastObjectives.find(x=>x.id===id);
-          if (o){ o.editing = true; renderObjectives(); }
+          if (o){ if (!uiEditMode) return; o.editing = true; renderObjectives(); }
         }
         if (e.target.matches('[data-role="cancel-edit"]')){
           const id = Number(card.dataset.id);
@@ -788,6 +957,12 @@
             renderObjectives();
           }
         }
+        if (e.target.matches('[data-role\="add-kpi-in-objective\"]')){
+          if (!uiEditMode) return;
+          const id = Number(card.dataset.id);
+          const o = state.objectives.find(x=>x.id===id) || state.pastObjectives.find(x=>x.id===id);
+          if (o){ showNewKpiModal(o.id); }
+        }
         if (e.target.matches('[data-role="toggle-expand"]')){
           const id = Number(card.dataset.id);
           const o = state.objectives.find(x=>x.id===id) || state.pastObjectives.find(x=>x.id===id);
@@ -807,6 +982,13 @@
 
       // Global changes
       app.addEventListener('change', (e)=>{
+        // Objective KPI row actions (delegate within objective cards)
+        if (e.target && e.target.closest('[data-role="objectives"]')){
+          const card = e.target.closest('[data-id]');
+          if (card && e.target.matches('[data-role="edit-kpi"], [data-role="remove-kpi"], [data-role="add-kpi-in-objective"]')){
+            // Click logic handled in click listener; ignore change
+          }
+        }
         // quick date change on objective card
         if (e.target.matches('[data-role="quick-date"]')){
           const id = Number(e.target.closest('[data-id]').dataset.id);
@@ -834,16 +1016,19 @@
 
         // mission goal inline edits
         if (e.target.matches('[data-role="goal-title"]')){
+          if (!uiEditMode) return;
           const id = Number(e.target.closest('[data-id]').dataset.id);
           const g = state.missionGoals.find(x=>x.id===id); if (g) g.title = e.target.value;
           autoSave();
         }
-        if (e.target.matches('[data-role="goal-desc"]')){
+        if (e.target.matches('[data-role\="goal-desc\"]')){
+          if (!uiEditMode) return;
           const id = Number(e.target.closest('[data-id]').dataset.id);
           const g = state.missionGoals.find(x=>x.id===id); if (g) g.description = e.target.value;
           autoSave();
         }
         if (e.target.matches('[data-role="cf-label"], [data-role="cf-value"]')){
+          if (!uiEditMode) return;
           const id = Number(e.target.closest('[data-id]').dataset.id);
           const fid = Number(e.target.closest('[data-field-id]').dataset.fieldId);
           const g = state.missionGoals.find(x=>x.id===id);
@@ -857,6 +1042,7 @@
 
         // Value edits
         if (e.target.closest('#value-container')){
+          if (!uiEditMode) return;
           const wrap = e.target.closest('[data-id]');
           const id = wrap ? Number(wrap.dataset.id) : null;
           const it = state.valueRealized.find(v=>v.id===id);
@@ -872,18 +1058,22 @@
         if (e.target.id === 'metrics-month'){
           state.metrics.month = e.target.value;
           autoSave();
+          renderKPISection();
         }
         if (e.target.id === 'metrics-quarter'){
           state.metrics.quarter = Number(e.target.value);
           autoSave();
+          renderKPISection();
         }
         if (e.target.id === 'metrics-year'){
           state.metrics.year = Number(e.target.value);
           autoSave();
+          renderKPISection();
         }
         if (e.target.id === 'metrics-year-only'){
           state.metrics.year = Number(e.target.value);
           autoSave();
+          renderKPISection();
         }
 
         // Plan Details + Mission Summary
@@ -942,6 +1132,11 @@
       // Exports
       $('#export-pdf-btn').addEventListener('click', exportToPDF);
       $('#export-excel-btn').addEventListener('click', exportToExcel);
+
+      // View lock toolbar
+      $('#enter-edit-mode').addEventListener('click', enterEditMode);
+      $('#save-edits').addEventListener('click', saveEdits);
+      $('#cancel-edits').addEventListener('click', cancelEdits);
 
       // Reflow on resize
       window.addEventListener('resize', () => {
@@ -1030,7 +1225,13 @@
           ...state.pastObjectives.map(o=>({ Type:'Past', Name:o.name, Status:o.status, TargetDate:o.targetDate, KPIGoal:o.kpiGoal, Challenges:o.challenges, NextSteps:o.nextSteps, Link:o.s4Link }))
         ];
         const valueData = state.valueRealized.map(v=>({ Type:v.type, Description:v.description, Date:v.date, Link:v.link }));
-        const metricsData = (m.items||[]).map(x=>({ PeriodType:m.periodType, Period: periodLabel, Metric:x.name, ValuePercent:x.valuePercent, DeltaVsPrevQ:x.deltaPercent }));
+        const metricsData = []; // metrics removed
+        const kpiSheetData = (state.kpis||[]).map(k=>{
+          const key = getCurrentPeriodKey();
+          const entry = (k.series && k.series[key]) || { current:k.value??0, previous:k.previous||0, delta:k.delta||0 };
+          const obj = k.objectiveId ? findObjectiveById(k.objectiveId) : null;
+          return { KPI:k.name, Objective: obj?obj.name:'', Period:key, Current:entry.current||0, Previous:entry.previous||0, DeltaPercent:entry.delta||0 };
+        });
         
         const addSheet = (data, name) => {
           const ws = XLSX.utils.json_to_sheet(data.length?data:[{}]);
@@ -1041,7 +1242,8 @@
         addSheet(objectivesData, 'Objectives');
         addSheet(valueData, 'Value Realized');
         addSheet(stakeholdersData, 'Stakeholders');
-        addSheet(metricsData, 'Metrics');
+        addSheet(kpiSheetData, 'KPIs');
+        // addSheet(metricsData, 'Metrics');
         
         XLSX.writeFile(wb, 'customer-success-plan.xlsx');
         showNotification('Excel exported successfully!', 'success');
@@ -1056,7 +1258,8 @@
       const modal = document.createElement('div');
       modal.className = 'modal-overlay';
       modal.innerHTML = `
-        <div class="modal-panel p-6 w-[700px] max-w-[90vw] max-h-[90vh] overflow-y-auto">
+        <div class="modal-panel p-6 w-[700px] max-w-[90vw] max-h-[90vh] overflow-y-auto relative">
+          <button class="absolute top-2 right-2 text-slate-400 hover:text-slate-600" data-role="modal-x">✕</button>
           <div class="flex justify-between items-start mb-4">
             <h3 class="text-lg font-semibold">Objective Details</h3>
             <button id="close-details-modal" class="text-slate-400 hover:text-slate-600">&times;</button>
@@ -1119,6 +1322,7 @@
       // Event handlers
       modal.querySelector('#close-details-modal').addEventListener('click', () => modal.remove());
       modal.querySelector('#close-details-modal-2').addEventListener('click', () => modal.remove());
+      modal.querySelector('[data-role="modal-x"]').addEventListener('click', () => modal.remove());
     }
     
     // Add Objective Modal
@@ -1126,7 +1330,8 @@
       const modal = document.createElement('div');
       modal.className = 'modal-overlay';
       modal.innerHTML = `
-        <div class="modal-panel p-6 w-[600px] max-w-[90vw] max-h-[90vh] overflow-y-auto">
+        <div class="modal-panel p-6 w-[600px] max-w-[90vw] max-h-[90vh] overflow-y-auto relative">
+          <button class="absolute top-2 right-2 text-slate-400 hover:text-slate-600" data-role="modal-x">✕</button>
           <h3 class="text-lg font-semibold mb-4">Add New Objective</h3>
           <div class="space-y-4">
             <div>
@@ -1164,7 +1369,7 @@
           </div>
           <div class="flex justify-end gap-3 mt-6">
             <button id="cancel-new-objective" class="btn btn-ghost">Cancel</button>
-            <button id="save-new-objective" class="btn btn-primary">Save Objective</button>
+            <button id="save-new-objective" class="btn bg-gradient-to-r from-sky-600 to-indigo-500 text-white border-0">Save Objective</button>
           </div>
         </div>
       `;
@@ -1186,6 +1391,7 @@
       
       // Event handlers
       modal.querySelector('#cancel-new-objective').addEventListener('click', () => modal.remove());
+      modal.querySelector('[data-role="modal-x"]').addEventListener('click', () => modal.remove());
       modal.querySelector('#save-new-objective').addEventListener('click', () => {
         const nameSelect = modal.querySelector('#new-objective-name');
         const customText = modal.querySelector('#custom-objective-text');
@@ -1226,7 +1432,8 @@
       const modal = document.createElement('div');
       modal.className = 'modal-overlay';
       modal.innerHTML = `
-        <div class="modal-panel w-[600px] max-w-[90vw]">
+        <div class="modal-panel w-[600px] max-w-[90vw] relative">
+          <button class="absolute top-2 right-2 text-slate-400 hover:text-slate-600" data-role="modal-x">✕</button>
           <div class="modal-header">
             <h3 class="text-lg font-semibold">Add Mission Goal</h3>
           </div>
@@ -1268,6 +1475,7 @@
       };
       modal.querySelector('#mg-add-field').addEventListener('click', addFieldRow);
       modal.querySelector('#mg-cancel').addEventListener('click', () => modal.remove());
+      modal.querySelector('[data-role="modal-x"]').addEventListener('click', () => modal.remove());
       modal.querySelector('#mg-save').addEventListener('click', () => {
         const title = modal.querySelector('#mg-title').value.trim() || 'New Goal';
         const desc = modal.querySelector('#mg-desc').value.trim();
@@ -1288,7 +1496,8 @@
       const modal = document.createElement('div');
       modal.className = 'modal-overlay';
       modal.innerHTML = `
-        <div class="modal-panel w-[600px] max-w-[90vw]">
+        <div class="modal-panel w-[600px] max-w-[90vw] relative">
+          <button class="absolute top-2 right-2 text-slate-400 hover:text-slate-600" data-role="modal-x">✕</button>
           <div class="modal-header">
             <h3 class="text-lg font-semibold">Add Value Realized</h3>
           </div>
@@ -1323,6 +1532,7 @@
       document.body.appendChild(modal);
       applyAutoResize(modal);
       modal.querySelector('#vr-cancel').addEventListener('click', ()=> modal.remove());
+      modal.querySelector('[data-role="modal-x"]').addEventListener('click', ()=> modal.remove());
       modal.querySelector('#vr-save').addEventListener('click', ()=>{
         const type = modal.querySelector('#vr-type').value;
         const description = modal.querySelector('#vr-desc').value.trim();
@@ -1340,7 +1550,8 @@
       const modal = document.createElement('div');
       modal.className = 'modal-overlay';
       modal.innerHTML = `
-        <div class="modal-panel p-6 w-96 max-w-md mx-4">
+        <div class="modal-panel p-6 w-96 max-w-md mx-4 relative">
+          <button class="absolute top-2 right-2 text-slate-400 hover:text-slate-600" data-role="modal-x">✕</button>
           <h3 class="text-lg font-semibold mb-4">Add New Stakeholder</h3>
           <div class="space-y-4">
             <div>
@@ -1367,6 +1578,7 @@
       
       // Event handlers
       modal.querySelector('#cancel-new-stakeholder').addEventListener('click', () => modal.remove());
+      modal.querySelector('[data-role="modal-x"]').addEventListener('click', () => modal.remove());
       modal.querySelector('#save-new-stakeholder').addEventListener('click', () => {
         const name = modal.querySelector('#new-stakeholder-name').value.trim();
         const title = modal.querySelector('#new-stakeholder-title').value.trim();
@@ -1452,10 +1664,11 @@
         state.kpis = state.kpis.map((k, i) => k.objectiveId ? k : ({...k, objectiveId: ids[i % ids.length]}));
       }
     })();
-    renderAll();
-    setupEvents();
-    applyAutoResize();
-    syncTopControls();
+         renderAll();
+     setupEvents();
+     applyAutoResize();
+     syncTopControls();
+     setEditMode(false);
     
     // Set up auto-save for all state changes
     const originalRenderAll = renderAll;
@@ -1464,6 +1677,121 @@
       autoSave();
       applyAutoResize();
     };
+
+    // Edit mode UI state
+    let uiEditMode = false;
+    let stateSnapshot = null;
+    const deepClone = (obj) => JSON.parse(JSON.stringify(obj));
+    function setEditMode(on){
+      uiEditMode = !!on;
+      const enterBtn = document.getElementById('enter-edit-mode');
+      const saveBtn = document.getElementById('save-edits');
+      const cancelBtn = document.getElementById('cancel-edits');
+      if (enterBtn && saveBtn && cancelBtn){
+        enterBtn.classList.toggle('hidden', uiEditMode);
+        saveBtn.classList.toggle('hidden', !uiEditMode);
+        cancelBtn.classList.toggle('hidden', !uiEditMode);
+      }
+      // Top action buttons
+      const addGoal = document.getElementById('add-mission-goal-btn');
+      const addValue = document.getElementById('add-value-btn');
+      const addObjective = document.getElementById('add-objective-btn');
+      if (addGoal) addGoal.disabled = !uiEditMode;
+      if (addValue) addValue.disabled = !uiEditMode;
+      if (addObjective) addObjective.disabled = !uiEditMode;
+      // Mission summary
+      const ms = document.getElementById('mission-summary');
+      if (ms) ms.disabled = !uiEditMode;
+      // Re-render sections to reflect disabled state and KPI controls
+      renderMissionGoals();
+      renderValue();
+      renderObjectives();
+      renderPeriodControls();
+    }
+    function enterEditMode(){
+      stateSnapshot = deepClone(state);
+      setEditMode(true);
+    }
+    function saveEdits(){
+      setEditMode(false);
+      autoSave();
+      showNotification('Changes saved', 'success');
+    }
+    function cancelEdits(){
+      if (stateSnapshot){
+        // Restore state in-place
+        for (const k of Object.keys(state)) delete state[k];
+        Object.assign(state, deepClone(stateSnapshot));
+      }
+      setEditMode(false);
+      renderAll();
+      showNotification('Changes reverted', 'info');
+    }
+
+    // Period controls (Month/Quarter/Year)
+    function renderPeriodControls(){
+      const wrap = document.getElementById('period-controls');
+      if (!wrap) return;
+      const m = state.metrics;
+      const active = (t) => m.periodType===t ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm';
+      const periodControls = (
+        m.periodType === 'Month' ? `
+          <div class="mt-3">
+            <label class="block text-sm font-medium mb-1">Month</label>
+            <input type="month" id="metrics-month" class="text-zone p-2 w-full" value="${m.month}">
+          </div>` :
+        m.periodType === 'Quarter' ? `
+          <div class="mt-3 grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-sm font-medium mb-1">Quarter</label>
+              <select id="metrics-quarter" class="text-zone p-2 w-full">
+                ${[1,2,3,4].map(q=>`<option value="${q}" ${Number(m.quarter)===q?'selected':''}>Q${q}</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Year</label>
+              <input type="number" id="metrics-year" class="text-zone p-2 w-full" value="${m.year}">
+            </div>
+          </div>` : `
+          <div class="mt-3">
+            <label class="block text-sm font-medium mb-1">Year</label>
+            <input type="number" id="metrics-year-only" class="text-zone p-2 w-full" value="${m.year}">
+          </div>`
+      );
+      wrap.innerHTML = `
+        <h3 class="text-lg font-semibold mb-3">Time Period</h3>
+        <div class="flex items-center gap-2">
+          <button class="${active('Month')}" data-role="set-period-type" data-value="Month">Month</button>
+          <button class="${active('Quarter')}" data-role="set-period-type" data-value="Quarter">Quarter</button>
+          <button class="${active('Year')}" data-role="set-period-type" data-value="Year">Year</button>
+        </div>
+        ${periodControls}
+        <div class="text-xs text-slate-500 mt-3">Comparisons shown as Δ vs previous quarter</div>
+      `;
+    }
+
+    // Period helpers for KPI series
+    function getCurrentPeriodKey(){
+      const m = state.metrics;
+      if (m.periodType === 'Month') return `M:${m.month}`;
+      if (m.periodType === 'Quarter') return `Q:${m.year}-Q${m.quarter}`;
+      return `Y:${m.year}`;
+    }
+    function computeDeltaPercent(current, previous){
+      const prevAbs = Math.abs(previous);
+      if (prevAbs === 0) return current === 0 ? 0 : 100;
+      return ((current - previous) / prevAbs) * 100;
+    }
+    function ensureKpiSeries(kpi){
+      if (!kpi.series) kpi.series = {};
+      return kpi.series;
+    }
+    function getKpiEntryForCurrent(kpi){
+      const key = getCurrentPeriodKey();
+      const series = ensureKpiSeries(kpi);
+      if (!series[key]) series[key] = { current: kpi.value ?? 0, previous: (kpi.previous ?? 0), delta: (typeof kpi.delta==='number'?kpi.delta:0) };
+      return { key, entry: series[key] };
+    }
   </script>
 <div data-netlify-deploy-id="689c270a4d10af0008374ef2" data-netlify-site-id="0c217ff5-db63-4bc3-8e7c-d7c1212e5343" data-vcs="github" style="position:fixed">
   
