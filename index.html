@@ -606,7 +606,10 @@
 
         <!-- Past Objectives -->
         <section id="past-objectives" class="card p-6">
-          <h2 class="text-2xl font-bold mb-4">Past Objectives Achieved</h2>
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold">Past Objectives Achieved</h2>
+            <button id="add-past-objective-btn" class="btn btn-success btn-sm">+ Add Past Objective</button>
+          </div>
           <div id="past-objectives-container" class="space-y-6"></div>
           <div id="no-past-objectives" class="hidden text-center py-10 px-4 text-gray-500">
             Completed objectives will appear here.
@@ -1118,12 +1121,14 @@
                 <span class="text-sm text-gray-500">Target: ${obj.targetDate || 'Not set'}</span>
               </div>
             </div>
-            ${!isPast ? `
-              <div class="flex gap-2">
-                <button class="btn btn-ghost btn-sm" onclick="editObjective(${obj.id})">Edit</button>
+            <div class="flex gap-2">
+              <button class="btn btn-ghost btn-sm" onclick="editObjective(${obj.id}, ${isPast})">Edit</button>
+              ${!isPast ? `
                 <button class="btn btn-primary btn-sm" onclick="showAddKPIModal(${obj.id})">+ Add KPI</button>
-              </div>
-            ` : ''}
+              ` : `
+                <button class="btn btn-danger btn-sm" onclick="removePastObjective(${obj.id})">Remove</button>
+              `}
+            </div>
           </div>
           
           <p class="text-sm text-gray-600 mb-4">${obj.description}</p>
@@ -1245,8 +1250,8 @@
     }
 
     // ---------- Modals ----------
-    window.showAddObjectiveModal = function() {
-      const modal = createModal('Add New Objective', `
+    window.showAddObjectiveModal = function(isPast = false) {
+      const modal = createModal(isPast ? 'Add Past Objective' : 'Add New Objective', `
         <div class="space-y-4">
           <div>
             <label class="block text-sm font-medium mb-1">Objective Name</label>
@@ -1264,9 +1269,12 @@
             <div>
               <label class="block text-sm font-medium mb-1">Status</label>
               <select id="obj-status" class="text-zone p-2 w-full">
-                <option>Not Started</option>
-                <option>In Progress</option>
-                <option>At Risk</option>
+                ${isPast ? 
+                  '<option selected>Completed</option>' : 
+                  `<option>Not Started</option>
+                   <option>In Progress</option>
+                   <option>At Risk</option>`
+                }
               </select>
             </div>
           </div>
@@ -1298,11 +1306,16 @@
             return;
           }
           
-          state.objectives.unshift(obj);
+          if (isPast) {
+            state.pastObjectives.unshift(obj);
+            showNotification('Past objective added successfully', 'success');
+          } else {
+            state.objectives.unshift(obj);
+            showNotification('Objective created successfully', 'success');
+          }
           renderAll();
           saveToLocalStorage();
           closeModal();
-          showNotification('Objective created successfully', 'success');
         }}
       ]);
       
@@ -1551,8 +1564,10 @@
       if (modal) modal.remove();
     };
 
-    window.editObjective = function(id) {
-      const obj = state.objectives.find(o => o.id === id);
+    window.editObjective = function(id, isPast = false) {
+      const obj = isPast ? 
+        state.pastObjectives.find(o => o.id === id) : 
+        state.objectives.find(o => o.id === id);
       if (!obj) return;
       
       const modal = createModal('Edit Objective', `
@@ -1600,11 +1615,17 @@
           obj.challenges = $('#edit-obj-challenges').value.trim();
           obj.nextSteps = $('#edit-obj-steps').value.trim();
           
-          // Move to past if completed
-          if (oldStatus !== 'Completed' && obj.status === 'Completed') {
+          // Handle status changes and moving between lists
+          if (!isPast && oldStatus !== 'Completed' && obj.status === 'Completed') {
+            // Move from current to past
             state.objectives = state.objectives.filter(o => o.id !== id);
             state.pastObjectives.unshift(obj);
             showNotification('Objective completed and moved to past objectives', 'success');
+          } else if (isPast && obj.status !== 'Completed') {
+            // Move from past back to current
+            state.pastObjectives = state.pastObjectives.filter(o => o.id !== id);
+            state.objectives.push(obj);
+            showNotification('Objective moved back to current objectives', 'success');
           }
           
           renderAll();
@@ -1620,6 +1641,15 @@
       state.stakeholders = state.stakeholders.filter(s => s.id !== id);
       renderAll();
       saveToLocalStorage();
+    };
+
+    window.removePastObjective = function(id) {
+      if (confirm('Are you sure you want to permanently remove this past objective?')) {
+        state.pastObjectives = state.pastObjectives.filter(o => o.id !== id);
+        renderAll();
+        saveToLocalStorage();
+        showNotification('Past objective removed', 'success');
+      }
     };
 
     window.updateKPIPeriod = function(objectiveId, kpiId, period) {
@@ -1710,6 +1740,11 @@
       
       // Add objective button
       $('#add-objective-btn')?.addEventListener('click', showAddObjectiveModal);
+      
+      // Add past objective button
+      $('#add-past-objective-btn')?.addEventListener('click', () => {
+        showAddObjectiveModal(true);
+      });
       
       // Mission goals editing
       document.addEventListener('click', (e) => {
