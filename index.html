@@ -2200,7 +2200,7 @@
     }
 
     // ---------- Export Functions ----------
-    async function exportToPDF() {
+        async function exportToPDF() {
       const btn = $('#export-pdf-btn');
       btn.disabled = true;
       btn.innerHTML = '<span class="animate-spin">⟳</span> Generating...';
@@ -2210,77 +2210,39 @@
         const doc = new jsPDF('p', 'mm', 'a4');
         
         // Define colors
-        const primaryGradient = [[20, 184, 166], [13, 148, 136]]; // teal gradient
-        const secondaryGradient = [[71, 85, 105], [51, 65, 85]]; // slate gradient
-        const accentGreen = [16, 185, 129];
-        const darkText = [15, 23, 42];
-        const grayText = [107, 114, 128];
-        const lightGray = [243, 244, 246];
-        const white = [255, 255, 255];
+        const tealColor = [20, 184, 166];
+        const darkColor = [15, 23, 42];
+        const grayColor = [107, 114, 128];
+        const greenColor = [16, 185, 129];
+        const lightBg = [248, 250, 252];
         
-        // Helper function to check page breaks
+        // Helper function to add page breaks
         function checkPageBreak(yPos, requiredSpace = 30) {
           if (yPos + requiredSpace > 270) {
             doc.addPage();
-            addPageDecoration();
-            return 25;
+            return 20;
           }
           return yPos;
         }
         
-        // Helper to add subtle page decoration
-        function addPageDecoration() {
-          // Subtle top border
-          doc.setDrawColor(...primaryGradient[0]);
-          doc.setLineWidth(0.5);
-          doc.line(0, 0, 210, 0);
-        }
-        
-        // Helper to draw gradient-like rectangles
-        function drawGradientRect(x, y, w, h, colors, opacity = 1) {
-          const steps = 10;
-          const stepHeight = h / steps;
-          for (let i = 0; i < steps; i++) {
-            const ratio = i / steps;
-            const r = Math.round(colors[0][0] + (colors[1][0] - colors[0][0]) * ratio);
-            const g = Math.round(colors[0][1] + (colors[1][1] - colors[0][1]) * ratio);
-            const b = Math.round(colors[0][2] + (colors[1][2] - colors[0][2]) * ratio);
-            doc.setFillColor(r, g, b);
-            doc.setGDOpacity(opacity);
-            doc.rect(x, y + i * stepHeight, w, stepHeight, 'F');
-          }
-          doc.setGDOpacity(1);
-        }
-        
-        // Add header with gradient
-        drawGradientRect(0, 0, 210, 45, primaryGradient);
-        
-        // Add subtle pattern overlay
-        doc.setDrawColor(...white);
-        doc.setGDOpacity(0.1);
-        for (let i = 0; i < 20; i++) {
-          doc.circle(Math.random() * 210, Math.random() * 45, Math.random() * 20 + 5, 'S');
-        }
-        doc.setGDOpacity(1);
+        // Add header
+        doc.setFillColor(...tealColor);
+        doc.rect(0, 0, 210, 45, 'F');
         
         // Title
-        doc.setTextColor(...white);
-        doc.setFontSize(26);
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(24);
         doc.setFont(undefined, 'bold');
-        doc.text(`${state.customerName} Success Plan`, 20, 22);
+        doc.text(`${state.customerName} Success Plan`, 20, 20);
         
-        doc.setFontSize(13);
+        doc.setFontSize(12);
         doc.setFont(undefined, 'normal');
-        doc.text('Responsive Platform', 20, 32);
-        
-        // Date with icon
-        doc.setFontSize(11);
-        const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-        doc.text(dateStr, 190, 32, { align: 'right' });
+        doc.text('Responsive Platform', 20, 30);
+        doc.text(new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }), 20, 38);
         
         let y = 60;
         
-        // Overall Health Status
+        // Overall Health
         const healthColors = {
           green: [34, 197, 94],
           yellow: [250, 204, 21],
@@ -2292,281 +2254,204 @@
           red: 'At Risk'
         };
         
-        doc.setFillColor(...healthColors[state.planHealth]);
-        doc.roundedRect(20, y - 8, 170, 18, 3, 3, 'F');
-        doc.setTextColor(...white);
-        doc.setFontSize(12);
+        doc.setFillColor(...(healthColors[state.planHealth] || healthColors.green));
+        doc.rect(20, y - 5, 170, 15, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(11);
         doc.setFont(undefined, 'bold');
-        doc.text(`Overall Health: ${healthLabels[state.planHealth]}`, 105, y, { align: 'center' });
+        doc.text(`Overall Health: ${healthLabels[state.planHealth] || 'Unknown'}`, 105, y + 2, { maxWidth: 160, align: 'center' });
         y += 25;
         
-        // Mission Summary Section
+        // Mission Summary
         y = checkPageBreak(y);
-        doc.setTextColor(...darkText);
-        doc.setFontSize(18);
+        doc.setTextColor(...darkColor);
+        doc.setFontSize(16);
         doc.setFont(undefined, 'bold');
         doc.text('Mission Summary', 20, y);
+        y += 10;
         
-        // Decorative line
-        drawGradientRect(20, y + 2, 50, 0.5, primaryGradient);
-        y += 12;
-        
-        // Summary content with background
-        doc.setFillColor(...lightGray);
-        doc.setGDOpacity(0.5);
-        const summaryLines = doc.splitTextToSize(state.missionSummary || 'Not defined', 160);
+        doc.setFillColor(...lightBg);
+        const summaryLines = doc.splitTextToSize(state.missionSummary || 'Not defined', 170);
         const summaryHeight = summaryLines.length * 5 + 10;
-        doc.roundedRect(18, y - 5, 174, summaryHeight, 3, 3, 'F');
-        doc.setGDOpacity(1);
+        doc.rect(20, y - 5, 170, summaryHeight, 'F');
         
-        doc.setFontSize(11);
+        doc.setFontSize(10);
         doc.setFont(undefined, 'normal');
-        doc.setTextColor(...grayText);
-        doc.text(summaryLines, 25, y + 3);
-        y += summaryHeight + 15;
+        doc.setTextColor(...grayColor);
+        doc.text(summaryLines, 25, y);
+        y += summaryHeight + 10;
         
-        // Mission Goals Section
+        // Mission Goals
         y = checkPageBreak(y);
-        doc.setTextColor(...darkText);
-        doc.setFontSize(18);
+        doc.setTextColor(...darkColor);
+        doc.setFontSize(16);
         doc.setFont(undefined, 'bold');
         doc.text('Mission Goals', 20, y);
-        drawGradientRect(20, y + 2, 50, 0.5, primaryGradient);
-        y += 12;
+        y += 10;
         
         state.missionGoals.forEach((goal, index) => {
-          y = checkPageBreak(y, 40);
+          y = checkPageBreak(y, 35);
           
-          // Goal card with gradient border
-          drawGradientRect(20, y - 5, 2, 35, primaryGradient);
-          doc.setFillColor(...white);
-          doc.rect(22, y - 5, 168, 35, 'F');
-          doc.setDrawColor(...lightGray);
-          doc.rect(22, y - 5, 168, 35, 'S');
-          
-          // Goal number badge
-          doc.setFillColor(...primaryGradient[0]);
-          doc.circle(30, y + 10, 8, 'F');
-          doc.setTextColor(...white);
-          doc.setFontSize(10);
-          doc.setFont(undefined, 'bold');
-          doc.text(`${index + 1}`, 30, y + 10, { align: 'center' });
+          // Goal border
+          doc.setDrawColor(...tealColor);
+          doc.setLineWidth(2);
+          doc.line(20, y - 3, 20, y + 30);
           
           // Goal content
-          doc.setFontSize(13);
+          doc.setFontSize(12);
           doc.setFont(undefined, 'bold');
-          doc.setTextColor(...darkText);
-          doc.text(goal.title, 45, y + 3);
-          y += 10;
+          doc.setTextColor(...darkColor);
+          doc.text(`${index + 1}. ${goal.title}`, 25, y);
+          y += 8;
           
           doc.setFontSize(10);
           doc.setFont(undefined, 'normal');
-          doc.setTextColor(...grayText);
-          const goalDescLines = doc.splitTextToSize(goal.description, 140);
-          doc.text(goalDescLines, 45, y);
-          y += goalDescLines.length * 4 + 20;
+          doc.setTextColor(...grayColor);
+          const goalLines = doc.splitTextToSize(goal.description || '', 160);
+          doc.text(goalLines, 25, y);
+          y += goalLines.length * 5 + 10;
         });
         
-        // Value Realized Section
+        // Value Realized
         y = checkPageBreak(y);
-        doc.setTextColor(...darkText);
-        doc.setFontSize(18);
+        doc.setTextColor(...darkColor);
+        doc.setFontSize(16);
         doc.setFont(undefined, 'bold');
         doc.text('Value Realized', 20, y);
-        drawGradientRect(20, y + 2, 50, 0.5, [[34, 197, 94], [16, 185, 129]]);
-        y += 12;
+        y += 10;
         
         state.valueRealized.forEach((value) => {
-          y = checkPageBreak(y, 30);
+          y = checkPageBreak(y, 25);
           
-          // Value card
-          doc.setFillColor(...white);
-          doc.setDrawColor(...accentGreen);
-          doc.setLineWidth(0.5);
-          doc.roundedRect(20, y - 3, 170, 25, 2, 2, 'FD');
-          
-          // Value type badge
-          doc.setFillColor(...accentGreen);
-          doc.setGDOpacity(0.1);
-          doc.roundedRect(25, y, 50, 6, 1, 1, 'F');
-          doc.setGDOpacity(1);
+          // Value type
+          doc.setFillColor(...greenColor);
+          doc.circle(23, y - 2, 2, 'F');
           
           doc.setFontSize(11);
           doc.setFont(undefined, 'bold');
-          doc.setTextColor(...accentGreen);
-          doc.text(value.type, 27, y + 4);
+          doc.setTextColor(...greenColor);
+          doc.text(value.type, 28, y);
           
           // Value description
           doc.setFont(undefined, 'normal');
-          doc.setTextColor(...grayText);
+          doc.setTextColor(...grayColor);
           doc.setFontSize(10);
-          const valueLines = doc.splitTextToSize(value.description, 160);
-          doc.text(valueLines, 25, y + 10);
+          const valueLines = doc.splitTextToSize(value.description || '', 160);
+          doc.text(valueLines, 28, y + 6);
           
           if (value.date) {
-            doc.setFontSize(8);
-            doc.setTextColor(...grayText);
-            doc.text(value.date, 185, y + 4, { align: 'right' });
+            doc.setFontSize(9);
+            doc.text(`Date: ${value.date}`, 28, y + 6 + valueLines.length * 5);
           }
           
-          y += 30;
+          y += 20 + valueLines.length * 5;
         });
         
-        // Current Objectives Section
+        // Current Objectives
         y = checkPageBreak(y);
-        doc.setTextColor(...darkText);
-        doc.setFontSize(18);
+        doc.setTextColor(...darkColor);
+        doc.setFontSize(16);
         doc.setFont(undefined, 'bold');
         doc.text('Current Objectives', 20, y);
-        drawGradientRect(20, y + 2, 50, 0.5, primaryGradient);
-        y += 15;
+        y += 10;
         
         state.objectives.forEach((obj) => {
-          y = checkPageBreak(y, 60);
+          y = checkPageBreak(y, 50);
           
-          // Objective card with gradient header
-          drawGradientRect(20, y - 5, 170, 10, secondaryGradient);
-          
-          // Objective name
-          doc.setTextColor(...white);
-          doc.setFontSize(12);
+          // Objective header
+          doc.setFillColor(...tealColor);
+          doc.rect(20, y - 5, 170, 8, 'F');
+          doc.setTextColor(255, 255, 255);
+          doc.setFontSize(11);
           doc.setFont(undefined, 'bold');
-          doc.text(obj.name, 25, y);
-          y += 8;
-          
-          // Card body
-          doc.setFillColor(...white);
-          doc.rect(20, y - 3, 170, 45, 'F');
-          doc.setDrawColor(...lightGray);
-          doc.rect(20, y - 3, 170, 45, 'S');
-          
-          // Status badge
-          const statusColors = {
-            'In Progress': [6, 182, 212],
-            'Not Started': [107, 114, 128],
-            'Completed': [34, 197, 94],
-            'At Risk': [251, 146, 60]
-          };
-          const statusColor = statusColors[obj.status] || statusColors['Not Started'];
-          
-          doc.setFillColor(...statusColor);
-          doc.setGDOpacity(0.1);
-          doc.roundedRect(25, y + 1, 40, 6, 1, 1, 'F');
-          doc.setGDOpacity(1);
-          doc.setTextColor(...statusColor);
-          doc.setFontSize(9);
-          doc.setFont(undefined, 'bold');
-          doc.text(obj.status, 27, y + 5);
-          
-          // Target date
-          doc.setTextColor(...grayText);
-          doc.setFont(undefined, 'normal');
-          doc.text(`Target: ${obj.targetDate || 'Not set'}`, 185, y + 5, { align: 'right' });
+          doc.text(obj.name || 'Unnamed Objective', 25, y);
           y += 10;
+          
+          // Status and date
+          doc.setTextColor(...darkColor);
+          doc.setFontSize(10);
+          doc.text(`Status: ${obj.status || 'Unknown'}`, 25, y);
+          doc.text(`Target: ${obj.targetDate || 'Not set'}`, 100, y);
+          y += 7;
           
           // Description
           if (obj.description) {
-            doc.setFontSize(10);
-            const descLines = doc.splitTextToSize(obj.description, 160);
+            doc.setTextColor(...grayColor);
+            doc.setFont(undefined, 'normal');
+            const descLines = doc.splitTextToSize(obj.description, 165);
             doc.text(descLines, 25, y);
-            y += descLines.length * 4 + 5;
+            y += descLines.length * 5 + 5;
           }
           
           // KPIs
           if (obj.kpis && obj.kpis.length > 0) {
             doc.setFont(undefined, 'bold');
-            doc.setTextColor(...darkText);
-            doc.setFontSize(10);
+            doc.setTextColor(...darkColor);
             doc.text('Key Performance Indicators:', 25, y);
             y += 6;
             
             obj.kpis.forEach(kpi => {
               const type = getKPIType(kpi.typeKey);
-              
-              // KPI background
-              doc.setFillColor(...lightGray);
-              doc.setGDOpacity(0.3);
-              doc.roundedRect(28, y - 3, 155, 6, 1, 1, 'F');
-              doc.setGDOpacity(1);
-              
               doc.setFont(undefined, 'normal');
-              doc.setTextColor(...grayText);
-              doc.setFontSize(9);
-              doc.text(`• ${type.label}:`, 30, y);
+              doc.setTextColor(...grayColor);
               
-              // Current value
-              doc.setFont(undefined, 'bold');
-              doc.setTextColor(...darkText);
-              doc.text(`${kpi.currentValue}${type.unit}`, 80, y);
+              let kpiText = `• ${type.label}: ${kpi.currentValue}${type.unit}`;
               
-              // Delta calculation with proper handling
-              if (kpi.comparePrevious && kpi.previousValue !== undefined && kpi.previousValue !== null) {
+              if (kpi.comparePrevious && kpi.previousValue !== undefined && kpi.previousValue !== null && kpi.previousValue !== 0) {
                 const delta = calculateDelta(kpi.currentValue, kpi.previousValue);
                 const deltaNum = parseFloat(delta);
-                
                 if (!isNaN(deltaNum)) {
-                  const isImprovement = type.higherIsBetter ? deltaNum >= 0 : deltaNum <= 0;
-                  const deltaColor = isImprovement ? accentGreen : [239, 68, 68];
-                  
-                  doc.setTextColor(...deltaColor);
-                  doc.setFont(undefined, 'normal');
-                  const deltaText = `${deltaNum > 0 ? '+' : ''}${delta}%`;
-                  doc.text(deltaText, 110, y);
-                  
-                  // Trend arrow
-                  const arrow = deltaNum > 0 ? '↑' : deltaNum < 0 ? '↓' : '→';
-                  doc.text(arrow, 130, y);
+                  const isPositive = type.higherIsBetter ? deltaNum >= 0 : deltaNum <= 0;
+                  kpiText += ` (${deltaNum > 0 ? '+' : ''}${delta}% ${kpi.period || 'change'})`;
+                  doc.setTextColor(...(isPositive ? greenColor : [239, 68, 68]));
                 }
               }
-              y += 7;
+              
+              doc.text(kpiText, 30, y);
+              y += 5;
             });
           }
           
-          y += 15;
+          y += 10;
         });
         
-        // Past Objectives Section
+        // Past Objectives
         if (state.pastObjectives.length > 0) {
           y = checkPageBreak(y);
-          doc.setTextColor(...darkText);
-          doc.setFontSize(18);
+          doc.setTextColor(...darkColor);
+          doc.setFontSize(16);
           doc.setFont(undefined, 'bold');
           doc.text('Past Objectives Achieved', 20, y);
-          drawGradientRect(20, y + 2, 50, 0.5, [[34, 197, 94], [16, 185, 129]]);
-          y += 12;
+          y += 10;
           
           state.pastObjectives.forEach((obj) => {
-            y = checkPageBreak(y, 35);
-            
-            // Achievement card
-            doc.setFillColor(...accentGreen);
-            doc.setGDOpacity(0.05);
-            doc.roundedRect(20, y - 3, 170, 30, 2, 2, 'F');
-            doc.setGDOpacity(1);
+            y = checkPageBreak(y, 30);
             
             // Checkmark
-            doc.setTextColor(...accentGreen);
-            doc.setFontSize(16);
-            doc.text('✓', 25, y + 5);
+            doc.setTextColor(...greenColor);
+            doc.setFontSize(14);
+            doc.text('✓', 20, y);
             
-            // Objective details
-            doc.setTextColor(...darkText);
+            // Objective name
+            doc.setTextColor(...darkColor);
             doc.setFontSize(11);
             doc.setFont(undefined, 'bold');
-            doc.text(obj.name, 35, y + 5);
+            doc.text(obj.name || 'Unnamed Objective', 30, y);
+            y += 6;
             
-            doc.setTextColor(...grayText);
+            doc.setTextColor(...grayColor);
             doc.setFontSize(9);
             doc.setFont(undefined, 'normal');
-            doc.text(`Completed: ${obj.targetDate || 'N/A'}`, 35, y + 11);
+            doc.text(`Completed: ${obj.targetDate || 'N/A'}`, 30, y);
             
             if (obj.description) {
-              doc.setFontSize(9);
-              const descLines = doc.splitTextToSize(obj.description, 145);
-              doc.text(descLines, 35, y + 17);
+              y += 5;
+              const descLines = doc.splitTextToSize(obj.description, 155);
+              doc.text(descLines, 30, y);
+              y += descLines.length * 4;
             }
             
-            y += 35;
+            y += 10;
           });
         }
         
@@ -2574,16 +2459,10 @@
         const pageCount = doc.internal.getNumberOfPages();
         for (let i = 1; i <= pageCount; i++) {
           doc.setPage(i);
-          
-          // Footer gradient line
-          drawGradientRect(0, 290, 210, 0.5, primaryGradient);
-          
           doc.setFontSize(9);
-          doc.setTextColor(...grayText);
-          doc.text(`Page ${i} of ${pageCount}`, 105, 285, { align: 'center' });
-          doc.setFont(undefined, 'italic');
+          doc.setTextColor(...grayColor);
+          doc.text(`Page ${i} of ${pageCount}`, 105, 285, { maxWidth: 50, align: 'center' });
           doc.text('Responsive Platform - Customer Success Plan', 20, 285);
-          doc.text(state.customerName, 190, 285, { align: 'right' });
         }
         
         // Save
