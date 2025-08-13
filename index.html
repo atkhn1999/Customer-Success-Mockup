@@ -138,8 +138,7 @@
 
       <!-- Right -->
       <div class="lg:col-span-1 space-y-8">
-                 <section id="kpi-section" class="card p-6"></section>
-         <section id="period-controls" class="card p-6"></section>
+                           <section id="period-controls" class="card p-6"></section>
         
         <section class="card p-6">
           <h3 class="text-lg font-semibold mb-3">Plan Details</h3>
@@ -561,10 +560,8 @@
       autoSave();
     }
 
-    function renderKPISection(){
-      const root = document.getElementById('kpi-section');
-      if (!root) return;
-      const kpis = state.kpis || [];
+    function renderKPISectionRemoved(){ /* removed */ }
+              return; // no-op
 
       const kpiRows = kpis.map(k => {
         const { entry } = getKpiEntryForCurrent(k);
@@ -580,7 +577,7 @@
               ${linkedHtml}
             </div>
             <div class="flex items-center gap-4">
-              <div class="text-right">
+              <div class="text-right"> 
                 <div class="text-xl font-bold">${entry.current ?? 0}</div>
                 <div class="text-xs ${deltaColor}">${arrow} ${delta}% vs prev</div>
               </div>
@@ -591,11 +588,11 @@
       }).join('');
 
       root.innerHTML = `
-        <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center justify-between mb-3"> 
           <h3 class="text-lg font-semibold">KPIs</h3>
-          <button class="btn ${uiEditMode ? 'bg-gradient-to-r from-rose-600 to-pink-600 text-white border-0' : 'btn-outline'}" id="kpi-add-btn" ${uiEditMode?'':'disabled'}>+ Add KPI</button>
+          <button class="btn ${uiEditMode ? 'bg-gradient-to-r from-rose-600 to-pink-600 text-white border-0' : 'btn-outline'}\" id="kpi-add-btn" ${uiEditMode?'':'disabled'}>+ Add KPI</button>
         </div>
-        <div class="space-y-2" id="kpi-list">${kpiRows || '<div class=\"text-slate-500 text-sm\">No KPIs yet.</div>'}</div>
+        <div class="space-y-2" id="kpi-list">${kpiRows || '<div class=\\"text-slate-500 text-sm\\">No KPIs yet.</div>'}</div>
       `;
 
       root.addEventListener('click', (e)=>{
@@ -603,7 +600,6 @@
           if (!uiEditMode) return;
           const id = Number(e.target.closest('[data-id]').dataset.id);
           state.kpis = (state.kpis||[]).filter(x=>x.id!==id);
-          renderKPISection();
           renderObjectives();
           autoSave();
         }
@@ -690,7 +686,6 @@
         const objectiveId = prelinkedObjectiveId || (objSel && objSel.value ? Number(objSel.value) : null);
         state.kpis = state.kpis || [];
         state.kpis.unshift({ id: Date.now()+Math.random(), typeKey: t.key, name: t.label, unit: t.unit, series, objectiveId });
-        renderKPISection();
         renderObjectives();
         autoSave();
         modal.remove();
@@ -738,7 +733,6 @@
         const delta = computeDeltaPercent(current, previous);
         ensureKpiSeries(kpi);
         kpi.series[key] = { current, previous, delta };
-        renderKPISection();
         renderObjectives();
         autoSave();
         modal.remove();
@@ -816,7 +810,6 @@
       renderValue();
       renderObjectives();
       renderStakeholders();
-      renderKPISection();
       renderPeriodControls();
       syncTopControls();
     }
@@ -853,7 +846,6 @@
           if (e.target.matches('[data-role\="remove-kpi\"]')){
             state.kpis = (state.kpis||[]).filter(x=>x.id!==kpiId);
             renderObjectives();
-            renderKPISection();
             autoSave();
             return;
           }
@@ -878,7 +870,7 @@
         if (e.target.matches('[data-role="set-period-type"]')){
           state.metrics.periodType = e.target.dataset.value;
           renderPeriodControls();
-          renderKPISection();
+          renderObjectives();
         }
         if (e.target.matches('[data-role="add-metric"]')){
           return; // metrics removed
@@ -1058,22 +1050,22 @@
         if (e.target.id === 'metrics-month'){
           state.metrics.month = e.target.value;
           autoSave();
-          renderKPISection();
+          renderObjectives();
         }
         if (e.target.id === 'metrics-quarter'){
           state.metrics.quarter = Number(e.target.value);
           autoSave();
-          renderKPISection();
+          renderObjectives();
         }
         if (e.target.id === 'metrics-year'){
           state.metrics.year = Number(e.target.value);
           autoSave();
-          renderKPISection();
+          renderObjectives();
         }
         if (e.target.id === 'metrics-year-only'){
           state.metrics.year = Number(e.target.value);
           autoSave();
-          renderKPISection();
+          renderObjectives();
         }
 
         // Plan Details + Mission Summary
