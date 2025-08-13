@@ -2277,45 +2277,209 @@
     function exportToExcel() {
       try {
         const wb = XLSX.utils.book_new();
+        const date = new Date();
+        const dateStr = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
         
-        // Plan Overview
-        const overview = [{
-          'Mission Summary': state.missionSummary,
-          'Health Status': state.planHealth,
-          'Active Products': state.products.join(', ')
-        }];
+        // 1. Executive Summary Sheet
+        const summaryData = [
+          { 'Field': 'Customer Name', 'Value': state.customerName },
+          { 'Field': 'Generated Date', 'Value': dateStr },
+          { 'Field': 'Active Products', 'Value': state.products.join(', ') },
+          { 'Field': 'Plan Health', 'Value': state.planHealth || 'Good' },
+          { 'Field': '', 'Value': '' }, // Empty row
+          { 'Field': 'Mission Summary', 'Value': state.missionSummary },
+          { 'Field': '', 'Value': '' }, // Empty row
+          { 'Field': 'Total Objectives', 'Value': state.objectives.length },
+          { 'Field': 'In Progress', 'Value': state.objectives.filter(o => o.status === 'In Progress').length },
+          { 'Field': 'Not Started', 'Value': state.objectives.filter(o => o.status === 'Not Started').length },
+          { 'Field': 'Completed', 'Value': state.pastObjectives.length },
+          { 'Field': '', 'Value': '' }, // Empty row
+          { 'Field': 'Total Value Realized', 'Value': state.valueRealized.length + ' items' },
+          { 'Field': 'Key Stakeholders', 'Value': state.stakeholders.length + ' contacts' }
+        ];
         
-        // Objectives with KPIs
-        const objectives = [];
-        state.objectives.forEach(obj => {
-          objectives.push({
-            'Objective': obj.name,
+        const summarySheet = XLSX.utils.json_to_sheet(summaryData);
+        // Set column widths
+        summarySheet['!cols'] = [{ wch: 25 }, { wch: 60 }];
+        XLSX.utils.book_append_sheet(wb, summarySheet, 'Executive Summary');
+        
+        // 2. Current Objectives Sheet with detailed KPI breakdown
+        const objectivesData = [];
+        state.objectives.forEach((obj, idx) => {
+          // Add objective header
+          objectivesData.push({
+            'Objective Name': obj.name,
             'Status': obj.status,
-            'Target Date': obj.targetDate,
-            'Type': 'Current'
+            'Target Date': new Date(obj.targetDate).toLocaleDateString(),
+            'Description': obj.description,
+            'Challenges': obj.challenges,
+            'Next Steps': obj.nextSteps
           });
           
+          // Add KPIs if present
+          if (obj.kpis && obj.kpis.length > 0) {
+            obj.kpis.forEach(kpi => {
+              const type = getKPIType(kpi.typeKey);
+              const delta = calculateDelta(kpi.currentValue, kpi.previousValue);
+              const trend = type.higherIsBetter ? (delta >= 0 ? 'Positive' : 'Negative') : (delta <= 0 ? 'Positive' : 'Negative');
+              
+              objectivesData.push({
+                'Objective Name': `  → KPI: ${type.label}`,
+                'Status': `${kpi.currentValue}${type.unit}`,
+                'Target Date': kpi.previousValue !== undefined ? `Previous: ${kpi.previousValue}${type.unit}` : '',
+                'Description': `Change: ${delta > 0 ? '+' : ''}${delta}% (${kpi.period})`,
+                'Challenges': trend,
+                'Next Steps': ''
+              });
+            });
+          }
+          
+          // Add empty row between objectives
+          if (idx < state.objectives.length - 1) {
+            objectivesData.push({
+              'Objective Name': '',
+              'Status': '',
+              'Target Date': '',
+              'Description': '',
+              'Challenges': '',
+              'Next Steps': ''
+            });
+          }
+        });
+        
+        const objectivesSheet = XLSX.utils.json_to_sheet(objectivesData);
+        objectivesSheet['!cols'] = [
+          { wch: 40 }, // Objective Name
+          { wch: 15 }, // Status
+          { wch: 15 }, // Target Date
+          { wch: 50 }, // Description
+          { wch: 40 }, // Challenges
+          { wch: 40 }  // Next Steps
+        ];
+        XLSX.utils.book_append_sheet(wb, objectivesSheet, 'Current Objectives');
+        
+        // 3. Mission Goals Sheet with enhanced formatting
+        const goalsData = state.missionGoals.map(goal => {
+          const result = {
+            'Goal Title': goal.title,
+            'Description': goal.description
+          };
+          
+          // Add custom fields
+          if (goal.customFields) {
+            goal.customFields.forEach(field => {
+              result[field.label] = field.value;
+            });
+          }
+          
+          return result;
+        });
+        
+        const goalsSheet = XLSX.utils.json_to_sheet(goalsData);
+        goalsSheet['!cols'] = [
+          { wch: 30 }, // Goal Title
+          { wch: 60 }  // Description
+        ];
+        XLSX.utils.book_append_sheet(wb, goalsSheet, 'Mission Goals');
+        
+        // 4. Value Realized Sheet with proper formatting
+        const valueData = state.valueRealized.map(value => ({
+          'Type': value.type,
+          'Description': value.description,
+          'Date Realized': new Date(value.date).toLocaleDateString(),
+          'Supporting Link': value.link || 'N/A',
+          'Days Ago': Math.floor((date - new Date(value.date)) / (1000 * 60 * 60 * 24))
+        }));
+        
+        const valueSheet = XLSX.utils.json_to_sheet(valueData);
+        valueSheet['!cols'] = [
+          { wch: 20 }, // Type
+          { wch: 60 }, // Description
+          { wch: 15 }, // Date
+          { wch: 40 }, // Link
+          { wch: 10 }  // Days Ago
+        ];
+        XLSX.utils.book_append_sheet(wb, valueSheet, 'Value Realized');
+        
+        // 5. KPI Performance Sheet
+        const kpiData = [];
+        state.objectives.forEach(obj => {
           if (obj.kpis) {
             obj.kpis.forEach(kpi => {
               const type = getKPIType(kpi.typeKey);
-              objectives.push({
-                'Objective': `  → ${type.label}`,
-                'Status': `${kpi.currentValue} ${type.unit}`,
-                'Target Date': `Delta: ${calculateDelta(kpi.currentValue, kpi.previousValue)}%`,
-                'Type': 'KPI'
+              const delta = calculateDelta(kpi.currentValue, kpi.previousValue);
+              
+              kpiData.push({
+                'Objective': obj.name,
+                'KPI Name': type.label,
+                'Current Value': kpi.currentValue,
+                'Previous Value': kpi.previousValue || 'N/A',
+                'Unit': type.unit,
+                'Change %': delta > 0 ? `+${delta}%` : `${delta}%`,
+                'Period': kpi.period,
+                'Performance': type.higherIsBetter ? (delta >= 0 ? 'Good' : 'Needs Attention') : (delta <= 0 ? 'Good' : 'Needs Attention')
               });
             });
           }
         });
         
-        // Add sheets
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(overview), 'Overview');
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(objectives), 'Objectives & KPIs');
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(state.missionGoals), 'Mission Goals');
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(state.valueRealized), 'Value Realized');
+        if (kpiData.length > 0) {
+          const kpiSheet = XLSX.utils.json_to_sheet(kpiData);
+          kpiSheet['!cols'] = [
+            { wch: 35 }, // Objective
+            { wch: 25 }, // KPI Name
+            { wch: 12 }, // Current
+            { wch: 12 }, // Previous
+            { wch: 8 },  // Unit
+            { wch: 10 }, // Change %
+            { wch: 10 }, // Period
+            { wch: 15 }  // Performance
+          ];
+          XLSX.utils.book_append_sheet(wb, kpiSheet, 'KPI Performance');
+        }
         
-        XLSX.writeFile(wb, 'customer-success-plan-responsive.xlsx');
-        showNotification('Excel exported successfully', 'success');
+        // 6. Stakeholders Sheet
+        const stakeholderData = state.stakeholders.map(s => ({
+          'Name': s.name,
+          'Title': s.title,
+          'Email': s.email,
+          'Role': s.role || 'Stakeholder',
+          'Department': s.department || 'N/A'
+        }));
+        
+        const stakeholderSheet = XLSX.utils.json_to_sheet(stakeholderData);
+        stakeholderSheet['!cols'] = [
+          { wch: 25 }, // Name
+          { wch: 30 }, // Title
+          { wch: 30 }, // Email
+          { wch: 20 }, // Role
+          { wch: 20 }  // Department
+        ];
+        XLSX.utils.book_append_sheet(wb, stakeholderSheet, 'Stakeholders');
+        
+        // 7. Past Objectives (Archive)
+        if (state.pastObjectives.length > 0) {
+          const pastData = state.pastObjectives.map(obj => ({
+            'Objective Name': obj.name,
+            'Completion Date': new Date(obj.targetDate).toLocaleDateString(),
+            'Description': obj.description,
+            'Key Outcomes': obj.nextSteps || 'Completed successfully'
+          }));
+          
+          const pastSheet = XLSX.utils.json_to_sheet(pastData);
+          pastSheet['!cols'] = [
+            { wch: 40 }, // Name
+            { wch: 15 }, // Date
+            { wch: 50 }, // Description
+            { wch: 40 }  // Outcomes
+          ];
+          XLSX.utils.book_append_sheet(wb, pastSheet, 'Completed Objectives');
+        }
+        
+        // Generate filename with customer name and date
+        const filename = `${state.customerName.replace(/\s+/g, '-').toLowerCase()}-success-plan-${date.toISOString().split('T')[0]}.xlsx`;
+        XLSX.writeFile(wb, filename);
+        showNotification('Excel exported successfully with enhanced formatting', 'success');
       } catch (error) {
         showNotification('Excel export failed. Please try again.', 'error');
       }
