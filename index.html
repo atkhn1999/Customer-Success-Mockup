@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Customer Success Plan — Enhanced</title>
+  <title>Customer Success Plan - Responsive Platform</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -13,18 +13,29 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root { 
-      --ink:#0f172a; 
-      --ink-2:#334155; 
-      --ink-3:#64748b;
-      --primary-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      --ink: #0f172a; 
+      --ink-2: #334155; 
+      --ink-3: #64748b;
+      --responsive-blue: #0066CC;
+      --responsive-dark: #001F3F;
+      --primary-gradient: linear-gradient(135deg, #0066CC 0%, #0052A3 100%);
       --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      --kpi-gradient: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
       --danger-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     }
-    body { font-family: 'Inter', sans-serif; background:#f8fafc; color:var(--ink); }
+    
+    * { box-sizing: border-box; }
+    
+    body { 
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+      background: #f8fafc; 
+      color: var(--ink); 
+      line-height: 1.5;
+    }
 
-    /* Typography scale */
-    h1 { font-size: 2.5rem; font-weight: 700; line-height: 1.2; }
-    h2 { font-size: 1.875rem; font-weight: 700; line-height: 1.3; }
+    /* Typography */
+    h1 { font-size: 2.25rem; font-weight: 700; line-height: 1.2; letter-spacing: -0.025em; }
+    h2 { font-size: 1.875rem; font-weight: 700; line-height: 1.3; letter-spacing: -0.025em; }
     h3 { font-size: 1.25rem; font-weight: 600; line-height: 1.4; }
     .text-xs { font-size: 0.75rem; }
     .text-sm { font-size: 0.875rem; }
@@ -33,158 +44,247 @@
     .text-xl { font-size: 1.25rem; }
     .text-2xl { font-size: 1.5rem; }
     .text-3xl { font-size: 1.875rem; }
-    .text-4xl { font-size: 2.25rem; }
 
-    /* Unified text zones: sharp corners, clear borders */
+    /* Text zones */
     .text-zone { 
-      width:100%; 
-      border-radius:0; 
-      border:1px solid #e2e8f0; 
-      background:#fff; 
-      box-shadow:none; 
+      width: 100%; 
+      border-radius: 0; 
+      border: 1px solid #e2e8f0; 
+      background: #fff; 
+      box-shadow: none; 
       transition: border-color .15s, box-shadow .15s; 
       outline: none; 
     }
     .text-zone:focus { 
-      border-color: #3b82f6; 
-      box-shadow: 0 0 0 3px rgba(59,130,246,0.1); 
+      border-color: var(--responsive-blue); 
+      box-shadow: 0 0 0 3px rgba(0,102,204,0.1); 
+    }
+    .text-zone:disabled {
+      background: #f9fafb;
+      color: #6b7280;
+      cursor: not-allowed;
     }
     .text-area { 
       resize: none; 
       min-height: 3rem; 
       overflow: hidden; 
-      line-height: 1.5; 
-    }
-    .chip { 
-      display:inline-flex; 
-      align-items:center; 
-      gap:.375rem; 
-      padding:.375rem .75rem; 
-      font-size:.875rem; 
-      font-weight:500; 
-      border-radius:0; 
-      border:1px solid #e2e8f0; 
+      line-height: 1.6; 
     }
 
-    /* Status pills - sharp corners */
+    /* Cards */
+    .card { 
+      background: #fff; 
+      border-radius: 0; 
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+      border: 1px solid #e5e7eb; 
+    }
+
+    /* Buttons */
+    .btn { 
+      display: inline-flex; 
+      align-items: center; 
+      gap: .5rem; 
+      font-weight: 600; 
+      border-radius: 0; 
+      padding: .625rem 1.25rem; 
+      border: 1px solid transparent; 
+      transition: all .15s ease; 
+      cursor: pointer;
+      font-size: 0.875rem;
+      white-space: nowrap;
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .btn-sm { 
+      padding: .375rem .875rem; 
+      font-size: .875rem; 
+    }
+    .btn-primary { 
+      background: var(--primary-gradient);
+      color: #fff; 
+      border: none;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .btn-primary:hover:not(:disabled) { 
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transform: translateY(-1px);
+    }
+    .btn-success { 
+      background: var(--success-gradient);
+      color: #fff;
+      border: none;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .btn-success:hover:not(:disabled) { 
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transform: translateY(-1px);
+    }
+    .btn-kpi {
+      background: var(--kpi-gradient);
+      color: #fff;
+      border: none;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .btn-kpi:hover:not(:disabled) {
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transform: translateY(-1px);
+    }
+    .btn-outline { 
+      background: #fff; 
+      color: #374151; 
+      border: 1px solid #d1d5db; 
+    }
+    .btn-outline:hover:not(:disabled) { 
+      background: #f9fafb; 
+      border-color: #9ca3af;
+    }
+    .btn-ghost { 
+      background: transparent; 
+      color: #6b7280; 
+      border: none;
+    }
+    .btn-ghost:hover:not(:disabled) { 
+      background: #f3f4f6; 
+      color: #374151;
+    }
+
+    /* Read-only sections */
+    .section-readonly {
+      position: relative;
+    }
+    .section-readonly .edit-overlay {
+      position: absolute;
+      top: 0;
+      right: 0;
+      padding: 1rem;
+    }
+    .section-readonly.editing .edit-overlay {
+      display: none;
+    }
+    .readonly-content {
+      color: #374151;
+      padding: 0.75rem;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      min-height: 3rem;
+    }
+
+    /* Status pills */
     .status-pill { 
       font-size: .75rem; 
       font-weight: 600; 
       padding: .25rem .75rem; 
       border-radius: 0; 
-      display:inline-flex; 
-      align-items:center; 
+      display: inline-flex; 
+      align-items: center; 
     }
-    .status-green { background:#10b981; color:#fff; }
-    .status-yellow { background:#f59e0b; color:#fff; }
-    .status-red { background:#ef4444; color:#fff; }
-    .status-gray { background:#6b7280; color:#fff; }
-    .status-cyan { background:#06b6d4; color:#fff; }
+    .status-green { background: #10b981; color: #fff; }
+    .status-yellow { background: #f59e0b; color: #fff; }
+    .status-red { background: #ef4444; color: #fff; }
+    .status-gray { background: #6b7280; color: #fff; }
+    .status-cyan { background: #06b6d4; color: #fff; }
 
-    /* Colored filters */
-    .colored-filter { 
-      background:#f0fdf4; 
-      border:1px solid #86efac; 
+    /* KPI display */
+    .kpi-card {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      padding: 1rem;
+      position: relative;
     }
-    .colored-filter:focus { 
-      border-color:#22c55e; 
-      box-shadow: 0 0 0 3px rgba(34,197,94,0.1); 
-    }
-
-    /* Cards - sharp corners, subtle borders */
-    .card { 
-      background:#fff; 
-      border-radius:0; 
-      box-shadow:0 1px 3px rgba(0,0,0,0.1); 
-      border:1px solid #e5e7eb; 
-    }
-    .fade { transition: all .2s ease; }
-    .removing { 
-      transform: scale(.98); 
-      opacity:0; 
-      max-height:0; 
-      overflow:hidden;
-    }
-
-    /* Preview blocks */
-    .preview-box { 
-      background:#f9fafb; 
-      border:1px solid #e5e7eb; 
-      border-radius:0; 
-      padding:1rem; 
-    }
-
-    /* KPI display enhancement */
     .kpi-value {
       font-size: 2rem;
       font-weight: 700;
       line-height: 1;
+      color: #111827;
     }
     .kpi-unit {
       font-size: 1rem;
       font-weight: 400;
       color: #6b7280;
+      margin-left: 0.25rem;
     }
     .kpi-delta {
       font-size: 0.875rem;
       font-weight: 600;
       padding: 0.25rem 0.5rem;
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .kpi-delta.positive {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .kpi-delta.negative {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .kpi-arrow {
+      width: 0.75rem;
+      height: 0.75rem;
     }
 
-    /* Small helpers */
-    .health-dot { 
-      width:0.625rem; 
-      height:0.625rem; 
-      border-radius:9999px; 
-      display:inline-block; 
-      margin-right:0.5rem; 
+    /* Period switcher */
+    .period-switcher {
+      display: inline-flex;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      padding: 0.25rem;
     }
-    .linkish { 
-      text-decoration: underline; 
-      color:#3b82f6; 
+    .period-switcher button {
+      padding: 0.375rem 0.75rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      background: transparent;
+      border: none;
+      color: #6b7280;
       cursor: pointer;
+      transition: all 0.15s;
     }
-    .linkish:hover { 
-      color:#2563eb; 
+    .period-switcher button.active {
+      background: #fff;
+      color: var(--responsive-blue);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
 
-    /* Modal aesthetics - sharp corners */
+    /* Modal */
     .modal-overlay { 
-      position:fixed; 
-      inset:0; 
+      position: fixed; 
+      inset: 0; 
       background: rgba(0,0,0,0.5); 
       backdrop-filter: blur(4px); 
-      display:flex; 
-      align-items:center; 
-      justify-content:center; 
-      z-index:50; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      z-index: 50; 
     }
     .modal-panel { 
-      border-radius:0; 
+      border-radius: 0; 
       box-shadow: 0 20px 40px rgba(0,0,0,0.15); 
-      max-height:90vh; 
-      overflow-y:auto; 
-      background:#ffffff; 
+      max-height: 90vh; 
+      overflow-y: auto; 
+      background: #ffffff; 
       position: relative;
     }
     .modal-header { 
-      padding:1.5rem; 
-      border-bottom:1px solid #e5e7eb; 
+      padding: 1.5rem; 
+      border-bottom: 1px solid #e5e7eb; 
       background: #f9fafb;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
     .modal-body { 
-      padding:1.5rem; 
+      padding: 1.5rem; 
     }
     .modal-footer { 
-      padding:1rem 1.5rem; 
-      border-top:1px solid #e5e7eb; 
-      display:flex; 
-      justify-content:flex-end; 
-      gap:1rem; 
+      padding: 1rem 1.5rem; 
+      border-top: 1px solid #e5e7eb; 
+      display: flex; 
+      justify-content: flex-end; 
+      gap: 1rem; 
       background: #f9fafb;
     }
     .modal-close {
@@ -204,103 +304,26 @@
       color: #374151;
     }
 
-    /* Buttons: high-contrast, modern with gradients for primary */
-    .btn { 
-      display:inline-flex; 
-      align-items:center; 
-      gap:.5rem; 
-      font-weight:600; 
-      border-radius:0; 
-      padding:.625rem 1.25rem; 
-      border:1px solid transparent; 
-      transition: all .15s ease; 
-      cursor: pointer;
-      font-size: 0.875rem;
+    /* Helpers */
+    .health-dot { 
+      width: 0.625rem; 
+      height: 0.625rem; 
+      border-radius: 9999px; 
+      display: inline-block; 
+      margin-right: 0.5rem; 
     }
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    .btn-sm { 
-      padding:.375rem .875rem; 
-      font-size:.875rem; 
-    }
-    .btn-primary { 
-      background: var(--primary-gradient);
-      color:#fff; 
-      border: none;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    .btn-primary:hover:not(:disabled) { 
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      transform: translateY(-1px);
-    }
-    .btn-success { 
-      background: var(--success-gradient);
-      color:#fff;
-      border: none;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    .btn-success:hover:not(:disabled) { 
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      transform: translateY(-1px);
-    }
-    .btn-danger {
-      background: var(--danger-gradient);
-      color:#fff;
-      border: none;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    .btn-danger:hover:not(:disabled) {
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      transform: translateY(-1px);
-    }
-    .btn-outline { 
-      background:#fff; 
-      color:#374151; 
-      border:1px solid #d1d5db; 
-    }
-    .btn-outline:hover:not(:disabled) { 
-      background:#f9fafb; 
-      border-color:#9ca3af;
-    }
-    .btn-ghost { 
-      background:transparent; 
-      color:#6b7280; 
-      border: none;
-    }
-    .btn-ghost:hover:not(:disabled) { 
-      background:#f3f4f6; 
-      color:#374151;
-    }
-
-    /* Form improvements */
-    label {
-      font-weight: 500;
-      color: #374151;
-    }
-    select {
+    .linkish { 
+      text-decoration: underline; 
+      color: var(--responsive-blue); 
       cursor: pointer;
     }
-    input[type="number"] {
-      -moz-appearance: textfield;
-    }
-    input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
+    .linkish:hover { 
+      color: #0052A3; 
     }
 
-    /* Metric display enhancement */
-    .metric-value-display {
-      font-size: 2.5rem;
-      font-weight: 700;
-      line-height: 1;
-      color: #111827;
-    }
-    .metric-delta-display {
-      font-size: 1rem;
-      font-weight: 600;
+    /* Custom field inputs */
+    .custom-field-input {
+      min-width: 400px;
     }
 
     /* Loading spinner */
@@ -314,10 +337,10 @@
 </head>
 <body>
   <div id="app" class="max-w-screen-xl mx-auto p-4 sm:p-6 lg:p-8">
-    <header class="mb-10 p-8 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 text-white flex justify-between items-center">
+    <header class="mb-10 p-8 bg-gradient-to-r from-blue-900 via-blue-800 to-blue-700 text-white flex justify-between items-center">
       <div>
         <h1 class="text-4xl font-bold">Customer Success Plan</h1>
-        <p class="text-cyan-200 mt-2">A collaborative plan to track and achieve outcomes. Last updated: <span id="last-updated-date"></span></p>
+        <p class="text-blue-100 mt-2">Responsive Platform Implementation • Last updated: <span id="last-updated-date"></span></p>
       </div>
       <div class="flex items-center gap-3">
         <button id="export-excel-btn" class="btn btn-outline">
@@ -331,32 +354,74 @@
       </div>
     </header>
 
+    <!-- Period Switcher (Global) -->
+    <div class="mb-6 flex justify-center">
+      <div class="period-switcher">
+        <button data-period="Month">Month</button>
+        <button data-period="Quarter" class="active">Quarter</button>
+        <button data-period="Year">Year</button>
+      </div>
+      <label class="ml-4 flex items-center gap-2">
+        <input type="checkbox" id="compare-period" class="rounded-0">
+        <span class="text-sm text-gray-600">Compare vs previous period</span>
+      </label>
+    </div>
+
     <!-- Mission Summary -->
-    <section class="card mb-6 p-6">
+    <section class="card mb-6 p-6 section-readonly" id="mission-summary-section">
+      <div class="edit-overlay">
+        <button class="btn btn-ghost btn-sm" data-edit="mission-summary">Edit</button>
+      </div>
       <h2 class="text-2xl font-bold mb-4">Mission Summary</h2>
-      <textarea id="mission-summary" class="text-zone text-area p-3" rows="3" placeholder="Describe the primary business outcome and vision..."></textarea>
+      <div id="mission-summary-display" class="readonly-content"></div>
+      <div id="mission-summary-edit" class="hidden">
+        <textarea id="mission-summary-input" class="text-zone text-area p-3" rows="3"></textarea>
+        <div class="mt-3 flex gap-2">
+          <button class="btn btn-primary btn-sm" data-save="mission-summary">Save</button>
+          <button class="btn btn-ghost btn-sm" data-cancel="mission-summary">Cancel</button>
+        </div>
+      </div>
     </section>
 
     <!-- Mission Goals -->
-    <section class="card mb-10 p-6">
+    <section class="card mb-10 p-6 section-readonly" id="mission-goals-section">
+      <div class="edit-overlay">
+        <button class="btn btn-ghost btn-sm" data-edit="mission-goals">Edit</button>
+      </div>
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-2xl font-bold">Mission Goals</h2>
-        <button id="add-mission-goal-btn" class="btn btn-success">+ Add Goal</button>
       </div>
-      <div id="mission-goals-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+      <div id="mission-goals-display" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+      <div id="mission-goals-edit" class="hidden">
+        <div id="mission-goals-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+        <div class="mt-4 flex gap-2">
+          <button class="btn btn-success btn-sm" id="add-mission-goal-btn">+ Add Goal</button>
+          <button class="btn btn-primary btn-sm" data-save="mission-goals">Save All</button>
+          <button class="btn btn-ghost btn-sm" data-cancel="mission-goals">Cancel</button>
+        </div>
+      </div>
     </section>
 
     <main class="grid grid-cols-1 lg:grid-cols-4 gap-8">
       <!-- Left -->
       <div class="lg:col-span-3 space-y-8">
         <!-- Value Realized -->
-        <section id="value-realized" class="card p-6">
+        <section id="value-realized" class="card p-6 section-readonly">
+          <div class="edit-overlay">
+            <button class="btn btn-ghost btn-sm" data-edit="value-realized">Edit</button>
+          </div>
           <div class="flex justify-between items-center mb-4">
             <h2 class="text-2xl font-bold">Value Realized</h2>
-            <button id="add-value-btn" class="btn btn-success">+ Add Value</button>
           </div>
-          <div id="value-container" class="space-y-4"></div>
-          <div id="no-value-message" class="hidden text-center py-10 px-4 text-slate-500">No value items added yet.</div>
+          <div id="value-display" class="space-y-4"></div>
+          <div id="value-edit" class="hidden">
+            <div id="value-container" class="space-y-4"></div>
+            <div class="mt-4 flex gap-2">
+              <button class="btn btn-success btn-sm" id="add-value-btn">+ Add Value</button>
+              <button class="btn btn-primary btn-sm" data-save="value-realized">Save All</button>
+              <button class="btn btn-ghost btn-sm" data-cancel="value-realized">Cancel</button>
+            </div>
+          </div>
         </section>
 
         <!-- Current Objectives -->
@@ -378,8 +443,6 @@
 
       <!-- Right -->
       <div class="lg:col-span-1 space-y-8">
-        <section id="kpi-section" class="card p-6"></section>
-        <section id="metrics-section" class="card p-6"></section>
         <section class="card p-6">
           <h3 class="text-lg font-semibold mb-3">Plan Details</h3>
           <label class="block text-sm font-medium mb-1">Overall Health</label>
@@ -391,42 +454,6 @@
         </section>
 
         <section class="card p-6">
-          <h3 class="text-lg font-semibold mb-3">Find Similar Objectives</h3>
-          <div class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium mb-1">Industry</label>
-              <select id="filter-industry" class="text-zone colored-filter p-2">
-                <option>Technology</option>
-                <option>Finance</option>
-                <option>Healthcare</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Segment</label>
-              <select id="filter-segment" class="text-zone colored-filter p-2">
-                <option>SMB</option>
-                <option>MM</option>
-                <option>Enterprise</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Products Owned</label>
-              <select id="filter-products" class="text-zone colored-filter p-2">
-                <option value="">Select a product...</option>
-                <option>Content Library</option>
-                <option>AI</option>
-                <option>Projects</option>
-                <option>Trust Center</option>
-              </select>
-            </div>
-            <div id="suggested-objectives-container" class="hidden pt-4 border-t">
-              <h4 class="text-sm font-semibold mb-2">Suggested Objectives</h4>
-              <div id="suggested-objectives-list" class="flex flex-wrap gap-2"></div>
-            </div>
-          </div>
-        </section>
-
-        <section class="card p-6">
           <h3 class="text-lg font-semibold mb-3">Key Stakeholders</h3>
           <div id="stakeholders-container" class="space-y-3 mb-3"></div>
           <select id="add-stakeholder-select" class="text-zone p-2">
@@ -434,1376 +461,787 @@
             <option value="new">Add New Stakeholder...</option>
           </select>
         </section>
+
+        <section class="card p-6">
+          <h3 class="text-lg font-semibold mb-3">Responsive Platform Products</h3>
+          <div class="space-y-2 text-sm">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+              <span>Content Intelligence</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+              <span>Sales Coach AI</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+              <span>Analytics Suite (Trial)</span>
+            </div>
+          </div>
+        </section>
       </div>
     </main>
   </div>
 
   <script>
     // ---------- Data ----------
-    const objectiveOptions = ['Reduce time spent per response', 'Adoption', 'Content library clean up', 'Increase win rate'];
-    const valueOptions = ['Time Savings', 'Win Rate Increase', 'Adoption Rate', 'Cost Reduction', 'Revenue Growth', 'Productivity Gain'];
-
-    // Predefined KPI types catalogue for auto unit + delta direction
     const KPI_TYPES = [
-      { key: 'content_utilization', label: 'Content Utilization', unit: '%', direction: 'up_is_good' },
-      { key: 'obsolete_content_pct', label: 'Obsolete Content Percentage', unit: '%', direction: 'down_is_good' },
-      { key: 'avg_response_time', label: 'Average Response Time', unit: 'seconds', direction: 'down_is_good' },
-      { key: 'customer_satisfaction', label: 'Customer Satisfaction', unit: '%', direction: 'up_is_good' },
-      { key: 'tickets_resolved', label: 'Support Tickets Resolved', unit: 'count', direction: 'up_is_good' },
-      { key: 'escalation_rate', label: 'Escalation Rate', unit: '%', direction: 'down_is_good' }
+      { key: 'content_utilization', label: 'Content Utilization', unit: '%', higherIsBetter: true },
+      { key: 'obsolete_content', label: 'Obsolete Content', unit: '%', higherIsBetter: false },
+      { key: 'avg_response_time', label: 'Avg Response Time', unit: 's', higherIsBetter: false },
+      { key: 'content_accuracy', label: 'Content Accuracy', unit: '%', higherIsBetter: true },
+      { key: 'adoption_rate', label: 'Adoption Rate', unit: '%', higherIsBetter: true },
+      { key: 'time_to_content', label: 'Time to Find Content', unit: 's', higherIsBetter: false },
+      { key: 'ai_confidence', label: 'AI Confidence Score', unit: '%', higherIsBetter: true },
+      { key: 'engagement_score', label: 'Engagement Score', unit: 'pts', higherIsBetter: true }
     ];
-
-    // Suggested KPIs based on product selection
-    const productKPIs = {
-      'AI': ['Unedited AI responses', '% answer with AI', 'AI response quality score', 'AI adoption rate'],
-      'Content Library': ['Content usage rate', 'Content creation time', 'Content approval time', 'Content search efficiency'],
-      'Projects': ['Project completion rate', 'Project delivery time', 'Project budget adherence', 'Stakeholder satisfaction'],
-      'Trust Center': ['Trust score improvement', 'Compliance rate', 'Security incident reduction', 'Customer confidence score']
-    };
 
     const mockContacts = [
-      { id: 1, name: 'Jane Doe', title: 'VP, Sales', email: 'jane.d@example.com' },
-      { id: 2, name: 'John Smith', title: 'Project Manager', email: 'john.s@example.com' },
-      { id: 3, name: 'Samantha Ray', title: 'Director of Ops', email: 'samantha.r@example.com' },
-      { id: 4, name: 'Mike Chen', title: 'Lead Engineer', email: 'mike.c@example.com' },
-      // LOTR Easter eggs
-      { id: 1001, name: 'Gandalf the Grey', title: 'Chief Wizard', email: 'gandalf@middleearth.me' },
-      { id: 1002, name: 'Aragorn Elessar', title: 'Head of Field Ops', email: 'aragorn@gondor.gov' },
-      { id: 1003, name: 'Legolas Greenleaf', title: 'Director of Archery', email: 'legolas@mirkwood.el' },
-      { id: 1004, name: 'Gimli, Son of Glóin', title: 'Chief Mining Officer', email: 'gimli@erebor.dw' },
-      { id: 1005, name: 'Frodo Baggins', title: 'Special Projects Lead', email: 'frodo@shire.me' },
-      { id: 1006, name: 'Samwise Gamgee', title: 'Chief of Staff', email: 'samwise@shire.me' },
-      { id: 1007, name: 'Galadriel', title: 'Executive Advisor', email: 'galadriel@lothlorien.el' },
-      { id: 1008, name: 'Elrond', title: 'Head of Strategy', email: 'elrond@rivendell.el' }
+      { id: 1, name: 'Sarah Chen', title: 'VP Sales', email: 'sarah.chen@techcorp.com' },
+      { id: 2, name: 'Michael Rodriguez', title: 'Sales Director', email: 'michael.r@techcorp.com' },
+      { id: 3, name: 'Jennifer Park', title: 'Head of Enablement', email: 'jennifer.p@techcorp.com' },
+      { id: 4, name: 'David Thompson', title: 'CRO', email: 'david.t@techcorp.com' }
     ];
 
+    // State with Responsive Platform-specific data
     const state = {
+      currentPeriod: 'Quarter',
+      comparePrevious: false,
+      missionSummary: 'Transform TechCorp\'s sales organization with Responsive\'s AI-powered content intelligence platform, enabling 200+ sales reps to find the right content 75% faster, increase win rates by 15%, and drive $5M in additional revenue through improved sales effectiveness.',
       missionGoals: [
         { 
-          id: Date.now(), 
-          title: 'Accelerate Deal Velocity', 
-          description: 'Reduce average deal cycle time by 25% through intelligent content recommendations and automated workflows, enabling our sales team to close deals faster while maintaining quality.', 
+          id: 1, 
+          title: 'Accelerate Content Discovery', 
+          description: 'Deploy Responsive\'s AI-powered search across all sales teams, reducing average content discovery time from 12 minutes to 3 minutes per interaction.',
           customFields: [
-            {id: 1, label: 'Success Metric Dashboard', value: 'https://analytics.company.com/deal-velocity'},
-            {id: 2, label: 'Enablement Deck', value: 'https://docs.company.com/sales-acceleration-guide'}
+            {id: 1, label: 'Success Metrics', value: 'https://analytics.responsive.io/techcorp/metrics'},
+            {id: 2, label: 'Implementation Guide', value: 'https://docs.responsive.io/quick-start'}
           ] 
         },
         { 
-          id: Date.now() + 1, 
-          title: 'Content Excellence Program', 
-          description: 'Achieve 90% content relevancy score by implementing AI-driven content curation, regular audits, and stakeholder feedback loops to ensure our sales materials remain cutting-edge.', 
+          id: 2, 
+          title: 'Increase Sales Velocity', 
+          description: 'Leverage Responsive\'s Sales Coach AI to provide real-time guidance during customer calls, improving deal conversion rates by 20% and reducing sales cycle by 15%.',
           customFields: [
-            {id: 3, label: 'ROI Calculator', value: 'https://tools.company.com/content-roi'},
-            {id: 4, label: 'Best Practices Guide', value: 'https://wiki.company.com/content-excellence'}
+            {id: 3, label: 'ROI Dashboard', value: 'https://responsive.io/roi/techcorp'}
           ] 
+        }
+      ],
+      stakeholders: [mockContacts[0], mockContacts[1], mockContacts[2]],
+      objectives: [
+        {
+          id: 1,
+          name: 'Launch Content Intelligence for Enterprise Team',
+          targetDate: '2025-02-28',
+          status: 'In Progress',
+          description: 'Roll out Responsive\'s Content Intelligence to 50 enterprise sales reps, establishing baseline metrics and achieving 80% adoption within 30 days.',
+          challenges: 'Integration with existing Salesforce instance requires custom API development. Some reps resistant to changing current workflow.',
+          nextSteps: 'Complete Salesforce integration by Feb 15. Schedule hands-on training sessions week of Feb 20.',
+          kpis: [
+            { id: 101, typeKey: 'adoption_rate', currentValue: 45, previousValue: 0 },
+            { id: 102, typeKey: 'time_to_content', currentValue: 8, previousValue: 12 }
+          ]
         },
         {
-          id: Date.now() + 2,
-          title: 'Revenue Growth Through Adoption',
-          description: 'Drive $2.5M in incremental revenue by achieving 85% platform adoption across all sales teams and demonstrating measurable impact on win rates.',
-          customFields: [
-            {id: 5, label: 'Adoption Playbook', value: 'https://resources.company.com/adoption-strategy'}
+          id: 2,
+          name: 'Implement AI Content Recommendations',
+          targetDate: '2025-03-31',
+          status: 'Not Started',
+          description: 'Configure and train Responsive\'s AI engine on TechCorp\'s content library to provide personalized recommendations based on deal stage and customer profile.',
+          challenges: 'Need to clean up and tag 2,000+ pieces of existing content. Requires alignment with Product Marketing on taxonomy.',
+          nextSteps: 'Begin content audit week of Feb 1. Define taxonomy structure with Product Marketing by Feb 10.',
+          kpis: [
+            { id: 201, typeKey: 'content_accuracy', currentValue: 72, previousValue: 65 },
+            { id: 202, typeKey: 'ai_confidence', currentValue: 0, previousValue: 0 }
           ]
         }
       ],
-      stakeholders: [
-        mockContacts[0], 
-        mockContacts[1], 
-        mockContacts[2],
-        { id: 1001, name: 'Sarah Chen', title: 'Chief Revenue Officer', email: 'sarah.chen@company.com' },
-        { id: 1002, name: 'Marcus Johnson', title: 'VP Sales Operations', email: 'marcus.j@company.com' }
-      ],
-      objectives: [{
-        id: Date.now(), 
-        name: 'Implement AI-Powered Content Recommendations', 
-        targetDate: '2025-03-31', 
-        status: 'In Progress',
-        kpiGoal: 'Deploy AI recommendation engine to 100% of sales team, achieving 75% positive feedback score and 40% reduction in content search time.',
-        challenges: 'Integration complexity with existing CRM systems and ensuring AI recommendations align with different sales methodologies across teams.',
-        nextSteps: 'Complete Phase 2 integration testing with Salesforce by March 15. Schedule training sessions with Enterprise and SMB teams.', 
-        s4Link: 'https://jira.company.com/browse/AI-2345',
-        editing: false, 
-        expanded: false
-      }, {
-        id: Date.now() + 2, 
-        name: 'Establish Content Governance Framework', 
-        targetDate: '2025-04-15', 
-        status: 'In Progress',
-        kpiGoal: 'Create automated content lifecycle management reducing outdated content by 60% and improving content accuracy scores to 95%.',
-        challenges: 'Resistance from product marketing teams who own content creation. Need executive alignment on content retirement policies.',
-        nextSteps: 'Present governance framework to Product Marketing leadership on March 20. Pilot automated archival process with competitive battlecards.', 
-        s4Link: 'https://jira.company.com/browse/GOV-1122',
-        editing: false, 
-        expanded: false
-      }, {
-        id: Date.now() + 3,
-        name: 'Launch Sales Coaching Integration',
-        targetDate: '2025-05-30',
-        status: 'Not Started',
-        kpiGoal: 'Enable real-time coaching recommendations during customer calls, improving new rep ramp time by 30% and deal conversion rates by 15%.',
-        challenges: 'Privacy concerns around call recording and analysis. Need to ensure compliance with regional data protection regulations.',
-        nextSteps: 'Finalize vendor selection between Gong and Chorus. Work with Legal team on data handling policies.',
-        s4Link: 'https://jira.company.com/browse/COACH-789',
-        editing: false,
-        expanded: false
-      }],
       pastObjectives: [
-        { 
-          id: Date.now()+100, 
-          name: 'Migrate Legacy Content Repository', 
-          targetDate: '2024-12-31', 
-          status: 'Completed', 
-          kpiGoal: 'Successfully migrate 10,000+ sales assets from SharePoint to new platform with 99.9% accuracy and zero downtime.', 
-          challenges: 'Discovered 3,000 duplicate assets requiring manual review. SharePoint API limitations caused initial delays.', 
-          nextSteps: 'Monitor adoption metrics post-migration. Schedule quarterly content audit reviews.', 
-          s4Link: 'https://jira.company.com/browse/MIG-5000', 
-          editing: false, 
-          expanded: false 
-        },
         {
-          id: Date.now()+101,
-          name: 'Implement Single Sign-On (SSO)',
-          targetDate: '2024-11-15',
+          id: 100,
+          name: 'Complete Responsive Platform Onboarding',
+          targetDate: '2024-12-31',
           status: 'Completed',
-          kpiGoal: 'Deploy SSO across all regions reducing login time by 80% and improving security compliance to 100%.',
-          challenges: 'APAC region had unique authentication requirements. Initial rollout caused temporary access issues for 200 users.',
-          nextSteps: 'Continue monitoring authentication metrics. Plan for MFA implementation in Q2.',
-          s4Link: 'https://jira.company.com/browse/SSO-3333',
-          editing: false,
-          expanded: false
+          description: 'Successfully onboarded all stakeholders to Responsive platform, completed initial training, and established success metrics.',
+          challenges: 'Initial API rate limits caused sync delays. Resolved by upgrading to Enterprise tier.',
+          nextSteps: 'Monitor usage metrics and gather feedback for Q1 optimization.',
+          kpis: [
+            { id: 1001, typeKey: 'adoption_rate', currentValue: 95, previousValue: 0 }
+          ]
         }
       ],
       valueRealized: [
         { 
-          id: Date.now(), 
+          id: 1, 
           type: 'Time Savings', 
-          description: 'Sales team saves average of 6.5 hours/week per rep through intelligent content search and automated workflows. Validated through time-tracking study across 150 reps.', 
+          description: 'Sales reps save average 4.5 hours/week using Responsive\'s intelligent search, validated across 50 pilot users.',
           date: '2025-01-15', 
-          link: 'https://analytics.company.com/time-savings-report-q4' 
+          link: 'https://responsive.io/analytics/time-saved' 
         },
         {
-          id: Date.now()+1,
-          type: 'Revenue Growth',
-          description: 'Generated $1.8M in incremental revenue attributed to faster content access improving deal velocity by 22% in Enterprise segment.',
-          date: '2024-12-30',
-          link: 'https://analytics.company.com/revenue-impact-2024'
-        },
-        {
-          id: Date.now()+2,
+          id: 2,
           type: 'Win Rate Increase',
-          description: 'Improved competitive win rate from 34% to 41% after implementing battlecard recommendations and competitive intelligence features.',
+          description: 'Early adopters showing 8% improvement in win rate when using AI-recommended content vs control group.',
           date: '2025-01-20',
-          link: 'https://bi.company.com/win-rate-analysis'
-        },
-        {
-          id: Date.now()+3,
-          type: 'Cost Reduction',
-          description: 'Reduced content creation costs by $450K annually through AI-assisted content generation and reuse of high-performing materials.',
-          date: '2024-11-28',
-          link: 'https://finance.company.com/cost-savings-report'
+          link: 'https://responsive.io/analytics/win-rate'
         }
       ],
-      planHealth: 'green',
-      missionSummary: 'Transform our sales organization into a data-driven revenue engine by implementing AI-powered content intelligence, reducing response times by 50%, and enabling our 500+ sales professionals to deliver personalized, compelling customer experiences that drive 25% year-over-year growth.',
-      kpis: [
-        { id: Date.now()+401, typeKey: 'content_utilization', name: 'Content Utilization', unit: '%', value: 78, delta: 12, objectiveId: Date.now() },
-        { id: Date.now()+402, typeKey: 'obsolete_content_pct', name: 'Obsolete Content Percentage', unit: '%', value: 18, delta: -7, objectiveId: Date.now() + 2 },
-        { id: Date.now()+403, typeKey: 'avg_response_time', name: 'Average Response Time', unit: 'seconds', value: 28, delta: -9, objectiveId: Date.now() },
-        { id: Date.now()+404, typeKey: 'customer_satisfaction', name: 'Customer Satisfaction', unit: '%', value: 92, delta: 5 },
-        { id: Date.now()+405, typeKey: 'escalation_rate', name: 'Escalation Rate', unit: '%', value: 8, delta: -3 }
-      ],
-      metrics: {
-        periodType: 'Quarter',
-        month: new Date().toISOString().slice(0,7),
-        quarter: Math.floor((new Date().getMonth())/3)+1,
-        year: new Date().getFullYear(),
-        items: [
-          { id: Date.now()+101, name: 'Overall Win Rate', valuePercent: 41, deltaPercent: 7 },
-          { id: Date.now()+102, name: 'Platform Adoption', valuePercent: 73, deltaPercent: 15 },
-          { id: Date.now()+103, name: 'Content Accuracy Score', valuePercent: 89, deltaPercent: 11 },
-          { id: Date.now()+104, name: 'Sales Productivity Index', valuePercent: 82, deltaPercent: 9 },
-          { id: Date.now()+105, name: 'Deal Velocity', valuePercent: 67, deltaPercent: 22 }
-        ]
-      }
+      planHealth: 'green'
     };
 
     // ---------- Helpers ----------
-    const $ = (q, root=document) => root.querySelector(q);
-    const $$ = (q, root=document) => [...root.querySelectorAll(q)];
-    const truncate = (t, n=100) => (t||'').length>n ? t.slice(0,n).trim()+ '…' : (t||'');
-    const pillClass = (status) => ({'In Progress':'status-cyan','At Risk':'status-yellow','Completed':'status-green','Not Started':'status-gray'})[status]||'status-gray';
-    const health = (o) => {
-      if (o.status === 'Completed') return { dot:'bg-green-500', icon:'🟢' };
-      if (!o.targetDate) return { dot:'bg-green-500', icon:'🟢' };
-      const days = (new Date(o.targetDate) - new Date())/86400000;
-      if (days < 0) return { dot:'bg-red-500', icon:'🔴' };
-      if (days <= 30) return { dot:'bg-red-500', icon:'🔴' };
-      if (days <= 90) return { dot:'bg-yellow-500', icon:'🟡' };
-      return { dot:'bg-green-500', icon:'🟢' };
-    };
-    const findObjectiveById = (id) => state.objectives.find(x=>x.id===id) || state.pastObjectives.find(x=>x.id===id) || null;
+    const $ = (q, root = document) => root.querySelector(q);
+    const $$ = (q, root = document) => [...root.querySelectorAll(q)];
+    
+    function calculateDelta(current, previous) {
+      if (!previous || previous === 0) return 0;
+      return ((current - previous) / Math.abs(previous) * 100).toFixed(1);
+    }
 
-    // Auto-resize and responsive preview
+    function getKPIType(typeKey) {
+      return KPI_TYPES.find(t => t.key === typeKey) || { unit: '', higherIsBetter: true };
+    }
+
     function autoResizeTextarea(textarea) {
       if (!textarea) return;
       textarea.style.height = 'auto';
       textarea.style.height = textarea.scrollHeight + 'px';
     }
-    function applyAutoResize(root=document) {
-      (($$('.text-area', root) || [])).forEach(autoResizeTextarea);
+
+    function applyAutoResize(root = document) {
+      $$('.text-area', root).forEach(autoResizeTextarea);
     }
-    function getPreviewLimit() {
-      const w = window.innerWidth || 1024;
-      if (w < 640) return 120;
-      if (w < 1024) return 160;
-      return 220;
+
+    // ---------- Period Management ----------
+    function setupPeriodSwitcher() {
+      const buttons = $$('.period-switcher button');
+      const compareCheckbox = $('#compare-period');
+      
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          buttons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          state.currentPeriod = btn.dataset.period;
+          renderAll();
+        });
+      });
+      
+      compareCheckbox.addEventListener('change', (e) => {
+        state.comparePrevious = e.target.checked;
+        renderAll();
+      });
+    }
+
+    // ---------- Section Locking/Editing ----------
+    function setupSectionEditing() {
+      // Edit buttons
+      $$('[data-edit]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const section = btn.dataset.edit;
+          enterEditMode(section);
+        });
+      });
+      
+      // Save buttons
+      $$('[data-save]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const section = btn.dataset.save;
+          saveSection(section);
+        });
+      });
+      
+      // Cancel buttons
+      $$('[data-cancel]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const section = btn.dataset.cancel;
+          cancelEdit(section);
+        });
+      });
+    }
+
+    function enterEditMode(section) {
+      const sectionEl = $(`#${section}-section`);
+      sectionEl.classList.add('editing');
+      
+      if (section === 'mission-summary') {
+        $('#mission-summary-display').classList.add('hidden');
+        $('#mission-summary-edit').classList.remove('hidden');
+        $('#mission-summary-input').value = state.missionSummary;
+        autoResizeTextarea($('#mission-summary-input'));
+      } else if (section === 'mission-goals') {
+        $('#mission-goals-display').classList.add('hidden');
+        $('#mission-goals-edit').classList.remove('hidden');
+        renderMissionGoalsEdit();
+      } else if (section === 'value-realized') {
+        $('#value-display').classList.add('hidden');
+        $('#value-edit').classList.remove('hidden');
+        renderValueEdit();
+      }
+    }
+
+    function saveSection(section) {
+      if (section === 'mission-summary') {
+        state.missionSummary = $('#mission-summary-input').value;
+      }
+      // Goals and values save automatically on input
+      
+      exitEditMode(section);
+      renderAll();
+      saveToLocalStorage();
+      showNotification('Changes saved successfully', 'success');
+    }
+
+    function cancelEdit(section) {
+      exitEditMode(section);
+      renderAll();
+    }
+
+    function exitEditMode(section) {
+      const sectionEl = $(`#${section}-section`);
+      sectionEl.classList.remove('editing');
+      
+      if (section === 'mission-summary') {
+        $('#mission-summary-display').classList.remove('hidden');
+        $('#mission-summary-edit').classList.add('hidden');
+      } else if (section === 'mission-goals') {
+        $('#mission-goals-display').classList.remove('hidden');
+        $('#mission-goals-edit').classList.add('hidden');
+      } else if (section === 'value-realized') {
+        $('#value-display').classList.remove('hidden');
+        $('#value-edit').classList.add('hidden');
+      }
     }
 
     // ---------- Renderers ----------
-    function renderMissionGoals(){
-      const c = $('#mission-goals-container');
-      c.innerHTML = state.missionGoals.map(g=>`
-        <div id="mission-goal-${g.id}" class="card p-4" data-id="${g.id}">
-          <div class="flex items-center justify-between gap-2">
-            <input class="text-zone p-2 font-semibold" value="${g.title}" data-role="goal-title" />
-            <button class="text-slate-400 hover:text-red-600" data-role="remove-goal">&times;</button>
+    function renderMissionSummary() {
+      $('#mission-summary-display').innerHTML = state.missionSummary || '<span class="text-gray-400">No mission summary defined</span>';
+    }
+
+    function renderMissionGoalsDisplay() {
+      const container = $('#mission-goals-display');
+      container.innerHTML = state.missionGoals.map(g => `
+        <div class="card p-4">
+          <h3 class="font-semibold text-lg mb-2">${g.title}</h3>
+          <p class="text-sm text-gray-600 mb-3">${g.description}</p>
+          ${g.customFields && g.customFields.length > 0 ? `
+            <div class="space-y-1">
+              ${g.customFields.map(f => `
+                <div class="text-xs">
+                  <span class="font-medium">${f.label}:</span>
+                  ${f.value.startsWith('http') ? 
+                    `<a href="${f.value}" target="_blank" class="linkish">${f.value}</a>` : 
+                    `<span>${f.value}</span>`
+                  }
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+        </div>
+      `).join('');
+    }
+
+    function renderMissionGoalsEdit() {
+      const container = $('#mission-goals-container');
+      container.innerHTML = state.missionGoals.map(g => `
+        <div class="card p-4" data-id="${g.id}">
+          <div class="mb-3">
+            <input class="text-zone p-2 font-semibold w-full" value="${g.title}" data-role="goal-title" />
           </div>
-          <textarea class="text-zone text-area p-3 mt-2 text-sm" rows="3" placeholder="Goal description..." data-role="goal-desc">${g.description||''}</textarea>
+          <textarea class="text-zone text-area p-3 text-sm" rows="3" data-role="goal-desc">${g.description || ''}</textarea>
           <div class="mt-3 space-y-2" data-role="custom-fields">
-            ${(g.customFields||[]).map(f=>`
+            ${(g.customFields || []).map(f => `
               <div class="flex items-center gap-2" data-field-id="${f.id}">
-                <input class="text-zone p-2 text-xs font-semibold" value="${f.label}" placeholder="Field name" data-role="cf-label" />
-                <input class="text-zone p-2 text-xs flex-1" value="${f.value||''}" placeholder="Value or https://link" data-role="cf-value" />
-                <a href="${/^https?:\/\//.test(f.value)?f.value:'#'}" target="_blank" class="${/^https?:\/\//.test(f.value)?'linkish':'pointer-events-none opacity-40'} text-xs">Attach</a>
-                <button class="text-slate-400 hover:text-red-600" title="Remove" data-role="remove-cf">🗑️</button>
+                <input class="text-zone p-2 text-xs font-semibold" value="${f.label}" data-role="cf-label" />
+                <input class="text-zone p-2 text-xs flex-1 custom-field-input" value="${f.value || ''}" data-role="cf-value" />
+                <button class="text-red-500 hover:text-red-700" data-role="remove-cf">×</button>
               </div>
             `).join('')}
           </div>
-          <button class="text-cyan-700 font-semibold mt-2" data-role="add-cf">+ Add Custom Field</button>
+          <button class="text-blue-600 hover:text-blue-700 font-medium text-sm mt-2" data-role="add-cf">+ Add Field</button>
         </div>
       `).join('');
-      applyAutoResize(c);
-      autoSave();
+      applyAutoResize(container);
     }
 
-    function valueItemHTML(item){
-      return `
-        <div id="value-${item.id}" class="card p-4" data-id="${item.id}">
-          <div class="flex items-center justify-between">
-            <select class="text-zone p-2 text-sm font-semibold value-type-select">
-              ${valueOptions.map(opt=>`<option ${opt===item.type?'selected':''}>${opt}</option>`).join('')}
-            </select>
-            <button class="text-slate-400 hover:text-slate-600" data-role="remove-value">&times;</button>
-          </div>
-          <div class="mt-3">
-            <label class="block text-xs font-medium mb-1">Description</label>
-            <textarea class="text-zone text-area p-3 text-sm" rows="3" data-role="value-desc">${item.description||''}</textarea>
-          </div>
-          <div class="grid grid-cols-2 gap-3 mt-3">
-            <div>
-              <label class="block text-xs font-medium mb-1">Date Realized</label>
-              <input type="date" value="${item.date||''}" class="text-zone p-2" data-role="value-date" />
-            </div>
-            <div>
-              <label class="block text-xs font-medium mb-1">Reference Link</label>
-              <input type="text" value="${item.link||''}" placeholder="https://" class="text-zone p-2" data-role="value-link" />
-            </div>
-          </div>
-        </div>`;
-    }
-
-    function renderValue(){
-      const c = $('#value-container');
-      c.innerHTML = state.valueRealized.map(valueItemHTML).join('');
-      $('#no-value-message').classList.toggle('hidden', state.valueRealized.length!==0);
-      applyAutoResize(c);
-      autoSave();
-    }
-
-    function objectiveCardHTML(o){
-      const h = health(o);
-      const statusCls = pillClass(o.status);
-      if (o.editing) {
-        // Inline edit mode per objective
-        return `
-          <div id="objective-${o.id}" class="card p-6" data-id="${o.id}">
-            <div class="flex justify-between items-start gap-3">
-              <div class="flex-1">
-                <div class="flex items-center gap-2 mb-2">
-                  <span class="health-dot ${h.dot}"></span>
-                  <input class="text-zone p-2 font-semibold" value="${o.name}" data-role="edit-name" />
-                </div>
-                <div class="flex flex-wrap items-center gap-2">
-                  <select class="text-zone p-1 text-xs ${statusCls}" data-role="edit-status">
-                    ${['Not Started','In Progress','At Risk','Completed'].map(s=>`<option ${o.status===s?'selected':''}>${s}</option>`).join('')}
-                  </select>
-                  <input type="date" class="text-zone p-1 text-sm w-auto" value="${o.targetDate||''}" data-role="edit-date" />
-                </div>
-              </div>
-              <div class="flex items-center gap-2">
-                <button class="btn btn-outline btn-sm" data-role="cancel-edit">Cancel</button>
-                <button class="btn btn-primary btn-sm" data-role="save-edit">Save</button>
-              </div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div>
-                <label class="block text-sm font-medium mb-1">KPI Goal</label>
-                <textarea class="text-zone text-area p-3" rows="3" data-role="edit-kpi">${o.kpiGoal||''}</textarea>
-              </div>
-              <div>
-                <label class="block text-sm font-medium mb-1">Challenges</label>
-                <textarea class="text-zone text-area p-3" rows="3" data-role="edit-challenges">${o.challenges||''}</textarea>
-              </div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div>
-                <label class="block text-sm font-medium mb-1">Next Steps</label>
-                <textarea class="text-zone text-area p-3" rows="3" data-role="edit-steps">${o.nextSteps||''}</textarea>
-              </div>
-              <div>
-                <label class="block text-sm font-medium mb-1">S4 / External Link</label>
-                <input class="text-zone p-2" value="${o.s4Link||''}" placeholder="https://" data-role="edit-link" />
-                ${o.s4Link?`<a class="linkish text-sm mt-1 inline-block" href="${o.s4Link}" target="_blank">Open</a>`:''}
-              </div>
-            </div>
-          </div>`;
-      }
-      // View mode with always-on preview blocks
-      return `
-        <div id="objective-${o.id}" class="card p-6" data-id="${o.id}">
+    function renderValueDisplay() {
+      const container = $('#value-display');
+      container.innerHTML = state.valueRealized.map(v => `
+        <div class="card p-4">
           <div class="flex justify-between items-start">
             <div>
-              <h3 class="font-semibold text-lg flex items-center"><span class="health-dot ${h.dot}"></span>${o.name}</h3>
-              <div class="flex items-center mt-2 gap-2">
-                <span class="status-pill ${statusCls}">${o.status}</span>
-                <input type="date" class="text-zone p-1 text-sm w-auto" value="${o.targetDate||''}" data-role="quick-date" />
+              <h4 class="font-semibold text-emerald-700">${v.type}</h4>
+              <p class="text-sm text-gray-600 mt-1">${v.description}</p>
+              <div class="flex gap-4 mt-2 text-xs text-gray-500">
+                <span>Realized: ${v.date}</span>
+                ${v.link ? `<a href="${v.link}" target="_blank" class="linkish">View Details</a>` : ''}
               </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <button class="btn btn-ghost btn-sm" data-role="toggle-expand">${o.expanded?'Hide preview':'Show more'}</button>
-              <button class="btn btn-ghost btn-sm" data-role="view-details">View Details</button>
-              <button class="btn btn-outline btn-sm" data-role="edit">Edit</button>
             </div>
           </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <div class="preview-box">
-              <div class="text-xs font-semibold text-slate-600 mb-1">KPI Goal</div>
-              <div class="text-sm text-slate-700">${truncate(o.kpiGoal, o.expanded?1000:getPreviewLimit()) || '<span class=\'text-slate-400\'>Not set</span>'}</div>
-            </div>
-            <div class="preview-box">
-              <div class="text-xs font-semibold text-slate-600 mb-1">Challenges</div>
-              <div class="text-sm text-slate-700">${truncate(o.challenges, o.expanded?1000:getPreviewLimit()) || '<span class=\'text-slate-400\'>None</span>'}</div>
-            </div>
-          </div>
-          ${o.expanded ? `
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div class="preview-box">
-                <div class="text-xs font-semibold text-slate-600 mb-1">Next Steps</div>
-                <div class="text-sm text-slate-700">${o.nextSteps||'<span class=\'text-slate-400\'>Not specified</span>'}</div>
-              </div>
-              <div class="preview-box">
-                <div class="text-xs font-semibold text-slate-600 mb-1">Links</div>
-                ${o.s4Link ? `<a class="linkish text-sm" href="${o.s4Link}" target="_blank">View in Jira</a>`: '<div class="text-sm text-slate-400">No links</div>'}
-              </div>
-            </div>` : ''}
-        </div>`;
+        </div>
+      `).join('');
     }
 
-    function renderObjectives(){
-      const cur = $('#objectives-container');
-      cur.innerHTML = state.objectives.map(objectiveCardHTML).join('') || '<p class="text-slate-500 text-center py-4">No active objectives.</p>';
-
-      const past = $('#past-objectives-container');
-      past.innerHTML = state.pastObjectives.map(objectiveCardHTML).join('');
-      $('#no-past-objectives').classList.toggle('hidden', state.pastObjectives.length!==0);
-      applyAutoResize(cur);
-      applyAutoResize(past);
-      autoSave();
-    }
-
-    function renderStakeholders(){
-      const c = $('#stakeholders-container');
-      c.innerHTML = state.stakeholders.map(s=>`
-        <div id="stakeholder-${s.id}" class="flex items-center justify-between p-3 bg-slate-50 border" style="border-radius:2px;" data-id="${s.id}">
-          <div>
-            <p class="font-semibold">${s.name}</p>
-            <p class="text-sm text-slate-500">${s.title}</p>
-            <p class="text-xs text-slate-500">${s.email || ''}</p>
+    function renderValueEdit() {
+      const container = $('#value-container');
+      container.innerHTML = state.valueRealized.map(v => `
+        <div class="card p-4" data-id="${v.id}">
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <select class="text-zone p-2 text-sm font-semibold" data-role="value-type">
+              <option ${v.type === 'Time Savings' ? 'selected' : ''}>Time Savings</option>
+              <option ${v.type === 'Win Rate Increase' ? 'selected' : ''}>Win Rate Increase</option>
+              <option ${v.type === 'Cost Reduction' ? 'selected' : ''}>Cost Reduction</option>
+              <option ${v.type === 'Revenue Growth' ? 'selected' : ''}>Revenue Growth</option>
+            </select>
+            <input type="date" value="${v.date || ''}" class="text-zone p-2" data-role="value-date" />
           </div>
-          <button class="text-slate-400 hover:text-red-600" data-role="remove-stakeholder">&times;</button>
+          <textarea class="text-zone text-area p-3 text-sm mb-3" rows="2" data-role="value-desc">${v.description || ''}</textarea>
+          <input type="text" value="${v.link || ''}" placeholder="https://..." class="text-zone p-2 w-full" data-role="value-link" />
         </div>
       `).join('');
-
-      const sel = $('#add-stakeholder-select');
-      const unselected = mockContacts.filter(mc => !state.stakeholders.find(sc=>sc.id===mc.id));
-      sel.innerHTML = '<option value="">+ Select a contact...</option>' + unselected.map(c=>`<option value="${c.id}">${c.name}</option>`).join('') + '<option value="new">Add New Stakeholder...</option>';
-      autoSave();
+      applyAutoResize(container);
     }
 
-    function renderKPISection(){
-      const root = document.getElementById('kpi-section');
-      if (!root) return;
-      const kpis = state.kpis || [];
+    function renderObjectives() {
+      const container = $('#objectives-container');
+      container.innerHTML = state.objectives.map(o => renderObjectiveCard(o)).join('') || 
+        '<p class="text-gray-500 text-center py-8">No active objectives. Click "Add Objective" to create one.</p>';
+      
+      const pastContainer = $('#past-objectives-container');
+      pastContainer.innerHTML = state.pastObjectives.map(o => renderObjectiveCard(o, true)).join('');
+      $('#no-past-objectives').classList.toggle('hidden', state.pastObjectives.length > 0);
+    }
 
-      const kpiRows = kpis.map(k => {
-        const type = KPI_TYPES.find(t=>t.key===k.typeKey) || { direction: 'up_is_good', unit: k.unit||'' };
-        const isGood = type.direction === 'up_is_good' ? (k.delta||0) >= 0 : (k.delta||0) <= 0;
-        const deltaSign = (k.delta||0) > 0 ? '+' : '';
-        const unit = k.unit || type.unit || '';
-        const deltaColor = isGood ? 'text-emerald-600' : 'text-rose-600';
-        const deltaBg = isGood ? 'bg-emerald-100' : 'bg-rose-100';
-        const linkedObj = k.objectiveId ? findObjectiveById(k.objectiveId) : null;
-        const linkedHtml = linkedObj ? `<div class="text-xs text-slate-500 mt-1">Linked: <button class="linkish" data-role="view-linked" data-oid="${linkedObj.id}">${linkedObj.name}</button></div>` : '';
-        return `
-          <div class="border p-4 mb-3" data-id="${k.id}">
-            <div class="flex items-start justify-between">
-              <div class="min-w-0">
-                <div class="font-semibold text-base">${k.name}</div>
-                ${linkedHtml}
-              </div>
-              <button class="text-slate-400 hover:text-red-600 ml-2" data-role="remove-kpi">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-              </button>
-            </div>
-            <div class="mt-3 flex items-baseline gap-2">
-              <span class="kpi-value">${k.value}</span>
-              <span class="kpi-unit">${unit}</span>
-              <span class="kpi-delta ${deltaBg} ${deltaColor} px-2 py-1">${deltaSign}${k.delta}${unit ? ' ' + unit : ''}</span>
-            </div>
-          </div>`;
-      }).join('');
-
-      const typeOptions = KPI_TYPES.map(t=>`<option value="${t.key}">${t.label}</option>`).join('');
-      const objectiveOptions = [...(state.objectives||[]), ...(state.pastObjectives||[])]
-        .map(o=>`<option value="${o.id}">${o.name}</option>`).join('');
-
-      root.innerHTML = `
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="text-lg font-semibold">KPIs</h3>
-          <button class="btn btn-success" id="kpi-add-btn">+ Add KPI</button>
-        </div>
-        <div class="space-y-2" id="kpi-list">${kpiRows || '<div class="text-slate-500 text-sm">No KPIs yet.</div>'}</div>
-        <div class="mt-4 border p-4 space-y-3 hidden" id="kpi-creator">
-          <h4 class="font-semibold">Add New KPI</h4>
-          <div class="grid grid-cols-1 gap-3">
+    function renderObjectiveCard(obj, isPast = false) {
+      const statusClass = {
+        'In Progress': 'status-cyan',
+        'Not Started': 'status-gray',
+        'Completed': 'status-green',
+        'At Risk': 'status-yellow'
+      }[obj.status] || 'status-gray';
+      
+      return `
+        <div class="card p-6" data-id="${obj.id}">
+          <div class="flex justify-between items-start mb-4">
             <div>
-              <label class="block text-sm font-medium mb-1">KPI Type</label>
-              <select id="kpi-type" class="text-zone p-2 w-full">
-                <option value="">Select a KPI type...</option>
-                ${typeOptions}
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Unit</label>
-              <input id="kpi-unit" class="text-zone p-2 w-full bg-slate-50 text-slate-500" readonly placeholder="Auto-filled based on type" />
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Link to Objective (optional)</label>
-              <select id="kpi-obj" class="text-zone p-2 w-full"><option value="">— None —</option>${objectiveOptions}</select>
-            </div>
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-sm font-medium mb-1">Current Value</label>
-                <input type="number" id="kpi-value" class="text-zone p-2 w-full" placeholder="0" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium mb-1">Change vs Previous Period</label>
-                <input type="number" id="kpi-delta" class="text-zone p-2 w-full" placeholder="0" />
+              <h3 class="font-semibold text-lg">${obj.name}</h3>
+              <div class="flex items-center gap-3 mt-2">
+                <span class="status-pill ${statusClass}">${obj.status}</span>
+                <span class="text-sm text-gray-500">Target: ${obj.targetDate || 'Not set'}</span>
               </div>
             </div>
-            <div class="flex gap-2">
-              <button id="kpi-cancel" class="btn btn-ghost">Cancel</button>
-              <button id="kpi-create" class="btn btn-success" disabled>Create KPI</button>
+            ${!isPast ? `
+              <div class="flex gap-2">
+                <button class="btn btn-ghost btn-sm" onclick="editObjective(${obj.id})">Edit</button>
+                <button class="btn btn-kpi btn-sm" onclick="showAddKPIModal(${obj.id})">+ Add KPI</button>
+              </div>
+            ` : ''}
+          </div>
+          
+          <p class="text-sm text-gray-600 mb-4">${obj.description}</p>
+          
+          ${obj.kpis && obj.kpis.length > 0 ? `
+            <div class="space-y-3 mb-4">
+              <h4 class="font-semibold text-sm">Key Performance Indicators</h4>
+              ${obj.kpis.map(kpi => renderKPI(kpi, obj.id)).join('')}
+            </div>
+          ` : ''}
+          
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span class="font-medium text-gray-600">Challenges:</span>
+              <p class="text-gray-700 mt-1">${obj.challenges || 'None identified'}</p>
+            </div>
+            <div>
+              <span class="font-medium text-gray-600">Next Steps:</span>
+              <p class="text-gray-700 mt-1">${obj.nextSteps || 'To be determined'}</p>
             </div>
           </div>
         </div>
       `;
-
-      const typeSelect = document.getElementById('kpi-type');
-      const unitInput = document.getElementById('kpi-unit');
-      const createBtn = document.getElementById('kpi-create');
-      const cancelBtn = document.getElementById('kpi-cancel');
-      const creatorDiv = document.getElementById('kpi-creator');
-      const addBtn = document.getElementById('kpi-add-btn');
-      
-      const applyUnit = () => {
-        const t = KPI_TYPES.find(x=>x.key===typeSelect.value);
-        unitInput.value = t ? t.unit : '';
-        createBtn.disabled = !t;
-      };
-      
-      typeSelect.addEventListener('change', applyUnit);
-      applyUnit();
-
-      addBtn.addEventListener('click', () => {
-        creatorDiv.classList.remove('hidden');
-        addBtn.classList.add('hidden');
-      });
-
-      cancelBtn.addEventListener('click', () => {
-        creatorDiv.classList.add('hidden');
-        addBtn.classList.remove('hidden');
-        typeSelect.value = '';
-        document.getElementById('kpi-value').value = '';
-        document.getElementById('kpi-delta').value = '';
-        document.getElementById('kpi-obj').value = '';
-        applyUnit();
-      });
-
-      createBtn.addEventListener('click', () => {
-        const key = typeSelect.value;
-        const t = KPI_TYPES.find(x=>x.key===key);
-        if (!t) return;
-        const v = Number(document.getElementById('kpi-value').value || 0);
-        const d = Number(document.getElementById('kpi-delta').value || 0);
-        const objSel = document.getElementById('kpi-obj');
-        const objectiveId = objSel && objSel.value ? Number(objSel.value) : null;
-        state.kpis = state.kpis || [];
-        state.kpis.unshift({ id: Date.now()+Math.random(), typeKey: key, name: t.label, unit: t.unit, value: v, delta: d, objectiveId });
-        renderKPISection();
-        autoSave();
-        showNotification('KPI created successfully!', 'success');
-        
-        // Reset and hide form
-        cancelBtn.click();
-      });
-
-      root.addEventListener('click', (e)=>{
-        if (e.target && e.target.matches('[data-role="remove-kpi"]')){
-          const id = Number(e.target.closest('[data-id]').dataset.id);
-          state.kpis = (state.kpis||[]).filter(x=>x.id!==id);
-          renderKPISection();
-          autoSave();
-        }
-        if (e.target && e.target.matches('[data-role="view-linked"]')){
-          const oid = Number(e.target.getAttribute('data-oid'));
-          const obj = findObjectiveById(oid);
-          if (obj) showObjectiveDetailsModal(obj);
-        }
-      });
     }
 
-    function renderMetrics(){
-      const wrap = $('#metrics-section');
-      if (!wrap) return;
-      const m = state.metrics;
-      const active = (t) => m.periodType===t ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm';
-      const periodControls = (
-        m.periodType === 'Month' ? `
-          <div class="mt-3">
-            <label class="block text-sm font-medium mb-1">Month</label>
-            <input type="month" id="metrics-month" class="text-zone p-2 w-full" value="${m.month}">
-          </div>` :
-        m.periodType === 'Quarter' ? `
-          <div class="mt-3 grid grid-cols-2 gap-2">
+    function renderKPI(kpi, objectiveId) {
+      const type = getKPIType(kpi.typeKey);
+      const delta = calculateDelta(kpi.currentValue, kpi.previousValue);
+      const deltaNum = parseFloat(delta);
+      const isPositive = type.higherIsBetter ? deltaNum >= 0 : deltaNum <= 0;
+      const showDelta = state.comparePrevious && kpi.previousValue !== undefined;
+      
+      return `
+        <div class="kpi-card" data-kpi-id="${kpi.id}">
+          <div class="flex justify-between items-start">
             <div>
-              <label class="block text-sm font-medium mb-1">Quarter</label>
-              <select id="metrics-quarter" class="text-zone p-2 w-full">
-                ${[1,2,3,4].map(q=>`<option value="${q}" ${Number(m.quarter)===q?'selected':''}>Q${q}</option>`).join('')}
-              </select>
+              <div class="text-sm font-medium text-gray-700">${type.label}</div>
+              <div class="flex items-baseline gap-1 mt-1">
+                <span class="kpi-value">${kpi.currentValue}</span>
+                <span class="kpi-unit">${type.unit}</span>
+                ${showDelta ? `
+                  <span class="kpi-delta ${isPositive ? 'positive' : 'negative'}">
+                    ${isPositive ? 
+                      '<svg class="kpi-arrow" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z"/></svg>' :
+                      '<svg class="kpi-arrow" fill="currentColor" viewBox="0 0 20 20"><path d="M14.707 12.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l2.293-2.293a1 1 0 011.414 0z"/></svg>'
+                    }
+                    ${Math.abs(deltaNum)}%
+                  </span>
+                ` : ''}
+              </div>
             </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Year</label>
-              <input type="number" id="metrics-year" class="text-zone p-2 w-full" value="${m.year}">
-            </div>
-          </div>` : `
-          <div class="mt-3">
-            <label class="block text-sm font-medium mb-1">Year</label>
-            <input type="number" id="metrics-year-only" class="text-zone p-2 w-full" value="${m.year}">
-          </div>`
-      );
-
-      const items = (m.items||[]).map(it=>{
-        const deltaColor = (it.deltaPercent||0) >= 0 ? 'text-emerald-600' : 'text-rose-600';
-        const deltaBg = (it.deltaPercent||0) >= 0 ? 'bg-emerald-100' : 'bg-rose-100';
-        const deltaSign = (it.deltaPercent||0) >= 0 ? '+' : '';
-        return `
-        <div class="border p-4 mb-3" data-id="${it.id}">
-          <div class="flex items-start justify-between mb-2">
-            <input class="text-zone p-2 flex-1 font-semibold" placeholder="Metric name" value="${it.name||''}" data-role="metric-name" />
-            <button class="text-slate-400 hover:text-red-600" data-role="remove-metric" title="Remove">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            <button class="text-gray-400 hover:text-gray-600" onclick="editKPI(${objectiveId}, ${kpi.id})">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+              </svg>
             </button>
           </div>
-          <div class="flex items-center gap-4">
-            <div class="flex items-baseline gap-1">
-              <input type="number" class="text-zone p-2 w-20 text-xl font-bold" value="${it.valuePercent||0}" min="0" max="999" step="1" data-role="metric-value" />
-              <span class="text-lg text-slate-500">%</span>
-            </div>
-            <div class="flex items-center gap-1">
-              <span class="text-sm text-slate-500">Δ</span>
-              <input type="number" class="text-zone p-2 w-16 ${deltaColor}" value="${it.deltaPercent||0}" step="1" data-role="metric-delta" />
-              <span class="text-sm text-slate-500">%</span>
-            </div>
-          </div>
-        </div>
-      `}).join('');
-
-      wrap.innerHTML = `
-        <h3 class="text-lg font-semibold mb-3">Performance Metrics</h3>
-        <div class="flex items-center gap-2">
-          <button class="${active('Month')}" data-role="set-period-type" data-value="Month">Month</button>
-          <button class="${active('Quarter')}" data-role="set-period-type" data-value="Quarter">Quarter</button>
-          <button class="${active('Year')}" data-role="set-period-type" data-value="Year">Year</button>
-        </div>
-        ${periodControls}
-        <div class="mt-4 space-y-2" id="metrics-items-list">
-          ${items || '<div class="text-slate-500 text-sm">No metrics yet.</div>'}
-        </div>
-        <div class="mt-3">
-          <button class="btn btn-success" data-role="add-metric">+ Add Metric</button>
         </div>
       `;
-      autoSave();
     }
 
-    function renderAll(){
-      renderMissionGoals();
-      renderValue();
-      renderObjectives();
-      renderStakeholders();
-      renderMetrics();
-      renderKPISection();
-      syncTopControls();
-    }
-
-    function syncTopControls(){
-      const ms = document.getElementById('mission-summary');
-      if (ms && ms.value !== state.missionSummary) ms.value = state.missionSummary || '';
-      const hs = document.getElementById('health-score');
-      if (hs && hs.value !== state.planHealth) hs.value = state.planHealth || 'green';
-    }
-
-    // ---------- Event wiring ----------
-    function setupEvents(){
-            const app = $('#app');
-
-       // Auto-resize on input
-       document.addEventListener('input', (e)=>{ if (e.target && e.target.classList && e.target.classList.contains('text-area')) autoResizeTextarea(e.target); });
-
-       // Global clicks
-      app.addEventListener('click', (e)=>{
-        const card = e.target.closest('[data-id]');
-
-        if (e.target.id === 'add-mission-goal-btn'){
-          showAddMissionGoalModal();
-        }
-
-        if (e.target.id === 'add-value-btn'){
-          showAddValueRealizedModal();
-        }
-
-        if (e.target.id === 'add-objective-btn'){
-          showAddObjectiveModal();
-        }
-
-        // Metrics actions
-        if (e.target.matches('[data-role="set-period-type"]')){
-          state.metrics.periodType = e.target.dataset.value;
-          renderMetrics();
-        }
-        if (e.target.matches('[data-role="add-metric"]')){
-          state.metrics.items.push({ id: Date.now()+Math.random(), name: 'New Metric', valuePercent: 0, deltaPercent: 0 });
-          renderMetrics();
-        }
-        if (e.target && e.target.matches('[data-role="remove-metric"]')){
-          const id = Number(e.target.closest('[data-id]').dataset.id);
-          state.metrics.items = state.metrics.items.filter(m=>m.id!==id);
-          renderMetrics();
-        }
-
-        // Value list actions
-        if (e.target.matches('[data-role="remove-value"]')){
-          const id = Number(e.target.closest('[data-id]').dataset.id);
-          const i = state.valueRealized.findIndex(v=>v.id===id);
-          if (i>-1){ state.valueRealized.splice(i,1); renderValue(); }
-        }
-
-        // Mission goal actions
-        if (e.target.matches('[data-role="remove-goal"]')){
-          const id = Number(card.dataset.id);
-          const i = state.missionGoals.findIndex(g=>g.id===id);
-          if (i>-1){ state.missionGoals.splice(i,1); renderMissionGoals(); }
-        }
-        if (e.target.matches('[data-role="add-cf"]')){
-          const id = Number(card.dataset.id);
-          const g = state.missionGoals.find(x=>x.id===id);
-          if (!g.customFields) g.customFields = [];
-          g.customFields.push({id:Date.now()+Math.random(), label:'New Field', value:''});
-          renderMissionGoals();
-        }
-        if (e.target.matches('[data-role="remove-cf"]')){
-          const id = Number(card.dataset.id);
-          const fieldWrap = e.target.closest('[data-field-id]');
-          const fid = Number(fieldWrap.dataset.fieldId);
-          const g = state.missionGoals.find(x=>x.id===id);
-          g.customFields = (g.customFields||[]).filter(f=>f.id!==fid);
-          renderMissionGoals();
-        }
-
-        // Objective actions
-        if (e.target.matches('[data-role="edit"]')){
-          const id = Number(card.dataset.id);
-          const o = state.objectives.find(x=>x.id===id) || state.pastObjectives.find(x=>x.id===id);
-          if (o){ o.editing = true; renderObjectives(); }
-        }
-        if (e.target.matches('[data-role="cancel-edit"]')){
-          const id = Number(card.dataset.id);
-          const o = state.objectives.find(x=>x.id===id) || state.pastObjectives.find(x=>x.id===id);
-          if (o){ o.editing = false; renderObjectives(); }
-        }
-        if (e.target.matches('[data-role="save-edit"]')){
-          const id = Number(card.dataset.id);
-          const wrap = card;
-          const o = state.objectives.find(x=>x.id===id) || state.pastObjectives.find(x=>x.id===id);
-          if (o){
-            const oldStatus = o.status;
-            o.name = $('[data-role="edit-name"]', wrap).value.trim() || o.name;
-            o.status = $('[data-role="edit-status"]', wrap).value;
-            o.targetDate = $('[data-role="edit-date"]', wrap).value;
-            o.kpiGoal = $('[data-role="edit-kpi"]', wrap).value;
-            o.challenges = $('[data-role="edit-challenges"]', wrap).value;
-            o.nextSteps = $('[data-role="edit-steps"]', wrap).value;
-            o.s4Link = $('[data-role="edit-link"]', wrap).value;
-            o.editing = false;
-            
-            // Handle status change to Completed from current list only
-            const currentIndex = state.objectives.findIndex(obj => obj.id === id);
-            if (currentIndex > -1 && oldStatus !== 'Completed' && o.status === 'Completed') {
-              const completedObj = state.objectives.splice(currentIndex, 1)[0];
-              state.pastObjectives.unshift(completedObj);
-              showNotification('Objective completed! Moved to Past Objectives.', 'success');
-            }
-            
-            renderObjectives();
-          }
-        }
-        if (e.target.matches('[data-role="toggle-expand"]')){
-          const id = Number(card.dataset.id);
-          const o = state.objectives.find(x=>x.id===id) || state.pastObjectives.find(x=>x.id===id);
-          if (o){ o.expanded = !o.expanded; renderObjectives(); }
-        }
-        if (e.target.matches('[data-role="view-details"]')){
-          const id = Number(card.dataset.id);
-          const o = state.objectives.find(x=>x.id===id) || state.pastObjectives.find(x=>x.id===id);
-          if (o){ showObjectiveDetailsModal(o); }
-        }
-        if (e.target.matches('[data-role="remove-stakeholder"]')){
-          const id = Number(card.dataset.id);
-          state.stakeholders = state.stakeholders.filter(s=>s.id!==id);
-          renderStakeholders();
-        }
-      });
-
-      // Global changes
-      app.addEventListener('change', (e)=>{
-        // quick date change on objective card
-        if (e.target.matches('[data-role="quick-date"]')){
-          const id = Number(e.target.closest('[data-id]').dataset.id);
-          const o = state.objectives.find(x=>x.id===id);
-          if (o){ 
-            o.targetDate = e.target.value; 
-            renderObjectives(); 
-          }
-        }
-        
-        // status change on objective card
-        if (e.target.matches('[data-role="edit-status"]')){
-          const id = Number(e.target.closest('[data-id]').dataset.id);
-          const o = state.objectives.find(x=>x.id===id) || state.pastObjectives.find(x=>x.id===id);
-          if (o && e.target.value === 'Completed'){
-            const index = state.objectives.findIndex(obj => obj.id === id);
-            if (index > -1) {
-              const completedObj = state.objectives.splice(index, 1)[0];
-              state.pastObjectives.unshift(completedObj);
-              showNotification('Objective completed! Moved to Past Objectives.', 'success');
-              renderObjectives();
-            }
-          }
-        }
-
-        // mission goal inline edits
-        if (e.target.matches('[data-role="goal-title"]')){
-          const id = Number(e.target.closest('[data-id]').dataset.id);
-          const g = state.missionGoals.find(x=>x.id===id); if (g) g.title = e.target.value;
-          autoSave();
-        }
-        if (e.target.matches('[data-role="goal-desc"]')){
-          const id = Number(e.target.closest('[data-id]').dataset.id);
-          const g = state.missionGoals.find(x=>x.id===id); if (g) g.description = e.target.value;
-          autoSave();
-        }
-        if (e.target.matches('[data-role="cf-label"], [data-role="cf-value"]')){
-          const id = Number(e.target.closest('[data-id]').dataset.id);
-          const fid = Number(e.target.closest('[data-field-id]').dataset.fieldId);
-          const g = state.missionGoals.find(x=>x.id===id);
-          const f = (g.customFields||[]).find(y=>y.id===fid);
-          if (f){
-            if (e.target.dataset.role==='cf-label') f.label = e.target.value;
-            if (e.target.dataset.role==='cf-value') f.value = e.target.value;
-            autoSave();
-          }
-        }
-
-        // Value edits
-        if (e.target.closest('#value-container')){
-          const wrap = e.target.closest('[data-id]');
-          const id = wrap ? Number(wrap.dataset.id) : null;
-          const it = state.valueRealized.find(v=>v.id===id);
-          if (!it) return;
-          if (e.target.dataset.role==='value-desc') it.description = e.target.value;
-          if (e.target.dataset.role==='value-date') it.date = e.target.value;
-          if (e.target.dataset.role==='value-link') it.link = e.target.value;
-          if (e.target.classList.contains('value-type-select')) it.type = e.target.value;
-          autoSave();
-        }
-
-        // Metrics edits
-        if (e.target.id === 'metrics-month'){
-          state.metrics.month = e.target.value;
-          autoSave();
-        }
-        if (e.target.id === 'metrics-quarter'){
-          state.metrics.quarter = Number(e.target.value);
-          autoSave();
-        }
-        if (e.target.id === 'metrics-year'){
-          state.metrics.year = Number(e.target.value);
-          autoSave();
-        }
-        if (e.target.id === 'metrics-year-only'){
-          state.metrics.year = Number(e.target.value);
-          autoSave();
-        }
-
-              // Plan Details + Mission Summary
-      if (e.target.id === 'health-score'){
-        state.planHealth = e.target.value;
-        autoSave();
-      }
-      if (e.target.id === 'mission-summary'){
-        state.missionSummary = e.target.value;
-        autoSave();
-      }
-    });
-
-      // Metric item live input updates
-      app.addEventListener('input', (e)=>{
-        if (e.target.closest('#metrics-items-list')){
-          const row = e.target.closest('[data-id]');
-          if (!row) return;
-          const id = Number(row.dataset.id);
-          const m = state.metrics.items.find(x=>x.id===id);
-          if (!m) return;
-          if (e.target.dataset.role === 'metric-name') m.name = e.target.value;
-          if (e.target.dataset.role === 'metric-value') m.valuePercent = Number(e.target.value||0);
-          if (e.target.dataset.role === 'metric-delta') m.deltaPercent = Number(e.target.value||0);
-          autoSave();
-        }
-      });
-
-      // Stakeholder add select
-      $('#add-stakeholder-select').addEventListener('change', (e)=>{
-        const id = e.target.value;
-        if (id === 'new') {
-          // Show modal for new stakeholder
-          showNewStakeholderModal();
-          e.target.value = '';
-        } else if (id) {
-          const pick = mockContacts.find(c=>c.id===Number(id));
-          if (pick && !state.stakeholders.find(s=>s.id===pick.id)) state.stakeholders.push(pick);
-          renderStakeholders();
-          e.target.value = '';
-        }
-      });
-      
-      // Product filter change - show suggested KPIs
-      $('#filter-products').addEventListener('change', (e) => {
-        const selectedProduct = e.target.value;
-        const container = $('#suggested-objectives-container');
-        const list = $('#suggested-objectives-list');
-        
-        if (selectedProduct && productKPIs[selectedProduct]) {
-          list.innerHTML = productKPIs[selectedProduct].map(kpi => 
-            `<span class="chip bg-emerald-100 text-emerald-800 border-emerald-200">${kpi}</span>`
-          ).join('');
-          container.classList.remove('hidden');
-        } else {
-          container.classList.add('hidden');
-        }
-      });
-      
-      // Exports
-      $('#export-pdf-btn').addEventListener('click', exportToPDF);
-      $('#export-excel-btn').addEventListener('click', exportToExcel);
-
-      // Reflow on resize
-      window.addEventListener('resize', () => {
-        applyAutoResize();
-        renderObjectives();
-      });
-    }
-
-    // ---------- PDF Export ----------
-    async function exportToPDF() {
-      try {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('l', 'mm', 'a4');
-        
-        // Show loading state
-        const btn = $('#export-pdf-btn');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Generating...';
-        btn.disabled = true;
-        
-        // Capture the main content
-        const element = $('#app');
-        const canvas = await html2canvas(element, {
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: '#f1f5f9'
-        });
-        
-        const imgData = canvas.toDataURL('image/png');
-        const imgWidth = 297; // A4 landscape width in mm
-        const pageHeight = 210; // A4 landscape height in mm
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        let heightLeft = imgHeight;
-        let position = 0;
-        
-        // Add first page
-        doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-        
-        // Add additional pages if content is longer than one page
-        while (heightLeft >= 0) {
-          position = heightLeft - imgHeight;
-          doc.addPage();
-          doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
-        }
-        
-        // Save the PDF
-        doc.save('customer-success-plan.pdf');
-        
-        // Reset button
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-        
-        // Show success message
-        showNotification('PDF generated successfully!', 'success');
-      } catch (error) {
-        console.error('PDF generation failed:', error);
-        showNotification('PDF generation failed. Please try again.', 'error');
-        
-        // Reset button
-        const btn = $('#export-pdf-btn');
-        btn.innerHTML = 'Export PDF';
-        btn.disabled = false;
-      }
-    }
-
-    // ---------- Excel Export ----------
-    function exportToExcel(){
-      try {
-        const wb = XLSX.utils.book_new();
-        
-        const m = state.metrics;
-        const periodLabel = (m.periodType==='Quarter') ? `Q${m.quarter} ${m.year}` : (m.periodType==='Month' ? m.month : `${m.year}`);
-        const planOverview = [{ MissionSummary: state.missionSummary || '', Health: state.planHealth || 'green', PeriodType: m.periodType, Period: periodLabel }];
-
-        const missionGoalsData = state.missionGoals.map(g=>({
-          Title: g.title,
-          Description: g.description,
-          CustomFields: (g.customFields||[]).map(cf=>`${cf.label}: ${cf.value}`).join(' | ')
-        }));
-        const stakeholdersData = state.stakeholders.map(s=>({ Name: s.name, Title: s.title, Email: s.email||'' }));
-        const objectivesData = [
-          ...state.objectives.map(o=>({ Type:'Current', Name:o.name, Status:o.status, TargetDate:o.targetDate, KPIGoal:o.kpiGoal, Challenges:o.challenges, NextSteps:o.nextSteps, Link:o.s4Link })),
-          ...state.pastObjectives.map(o=>({ Type:'Past', Name:o.name, Status:o.status, TargetDate:o.targetDate, KPIGoal:o.kpiGoal, Challenges:o.challenges, NextSteps:o.nextSteps, Link:o.s4Link }))
-        ];
-        const valueData = state.valueRealized.map(v=>({ Type:v.type, Description:v.description, Date:v.date, Link:v.link }));
-        const metricsData = (m.items||[]).map(x=>({ PeriodType:m.periodType, Period: periodLabel, Metric:x.name, ValuePercent:x.valuePercent, DeltaVsPrevQ:x.deltaPercent }));
-        
-        const addSheet = (data, name) => {
-          const ws = XLSX.utils.json_to_sheet(data.length?data:[{}]);
-          XLSX.utils.book_append_sheet(wb, ws, name);
-        };
-        addSheet(planOverview, 'Plan Overview');
-        addSheet(missionGoalsData, 'Mission Goals');
-        addSheet(objectivesData, 'Objectives');
-        addSheet(valueData, 'Value Realized');
-        addSheet(stakeholdersData, 'Stakeholders');
-        addSheet(metricsData, 'Metrics');
-        
-        XLSX.writeFile(wb, 'customer-success-plan.xlsx');
-        showNotification('Excel exported successfully!', 'success');
-      } catch (err) {
-        console.error('Excel export failed', err);
-        showNotification('Excel export failed. Please try again.', 'error');
-      }
-    }
-    
-    // View Objective Details Modal
-    function showObjectiveDetailsModal(objective) {
-      const modal = document.createElement('div');
-      modal.className = 'modal-overlay';
-      modal.innerHTML = `
-        <div class="modal-panel w-[700px] max-w-[90vw]">
-          <div class="modal-header">
-            <h3 class="text-lg font-semibold">Objective Details</h3>
-            <button id="close-details-modal" class="modal-close">&times;</button>
+    function renderStakeholders() {
+      const container = $('#stakeholders-container');
+      container.innerHTML = state.stakeholders.map(s => `
+        <div class="flex items-center justify-between p-3 bg-gray-50 border">
+          <div>
+            <p class="font-semibold text-sm">${s.name}</p>
+            <p class="text-xs text-gray-500">${s.title}</p>
+            <p class="text-xs text-gray-400">${s.email}</p>
           </div>
-          <div class="modal-body">
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm font-medium mb-1 text-slate-600">Objective Name</label>
-                <p class="text-lg font-semibold">${objective.name}</p>
-              </div>
-              
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-medium mb-1 text-slate-600">Status</label>
-                  <span class="status-pill ${pillClass(objective.status)}">${objective.status}</span>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium mb-1 text-slate-600">Target Date</label>
-                  <p>${objective.targetDate || 'Not set'}</p>
-                </div>
-              </div>
-              
-              <div>
-                <label class="block text-sm font-medium mb-1 text-slate-600">KPI Goal</label>
-                <div class="bg-slate-50 border border-slate-200 p-3">
-                  <p>${objective.kpiGoal || 'Not specified'}</p>
-                </div>
-              </div>
-              
-              <div>
-                <label class="block text-sm font-medium mb-1 text-slate-600">Challenges</label>
-                <div class="bg-slate-50 border border-slate-200 p-3">
-                  <p>${objective.challenges || 'None identified'}</p>
-                </div>
-              </div>
-              
-              <div>
-                <label class="block text-sm font-medium mb-1 text-slate-600">Next Steps</label>
-                <div class="bg-slate-50 border border-slate-200 p-3">
-                  <p>${objective.nextSteps || 'Not specified'}</p>
-                </div>
-              </div>
-              
-              ${objective.s4Link ? `
-                <div>
-                  <label class="block text-sm font-medium mb-1 text-slate-600">External Links</label>
-                  <a href="${objective.s4Link}" target="_blank" class="linkish">${objective.s4Link}</a>
-                </div>
-              ` : ''}
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button id="close-details-modal-2" class="btn btn-outline">Close</button>
-          </div>
+          <button class="text-gray-400 hover:text-red-600" onclick="removeStakeholder(${s.id})">×</button>
         </div>
-      `;
+      `).join('');
       
-      document.body.appendChild(modal);
-      
-      // Event handlers
-      modal.querySelector('#close-details-modal').addEventListener('click', () => modal.remove());
-      modal.querySelector('#close-details-modal-2').addEventListener('click', () => modal.remove());
+      // Update select options
+      const select = $('#add-stakeholder-select');
+      const unselected = mockContacts.filter(mc => !state.stakeholders.find(sc => sc.id === mc.id));
+      select.innerHTML = '<option value="">+ Add a contact...</option>' + 
+        unselected.map(c => `<option value="${c.id}">${c.name} - ${c.title}</option>`).join('') + 
+        '<option value="new">Add New Stakeholder...</option>';
     }
-    
-    // Add Objective Modal
+
+    // ---------- Modals ----------
     function showAddObjectiveModal() {
-      const modal = document.createElement('div');
-      modal.className = 'modal-overlay';
-      modal.innerHTML = `
-        <div class="modal-panel w-[600px] max-w-[90vw]">
-          <div class="modal-header">
-            <h3 class="text-lg font-semibold">Add New Objective</h3>
-            <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button>
+      const modal = createModal('Add New Objective', `
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Objective Name</label>
+            <input type="text" id="obj-name" class="text-zone p-2 w-full" placeholder="e.g., Deploy Sales Coach AI">
           </div>
-          <div class="modal-body">
-            <div class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium mb-1">Objective Name</label>
-              <select id="new-objective-name" class="text-zone p-2 w-full">
-                <option value="">Select an objective...</option>
-                ${objectiveOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
-                <option value="custom">Create a new objective...</option>
-              </select>
-            </div>
-            <div id="custom-objective-input" class="hidden">
-              <label class="block text-sm font-medium mb-1">Custom Objective Name</label>
-              <input type="text" id="custom-objective-text" class="text-zone p-2 w-full" placeholder="Enter custom objective name">
-            </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Description</label>
+            <textarea id="obj-desc" class="text-zone text-area p-3 w-full" rows="3" placeholder="Describe the objective and success criteria..."></textarea>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium mb-1">Target Date</label>
-              <input type="date" id="new-objective-date" class="text-zone p-2 w-full">
+              <input type="date" id="obj-date" class="text-zone p-2 w-full">
             </div>
             <div>
-              <label class="block text-sm font-medium mb-1">Objective Goal</label>
-              <textarea id="new-objective-goal" class="text-zone text-area p-3 w-full" rows="4" placeholder="Describe the objective goal..."></textarea>
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Challenges</label>
-              <textarea id="new-objective-challenges" class="text-zone text-area p-3 w-full" rows="3" placeholder="Describe any challenges..."></textarea>
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Next Steps</label>
-              <textarea id="new-objective-steps" class="text-zone text-area p-3 w-full" rows="3" placeholder="Describe next steps..."></textarea>
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">S4 / External Link</label>
-              <input type="text" id="new-objective-link" class="text-zone p-2 w-full" placeholder="https://">
-            </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button id="cancel-new-objective" class="btn btn-ghost">Cancel</button>
-            <button id="save-new-objective" class="btn btn-primary">Save Objective</button>
-          </div>
-        </div>
-      `;
-      
-      document.body.appendChild(modal);
-      
-      // Show/hide custom objective input
-      const nameSelect = modal.querySelector('#new-objective-name');
-      const customInput = modal.querySelector('#custom-objective-input');
-      
-      nameSelect.addEventListener('change', () => {
-        if (nameSelect.value === 'custom') {
-          customInput.classList.remove('hidden');
-        } else {
-          customInput.classList.add('hidden');
-        }
-      });
-      applyAutoResize(modal);
-      
-      // Event handlers
-      modal.querySelector('#cancel-new-objective').addEventListener('click', () => modal.remove());
-      modal.querySelector('#save-new-objective').addEventListener('click', () => {
-        const nameSelect = modal.querySelector('#new-objective-name');
-        const customText = modal.querySelector('#custom-objective-text');
-        const date = modal.querySelector('#new-objective-date').value;
-        const goal = modal.querySelector('#new-objective-goal').value.trim();
-        
-        let objectiveName = nameSelect.value;
-        if (objectiveName === 'custom') {
-          objectiveName = customText.value.trim();
-        }
-        
-        if (objectiveName && goal) {
-          const newObjective = {
-            id: Date.now(),
-            name: objectiveName,
-            targetDate: date,
-            status: 'Not Started',
-            kpiGoal: goal,
-            challenges: modal.querySelector('#new-objective-challenges').value.trim(),
-            nextSteps: modal.querySelector('#new-objective-steps').value.trim(),
-            s4Link: modal.querySelector('#new-objective-link').value.trim(),
-            editing: false,
-            expanded: false
-          };
-          
-          state.objectives.unshift(newObjective);
-          renderObjectives();
-          modal.remove();
-          showNotification('New objective added successfully!', 'success');
-        } else {
-          showNotification('Please fill in the required fields.', 'error');
-        }
-      });
-    }
-    
-    // Add Mission Goal Modal
-    function showAddMissionGoalModal() {
-      const modal = document.createElement('div');
-      modal.className = 'modal-overlay';
-      modal.innerHTML = `
-        <div class="modal-panel w-[600px] max-w-[90vw]">
-          <div class="modal-header">
-            <h3 class="text-lg font-semibold">Add Mission Goal</h3>
-          </div>
-          <div class="modal-body space-y-4">
-            <div>
-              <label class="block text-sm font-medium mb-1">Title</label>
-              <input type="text" id="mg-title" class="text-zone p-2 w-full" placeholder="Goal title">
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Description</label>
-              <textarea id="mg-desc" class="text-zone text-area p-3 w-full" rows="3" placeholder="Goal description..."></textarea>
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-2">Custom Fields</label>
-              <div id="mg-fields" class="space-y-2"></div>
-              <button id="mg-add-field" class="btn btn-ghost mt-2">+ Add Custom Field</button>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button id="mg-cancel" class="btn btn-ghost">Cancel</button>
-            <button id="mg-save" class="btn btn-success">Save Goal</button>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(modal);
-      applyAutoResize(modal);
-      const fieldsContainer = modal.querySelector('#mg-fields');
-      const addFieldRow = () => {
-        const row = document.createElement('div');
-        row.className = 'flex items-center gap-2';
-        row.setAttribute('data-field-row','');
-        row.innerHTML = `
-          <input class="text-zone p-2 text-xs font-semibold" placeholder="Field name" data-role="label" />
-          <input class="text-zone p-2 text-xs flex-1" placeholder="Value or https://link" data-role="value" />
-          <button class="text-slate-400 hover:text-red-600" title="Remove">&times;</button>
-        `;
-        row.querySelector('button').addEventListener('click', ()=> row.remove());
-        fieldsContainer.appendChild(row);
-      };
-      modal.querySelector('#mg-add-field').addEventListener('click', addFieldRow);
-      modal.querySelector('#mg-cancel').addEventListener('click', () => modal.remove());
-      modal.querySelector('#mg-save').addEventListener('click', () => {
-        const title = modal.querySelector('#mg-title').value.trim() || 'New Goal';
-        const desc = modal.querySelector('#mg-desc').value.trim();
-        const customFields = [...modal.querySelectorAll('[data-field-row]')].map((row) => {
-          const label = row.querySelector('[data-role="label"]').value.trim() || 'Field';
-          const value = row.querySelector('[data-role="value"]').value.trim();
-          return { id: Date.now()+Math.random(), label, value };
-        });
-        state.missionGoals.push({ id: Date.now(), title: title, description: desc, customFields });
-        renderMissionGoals();
-        modal.remove();
-        showNotification('Mission goal added!', 'success');
-      });
-    }
-
-    // Add Value Realized Modal
-    function showAddValueRealizedModal() {
-      const modal = document.createElement('div');
-      modal.className = 'modal-overlay';
-      modal.innerHTML = `
-        <div class="modal-panel w-[600px] max-w-[90vw]">
-          <div class="modal-header">
-            <h3 class="text-lg font-semibold">Add Value Realized</h3>
-          </div>
-          <div class="modal-body space-y-4">
-            <div>
-              <label class="block text-sm font-medium mb-1">Type</label>
-              <select id="vr-type" class="text-zone p-2 w-full">
-                ${valueOptions.map(opt=>`<option>${opt}</option>`).join('')}
+              <label class="block text-sm font-medium mb-1">Status</label>
+              <select id="obj-status" class="text-zone p-2 w-full">
+                <option>Not Started</option>
+                <option>In Progress</option>
+                <option>At Risk</option>
               </select>
             </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Description</label>
-              <textarea id="vr-desc" class="text-zone text-area p-3 w-full" rows="3" placeholder="Describe the value realized..."></textarea>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div>
-                <label class="block text-sm font-medium mb-1">Date Realized</label>
-                <input type="date" id="vr-date" class="text-zone p-2 w-full" />
-              </div>
-              <div>
-                <label class="block text-sm font-medium mb-1">Reference Link</label>
-                <input type="text" id="vr-link" class="text-zone p-2 w-full" placeholder="https://" />
-              </div>
-            </div>
           </div>
-          <div class="modal-footer">
-            <button id="vr-cancel" class="btn btn-ghost">Cancel</button>
-            <button id="vr-save" class="btn btn-success">Save</button>
+          <div>
+            <label class="block text-sm font-medium mb-1">Challenges</label>
+            <textarea id="obj-challenges" class="text-zone text-area p-3 w-full" rows="2" placeholder="Any known challenges or risks..."></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Next Steps</label>
+            <textarea id="obj-steps" class="text-zone text-area p-3 w-full" rows="2" placeholder="Immediate next actions..."></textarea>
           </div>
         </div>
-      `;
-      document.body.appendChild(modal);
+      `, [
+        { label: 'Cancel', class: 'btn-ghost', action: () => closeModal() },
+        { label: 'Create Objective', class: 'btn-primary', action: () => {
+          const obj = {
+            id: Date.now(),
+            name: $('#obj-name').value,
+            description: $('#obj-desc').value,
+            targetDate: $('#obj-date').value,
+            status: $('#obj-status').value,
+            challenges: $('#obj-challenges').value,
+            nextSteps: $('#obj-steps').value,
+            kpis: []
+          };
+          
+          if (!obj.name) {
+            showNotification('Please enter an objective name', 'error');
+            return;
+          }
+          
+          state.objectives.unshift(obj);
+          renderAll();
+          saveToLocalStorage();
+          closeModal();
+          showNotification('Objective created successfully', 'success');
+        }}
+      ]);
+      
       applyAutoResize(modal);
-      modal.querySelector('#vr-cancel').addEventListener('click', ()=> modal.remove());
-      modal.querySelector('#vr-save').addEventListener('click', ()=>{
-        const type = modal.querySelector('#vr-type').value;
-        const description = modal.querySelector('#vr-desc').value.trim();
-        const date = modal.querySelector('#vr-date').value;
-        const link = modal.querySelector('#vr-link').value.trim();
-        state.valueRealized.push({ id: Date.now(), type, description, date, link });
-        renderValue();
-        modal.remove();
-        showNotification('Value realized item added!', 'success');
-      });
     }
 
-    // New Stakeholder Modal
-    function showNewStakeholderModal() {
+    function showAddKPIModal(objectiveId) {
+      const modal = createModal('Add KPI', `
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">KPI Type</label>
+            <select id="kpi-type" class="text-zone p-2 w-full">
+              <option value="">Select a KPI type...</option>
+              ${KPI_TYPES.map(t => `<option value="${t.key}">${t.label}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Unit</label>
+            <input id="kpi-unit" class="text-zone p-2 w-full bg-gray-100" readonly placeholder="Auto-filled based on type">
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">Current Value</label>
+              <input type="number" id="kpi-current" class="text-zone p-2 w-full" placeholder="0">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Previous Value</label>
+              <input type="number" id="kpi-previous" class="text-zone p-2 w-full" placeholder="0">
+            </div>
+          </div>
+          <div id="kpi-preview" class="hidden p-3 bg-gray-50 border">
+            <div class="text-sm text-gray-600">Preview:</div>
+            <div class="font-semibold mt-1">
+              <span id="preview-value">0</span>
+              <span id="preview-unit"></span>
+              <span id="preview-delta" class="ml-2 text-sm"></span>
+            </div>
+          </div>
+        </div>
+      `, [
+        { label: 'Cancel', class: 'btn-ghost', action: () => closeModal() },
+        { label: 'Add KPI', class: 'btn-primary', action: () => {
+          const typeKey = $('#kpi-type').value;
+          const current = parseFloat($('#kpi-current').value) || 0;
+          const previous = parseFloat($('#kpi-previous').value) || 0;
+          
+          if (!typeKey) {
+            showNotification('Please select a KPI type', 'error');
+            return;
+          }
+          
+          const obj = state.objectives.find(o => o.id === objectiveId);
+          if (!obj) return;
+          
+          if (!obj.kpis) obj.kpis = [];
+          obj.kpis.push({
+            id: Date.now(),
+            typeKey,
+            currentValue: current,
+            previousValue: previous
+          });
+          
+          renderAll();
+          saveToLocalStorage();
+          closeModal();
+          showNotification('KPI added successfully', 'success');
+        }}
+      ]);
+      
+      // Set up type change handler
+      $('#kpi-type').addEventListener('change', (e) => {
+        const type = getKPIType(e.target.value);
+        $('#kpi-unit').value = type.unit;
+        updateKPIPreview();
+      });
+      
+      $('#kpi-current').addEventListener('input', updateKPIPreview);
+      $('#kpi-previous').addEventListener('input', updateKPIPreview);
+      
+      function updateKPIPreview() {
+        const typeKey = $('#kpi-type').value;
+        if (!typeKey) return;
+        
+        const type = getKPIType(typeKey);
+        const current = parseFloat($('#kpi-current').value) || 0;
+        const previous = parseFloat($('#kpi-previous').value) || 0;
+        const delta = calculateDelta(current, previous);
+        const deltaNum = parseFloat(delta);
+        const isPositive = type.higherIsBetter ? deltaNum >= 0 : deltaNum <= 0;
+        
+        $('#kpi-preview').classList.remove('hidden');
+        $('#preview-value').textContent = current;
+        $('#preview-unit').textContent = type.unit;
+        
+        if (previous !== 0) {
+          $('#preview-delta').innerHTML = `
+            <span class="${isPositive ? 'text-green-600' : 'text-red-600'}">
+              ${deltaNum > 0 ? '+' : ''}${delta}%
+            </span>
+          `;
+        } else {
+          $('#preview-delta').textContent = '';
+        }
+      }
+    }
+
+    function editKPI(objectiveId, kpiId) {
+      const obj = state.objectives.find(o => o.id === objectiveId);
+      if (!obj) return;
+      
+      const kpi = obj.kpis.find(k => k.id === kpiId);
+      if (!kpi) return;
+      
+      const type = getKPIType(kpi.typeKey);
+      
+      const modal = createModal('Edit KPI', `
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">KPI Type</label>
+            <input class="text-zone p-2 w-full bg-gray-100" value="${type.label}" readonly>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">Current Value</label>
+              <input type="number" id="edit-kpi-current" class="text-zone p-2 w-full" value="${kpi.currentValue}">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Previous Value</label>
+              <input type="number" id="edit-kpi-previous" class="text-zone p-2 w-full" value="${kpi.previousValue}">
+            </div>
+          </div>
+          <div class="text-sm text-gray-500">
+            Note: Delta will be automatically recalculated when you save.
+          </div>
+        </div>
+      `, [
+        { label: 'Delete', class: 'btn-danger', action: () => {
+          if (confirm('Are you sure you want to delete this KPI?')) {
+            obj.kpis = obj.kpis.filter(k => k.id !== kpiId);
+            renderAll();
+            saveToLocalStorage();
+            closeModal();
+            showNotification('KPI deleted', 'success');
+          }
+        }},
+        { label: 'Cancel', class: 'btn-ghost', action: () => closeModal() },
+        { label: 'Save Changes', class: 'btn-primary', action: () => {
+          kpi.currentValue = parseFloat($('#edit-kpi-current').value) || 0;
+          kpi.previousValue = parseFloat($('#edit-kpi-previous').value) || 0;
+          
+          renderAll();
+          saveToLocalStorage();
+          closeModal();
+          showNotification('KPI updated successfully', 'success');
+        }}
+      ]);
+    }
+
+    function createModal(title, content, buttons = []) {
       const modal = document.createElement('div');
       modal.className = 'modal-overlay';
       modal.innerHTML = `
-        <div class="modal-panel w-96 max-w-md">
+        <div class="modal-panel w-[600px] max-w-[90vw]">
           <div class="modal-header">
-            <h3 class="text-lg font-semibold">Add New Stakeholder</h3>
-            <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button>
+            <h3 class="text-lg font-semibold">${title}</h3>
+            <button class="modal-close" onclick="closeModal()">×</button>
           </div>
           <div class="modal-body">
-            <div class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium mb-1">Name</label>
-              <input type="text" id="new-stakeholder-name" class="text-zone p-2 w-full" placeholder="Enter name">
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Title</label>
-              <input type="text" id="new-stakeholder-title" class="text-zone p-2 w-full" placeholder="Enter title">
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Email</label>
-              <input type="email" id="new-stakeholder-email" class="text-zone p-2 w-full" placeholder="name@example.com">
-            </div>
-            </div>
+            ${content}
           </div>
           <div class="modal-footer">
-            <button id="cancel-new-stakeholder" class="btn btn-ghost">Cancel</button>
-            <button id="save-new-stakeholder" class="btn btn-primary">Save</button>
+            ${buttons.map(btn => `
+              <button class="btn ${btn.class}">${btn.label}</button>
+            `).join('')}
           </div>
         </div>
       `;
       
       document.body.appendChild(modal);
       
-      // Event handlers
-      modal.querySelector('#cancel-new-stakeholder').addEventListener('click', () => modal.remove());
-      modal.querySelector('#save-new-stakeholder').addEventListener('click', () => {
-        const name = modal.querySelector('#new-stakeholder-name').value.trim();
-        const title = modal.querySelector('#new-stakeholder-title').value.trim();
-        const email = modal.querySelector('#new-stakeholder-email').value.trim();
-        
-        if (!name) {
-          showNotification('Please enter a name', 'error');
-          return;
-        }
-        if (!title) {
-          showNotification('Please enter a title', 'error');
-          return;
-        }
-        if (!email || !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-          showNotification('Please enter a valid email address', 'error');
-          return;
-        }
-        
-        const newStakeholder = {
-          id: Date.now() + Math.random(),
-          name: name,
-          title: title,
-          email: email
-        };
-        state.stakeholders.push(newStakeholder);
-        renderStakeholders();
-        modal.remove();
-        showNotification('New stakeholder added successfully!', 'success');
+      // Attach button handlers
+      const footerButtons = modal.querySelectorAll('.modal-footer button');
+      buttons.forEach((btn, i) => {
+        footerButtons[i].addEventListener('click', btn.action);
       });
+      
+      return modal;
     }
-    
-    // Notification system
+
+    window.closeModal = function() {
+      const modal = $('.modal-overlay');
+      if (modal) modal.remove();
+    };
+
+    window.editObjective = function(id) {
+      const obj = state.objectives.find(o => o.id === id);
+      if (!obj) return;
+      
+      const modal = createModal('Edit Objective', `
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Objective Name</label>
+            <input type="text" id="edit-obj-name" class="text-zone p-2 w-full" value="${obj.name}">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Description</label>
+            <textarea id="edit-obj-desc" class="text-zone text-area p-3 w-full" rows="3">${obj.description || ''}</textarea>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">Target Date</label>
+              <input type="date" id="edit-obj-date" class="text-zone p-2 w-full" value="${obj.targetDate || ''}">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Status</label>
+              <select id="edit-obj-status" class="text-zone p-2 w-full">
+                <option ${obj.status === 'Not Started' ? 'selected' : ''}>Not Started</option>
+                <option ${obj.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                <option ${obj.status === 'At Risk' ? 'selected' : ''}>At Risk</option>
+                <option ${obj.status === 'Completed' ? 'selected' : ''}>Completed</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Challenges</label>
+            <textarea id="edit-obj-challenges" class="text-zone text-area p-3 w-full" rows="2">${obj.challenges || ''}</textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Next Steps</label>
+            <textarea id="edit-obj-steps" class="text-zone text-area p-3 w-full" rows="2">${obj.nextSteps || ''}</textarea>
+          </div>
+        </div>
+      `, [
+        { label: 'Cancel', class: 'btn-ghost', action: () => closeModal() },
+        { label: 'Save Changes', class: 'btn-primary', action: () => {
+          const oldStatus = obj.status;
+          obj.name = $('#edit-obj-name').value;
+          obj.description = $('#edit-obj-desc').value;
+          obj.targetDate = $('#edit-obj-date').value;
+          obj.status = $('#edit-obj-status').value;
+          obj.challenges = $('#edit-obj-challenges').value;
+          obj.nextSteps = $('#edit-obj-steps').value;
+          
+          // Move to past if completed
+          if (oldStatus !== 'Completed' && obj.status === 'Completed') {
+            state.objectives = state.objectives.filter(o => o.id !== id);
+            state.pastObjectives.unshift(obj);
+            showNotification('Objective completed and moved to past objectives', 'success');
+          }
+          
+          renderAll();
+          saveToLocalStorage();
+          closeModal();
+        }}
+      ]);
+      
+      applyAutoResize(modal);
+    };
+
+    window.removeStakeholder = function(id) {
+      state.stakeholders = state.stakeholders.filter(s => s.id !== id);
+      renderAll();
+      saveToLocalStorage();
+    };
+
+    // ---------- Notifications ----------
     function showNotification(message, type = 'info') {
       const notification = document.createElement('div');
       notification.className = `fixed top-4 right-4 p-4 shadow-lg z-50 font-medium ${
@@ -1816,7 +1254,7 @@
       
       document.body.appendChild(notification);
       
-      // Fade in
+      // Animation
       notification.style.opacity = '0';
       notification.style.transform = 'translateX(100%)';
       notification.style.transition = 'all 0.3s ease';
@@ -1832,79 +1270,305 @@
         setTimeout(() => notification.remove(), 300);
       }, 3000);
     }
-    
-    // ---------- Data Persistence ----------
+
+    // ---------- Event Handlers ----------
+    function setupEventHandlers() {
+      // Add objective button
+      $('#add-objective-btn').addEventListener('click', showAddObjectiveModal);
+      
+      // Mission goals editing
+      $('#mission-goals-container').addEventListener('click', (e) => {
+        if (e.target.dataset.role === 'add-cf') {
+          const card = e.target.closest('[data-id]');
+          const goalId = parseInt(card.dataset.id);
+          const goal = state.missionGoals.find(g => g.id === goalId);
+          if (!goal.customFields) goal.customFields = [];
+          goal.customFields.push({
+            id: Date.now(),
+            label: 'New Field',
+            value: ''
+          });
+          renderMissionGoalsEdit();
+        } else if (e.target.dataset.role === 'remove-cf') {
+          const card = e.target.closest('[data-id]');
+          const fieldEl = e.target.closest('[data-field-id]');
+          const goalId = parseInt(card.dataset.id);
+          const fieldId = parseInt(fieldEl.dataset.fieldId);
+          const goal = state.missionGoals.find(g => g.id === goalId);
+          goal.customFields = goal.customFields.filter(f => f.id !== fieldId);
+          renderMissionGoalsEdit();
+        }
+      });
+      
+      // Mission goals inputs
+      $('#mission-goals-container').addEventListener('input', (e) => {
+        const card = e.target.closest('[data-id]');
+        if (!card) return;
+        
+        const goalId = parseInt(card.dataset.id);
+        const goal = state.missionGoals.find(g => g.id === goalId);
+        
+        if (e.target.dataset.role === 'goal-title') {
+          goal.title = e.target.value;
+        } else if (e.target.dataset.role === 'goal-desc') {
+          goal.description = e.target.value;
+        } else if (e.target.dataset.role === 'cf-label' || e.target.dataset.role === 'cf-value') {
+          const fieldEl = e.target.closest('[data-field-id]');
+          const fieldId = parseInt(fieldEl.dataset.fieldId);
+          const field = goal.customFields.find(f => f.id === fieldId);
+          if (e.target.dataset.role === 'cf-label') {
+            field.label = e.target.value;
+          } else {
+            field.value = e.target.value;
+          }
+        }
+      });
+      
+      // Add mission goal
+      $('#add-mission-goal-btn').addEventListener('click', () => {
+        state.missionGoals.push({
+          id: Date.now(),
+          title: 'New Goal',
+          description: '',
+          customFields: []
+        });
+        renderMissionGoalsEdit();
+      });
+      
+      // Value realized editing
+      $('#value-container').addEventListener('input', (e) => {
+        const card = e.target.closest('[data-id]');
+        if (!card) return;
+        
+        const valueId = parseInt(card.dataset.id);
+        const value = state.valueRealized.find(v => v.id === valueId);
+        
+        if (e.target.dataset.role === 'value-type') {
+          value.type = e.target.value;
+        } else if (e.target.dataset.role === 'value-desc') {
+          value.description = e.target.value;
+        } else if (e.target.dataset.role === 'value-date') {
+          value.date = e.target.value;
+        } else if (e.target.dataset.role === 'value-link') {
+          value.link = e.target.value;
+        }
+      });
+      
+      // Add value button
+      $('#add-value-btn').addEventListener('click', () => {
+        state.valueRealized.push({
+          id: Date.now(),
+          type: 'Time Savings',
+          description: '',
+          date: new Date().toISOString().split('T')[0],
+          link: ''
+        });
+        renderValueEdit();
+      });
+      
+      // Stakeholder select
+      $('#add-stakeholder-select').addEventListener('change', (e) => {
+        const value = e.target.value;
+        if (value === 'new') {
+          // Show new stakeholder modal
+          const modal = createModal('Add New Stakeholder', `
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium mb-1">Name</label>
+                <input type="text" id="new-name" class="text-zone p-2 w-full" placeholder="Full name">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1">Title</label>
+                <input type="text" id="new-title" class="text-zone p-2 w-full" placeholder="Job title">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1">Email</label>
+                <input type="email" id="new-email" class="text-zone p-2 w-full" placeholder="email@company.com">
+              </div>
+            </div>
+          `, [
+            { label: 'Cancel', class: 'btn-ghost', action: () => closeModal() },
+            { label: 'Add Stakeholder', class: 'btn-primary', action: () => {
+              const stakeholder = {
+                id: Date.now(),
+                name: $('#new-name').value,
+                title: $('#new-title').value,
+                email: $('#new-email').value
+              };
+              
+              if (!stakeholder.name || !stakeholder.email) {
+                showNotification('Name and email are required', 'error');
+                return;
+              }
+              
+              state.stakeholders.push(stakeholder);
+              renderAll();
+              saveToLocalStorage();
+              closeModal();
+              showNotification('Stakeholder added', 'success');
+            }}
+          ]);
+        } else if (value) {
+          const contact = mockContacts.find(c => c.id === parseInt(value));
+          if (contact) {
+            state.stakeholders.push(contact);
+            renderAll();
+            saveToLocalStorage();
+          }
+        }
+        e.target.value = '';
+      });
+      
+      // Health score
+      $('#health-score').addEventListener('change', (e) => {
+        state.planHealth = e.target.value;
+        saveToLocalStorage();
+      });
+      
+      // Export buttons
+      $('#export-pdf-btn').addEventListener('click', exportToPDF);
+      $('#export-excel-btn').addEventListener('click', exportToExcel);
+    }
+
+    // ---------- Export Functions ----------
+    async function exportToPDF() {
+      const btn = $('#export-pdf-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="animate-spin">⟳</span> Generating...';
+      
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+        
+        // Add content
+        doc.setFontSize(20);
+        doc.text('Customer Success Plan - Responsive Platform', 20, 20);
+        
+        doc.setFontSize(12);
+        doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 30);
+        
+        // Add sections
+        let y = 50;
+        
+        // Mission Summary
+        doc.setFontSize(14);
+        doc.text('Mission Summary', 20, y);
+        y += 10;
+        doc.setFontSize(10);
+        const summaryLines = doc.splitTextToSize(state.missionSummary || 'Not defined', 170);
+        doc.text(summaryLines, 20, y);
+        y += summaryLines.length * 5 + 10;
+        
+        // Save
+        doc.save('customer-success-plan-responsive.pdf');
+        showNotification('PDF exported successfully', 'success');
+      } catch (error) {
+        console.error('PDF export failed:', error);
+        showNotification('PDF export failed', 'error');
+      }
+      
+      btn.disabled = false;
+      btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>Export PDF';
+    }
+
+    function exportToExcel() {
+      try {
+        const wb = XLSX.utils.book_new();
+        
+        // Plan Overview
+        const overview = [{
+          'Mission Summary': state.missionSummary,
+          'Health Status': state.planHealth,
+          'Current Period': state.currentPeriod
+        }];
+        
+        // Objectives with KPIs
+        const objectives = [];
+        state.objectives.forEach(obj => {
+          objectives.push({
+            'Objective': obj.name,
+            'Status': obj.status,
+            'Target Date': obj.targetDate,
+            'Type': 'Current'
+          });
+          
+          if (obj.kpis) {
+            obj.kpis.forEach(kpi => {
+              const type = getKPIType(kpi.typeKey);
+              objectives.push({
+                'Objective': `  → ${type.label}`,
+                'Status': `${kpi.currentValue} ${type.unit}`,
+                'Target Date': `Delta: ${calculateDelta(kpi.currentValue, kpi.previousValue)}%`,
+                'Type': 'KPI'
+              });
+            });
+          }
+        });
+        
+        // Add sheets
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(overview), 'Overview');
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(objectives), 'Objectives & KPIs');
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(state.missionGoals), 'Mission Goals');
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(state.valueRealized), 'Value Realized');
+        
+        XLSX.writeFile(wb, 'customer-success-plan-responsive.xlsx');
+        showNotification('Excel exported successfully', 'success');
+      } catch (error) {
+        console.error('Excel export failed:', error);
+        showNotification('Excel export failed', 'error');
+      }
+    }
+
+    // ---------- Storage ----------
     function saveToLocalStorage() {
       try {
-        localStorage.setItem('customerSuccessPlan', JSON.stringify(state));
+        localStorage.setItem('responsiveCustomerSuccess', JSON.stringify(state));
       } catch (error) {
         console.warn('Could not save to localStorage:', error);
       }
     }
-    
-         function loadFromLocalStorage() {
-       try {
-         const saved = localStorage.getItem('customerSuccessPlan');
-         if (saved) {
-           const parsed = JSON.parse(saved);
-           Object.assign(state, parsed);
-           // Ensure metrics shape exists after upgrades
-           if (!state.metrics) {
-             state.metrics = {
-               periodType: 'Quarter',
-               month: new Date().toISOString().slice(0,7),
-               quarter: Math.floor((new Date().getMonth())/3)+1,
-               year: new Date().getFullYear(),
-               items: []
-             };
-           }
-           if (!state.kpis) state.kpis = [];
-           if (typeof state.planHealth === 'undefined') state.planHealth = 'green';
-           if (typeof state.missionSummary === 'undefined') state.missionSummary = '';
-         }
-       } catch (error) {
-         console.warn('Could not load from localStorage:', error);
-       }
-     }
-    
-    // Auto-save on any state change
-    function autoSave() {
-      saveToLocalStorage();
-    }
-    
-    // ---------- Init ----------
-    loadFromLocalStorage();
-    // Demo: ensure seeded KPIs are linked to objectives for showcase if not already
-    (function(){
-      const ids = [...(state.objectives||[]).map(o=>o.id), ...(state.pastObjectives||[]).map(o=>o.id)];
-      if ((state.kpis||[]).length && ids.length) {
-        state.kpis = state.kpis.map((k, i) => k.objectiveId ? k : ({...k, objectiveId: ids[i % ids.length]}));
+
+    function loadFromLocalStorage() {
+      try {
+        const saved = localStorage.getItem('responsiveCustomerSuccess');
+        if (saved) {
+          Object.assign(state, JSON.parse(saved));
+        }
+      } catch (error) {
+        console.warn('Could not load from localStorage:', error);
       }
-    })();
-    
-    // Set last updated date
-    const updateDateElement = document.getElementById('last-updated-date');
-    if (updateDateElement) {
-      const today = new Date();
-      const options = { year: 'numeric', month: 'long', day: 'numeric' };
-      updateDateElement.textContent = today.toLocaleDateString('en-US', options);
     }
-    
-    renderAll();
-    setupEvents();
-    applyAutoResize();
-    syncTopControls();
-    
-    // Set up auto-save for all state changes
-    const originalRenderAll = renderAll;
-    renderAll = function() {
-      originalRenderAll();
-      autoSave();
-      applyAutoResize();
-    };
+
+    // ---------- Render All ----------
+    function renderAll() {
+      renderMissionSummary();
+      renderMissionGoalsDisplay();
+      renderValueDisplay();
+      renderObjectives();
+      renderStakeholders();
+    }
+
+    // ---------- Initialize ----------
+    function init() {
+      // Set date
+      const dateEl = $('#last-updated-date');
+      if (dateEl) {
+        dateEl.textContent = new Date().toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        });
+      }
+      
+      loadFromLocalStorage();
+      renderAll();
+      setupPeriodSwitcher();
+      setupSectionEditing();
+      setupEventHandlers();
+    }
+
+    // Start the app
+    init();
   </script>
-<div data-netlify-deploy-id="689c270a4d10af0008374ef2" data-netlify-site-id="0c217ff5-db63-4bc3-8e7c-d7c1212e5343" data-vcs="github" style="position:fixed">
-  
-  <script async src="/.netlify/scripts/cdp"></script>
-</div></body>
+</body>
 </html>
