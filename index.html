@@ -1,542 +1,837 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Customer Success Plan — Enhanced</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root { --ink:#0f172a; --ink-2:#334155; --ink-3:#64748b; }
-    body { font-family: 'Inter', sans-serif; background:#f1f5f9; color:var(--ink); }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Success Plan Mockup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9; /* slate-100 */
+        }
+        .objective-card, .value-item, .stakeholder-card, .modal-container, .mission-goal-item {
+            transition: all 0.3s ease-in-out;
+        }
+        .objective-card.removing, .value-item.removing, .stakeholder-card.removing, .mission-goal-item.removing {
+            transform: scale(0.95);
+            opacity: 0;
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-top: 0;
+            margin-bottom: 0;
+            border-width: 0;
+        }
+        /* Note: @apply requires a Tailwind build step. Keeping utility classes in markup for reliability. */
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid rgb(203 213 225);
+            border-radius: 0.5rem;
+            background-color: rgb(248 250 252);
+            box-shadow: 0 1px 1px rgba(0,0,0,0.03);
+            transition: all 0.15s ease-in-out;
+        }
+        .form-textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid rgb(203 213 225);
+            border-radius: 0.5rem;
+            background-color: rgb(248 250 252);
+            box-shadow: 0 1px 1px rgba(0,0,0,0.03);
+            transition: all 0.15s ease-in-out;
+            resize: both;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: rgb(8 145 178);
+            box-shadow: 0 0 0 3px rgba(8,145,178,0.2);
+            background-color: #fff;
+        }
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: rgb(51 65 85);
+            margin-bottom: 0.25rem;
+        }
+        .status-pill {
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-right: 0.5rem;
+            padding: 0.125rem 0.625rem;
+            border-radius: 9999px;
+        }
+        .status-green { background-color: rgb(220 252 231); color: rgb(22 101 52); }
+        .status-yellow { background-color: rgb(254 249 195); color: rgb(133 77 14); }
+        .status-red { background-color: rgb(254 226 226); color: rgb(153 27 27); }
+        .status-gray { background-color: rgb(226 232 240); color: rgb(30 41 59); }
+        .status-cyan { background-color: rgb(207 250 254); color: rgb(22 78 99); }
 
-    /* Unified text zones: every text/edit surface is clearly bordered and resizable where applicable */
-    .text-zone { @apply w-full rounded-lg border shadow-sm bg-white/60 border-slate-300 focus:ring-2 focus:ring-cyan-600 focus:border-cyan-600 transition-all; }
-    .text-area { resize: both; min-height: 2.75rem; }
-    .chip { @apply inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md border; }
+        /* Modal Styles */
+        .modal-overlay { transition: opacity 0.3s ease; }
+        .modal-container { transition: transform 0.3s ease; }
+        .description-preview {
+            width: 100%; padding: 0.5rem; border: 1px solid transparent; border-radius: 0.5rem; background-color: rgb(248 250 252); font-size: 0.875rem; color: rgb(71 85 105); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;
+        }
+        .description-preview:hover { background-color: rgb(241 245 249); }
+        .input-with-icon { position: relative; }
+        .input-with-icon svg { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+        .input-with-icon input { padding-left: 2.5rem; }
+        .cycle-view-btn { padding: 0.25rem 0.75rem; font-size: 0.875rem; font-weight: 700; border-radius: 0.375rem; background-color: rgb(207 250 254); color: rgb(22 78 99); transition: background-color 0.15s; }
+        .cycle-view-btn:hover { background-color: rgb(165 243 252); }
+        .health-icon { width: 0.75rem; height: 0.75rem; border-radius: 9999px; display: inline-block; margin-right: 0.5rem; }
+        .bordered-textarea { background-color: rgb(241 245 249); border-color: rgb(203 213 225); }
+        .colored-filter { background-color: rgb(236 253 245); border-color: rgb(187 247 208); }
 
-    /* Status pills */
-    .status-pill { @apply text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full; }
-    .status-green { @apply bg-green-100 text-green-800; }
-    .status-yellow { @apply bg-yellow-100 text-yellow-800; }
-    .status-red { @apply bg-red-100 text-red-800; }
-    .status-gray { @apply bg-slate-200 text-slate-800; }
-    .status-cyan { @apply bg-cyan-100 text-cyan-800; }
+        .two-line-clamp { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
 
-    /* Colored filters for "Find Similar" area */
-    .colored-filter { @apply bg-emerald-50 border-emerald-300 focus:ring-emerald-500 focus:border-emerald-500; }
+        /* Colored text blocks per context */
+        .objective-box-cyan { background-color: rgb(236 254 255); border: 1px solid rgb(165 243 252); }
+        .objective-box-amber { background-color: rgb(255 251 235); border: 1px solid rgb(254 240 138); }
+        .objective-box-emerald { background-color: rgb(236 253 245); border: 1px solid rgb(187 247 208); }
+        .objective-editor-cyan { background-color: rgb(236 254 255); border-color: rgb(103 232 249); }
+        .objective-editor-amber { background-color: rgb(255 251 235); border-color: rgb(253 230 138); }
+        .objective-editor-emerald { background-color: rgb(236 253 245); border-color: rgb(134 239 172); }
 
-    /* Cards + micro-transitions */
-    .card { @apply bg-white rounded-xl shadow-sm border border-slate-200/80; }
-    .fade { transition: all .2s ease; }
-    .removing { transform: scale(.98); opacity:.0; max-height:0; padding-top:0; padding-bottom:0; margin-top:0; margin-bottom:0; border-width:0; }
-
-    /* Preview blocks inside objective cards */
-    .preview-box { @apply bg-slate-50 border border-slate-200 rounded-lg p-3; }
-
-    /* Small helpers */
-    .health-dot { @apply w-3 h-3 rounded-full inline-block mr-2; }
-    .linkish { @apply underline decoration-dotted text-cyan-700 hover:text-cyan-900; }
-  </style>
+        .tag { display: inline-flex; align-items: center; font-size: 0.75rem; font-weight: 600; padding: 0.125rem 0.5rem; border-radius: 9999px; }
+        .tag-cyan { background-color: rgb(207 250 254); color: rgb(22 78 99); }
+        .tag-emerald { background-color: rgb(209 250 229); color: rgb(6 95 70); }
+        .tag-amber { background-color: rgb(254 243 199); color: rgb(120 53 15); }
+    </style>
 </head>
-<body>
-  <div id="app" class="max-w-screen-xl mx-auto p-4 sm:p-6 lg:p-8">
-    <header class="mb-10 p-8 rounded-xl bg-gradient-to-r from-cyan-800 to-emerald-600 text-white shadow-lg flex justify-between items-center">
-      <div>
-        <h1 class="text-4xl font-bold">Customer Success Plan</h1>
-        <p class="text-cyan-200 mt-2">A collaborative plan to track and achieve outcomes. Last updated: Aug 12, 2025</p>
-      </div>
-      <button id="export-pdf-btn" class="bg-white/20 text-white font-semibold px-4 py-2 rounded-lg hover:bg-white/30 transition-colors flex items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>
-        Generate PDF
-      </button>
-    </header>
+<body class="text-slate-800">
 
-    <!-- Mission Summary -->
-    <section class="card mb-6 p-6">
-      <h2 class="text-2xl font-bold mb-4">Mission Summary</h2>
-      <textarea id="mission-summary" class="text-zone text-area p-3" rows="3" placeholder="Describe the primary business outcome and vision...">To empower the sales team by centralizing our content, reducing response times, and providing data-driven insights that directly contribute to winning more business and increasing revenue.</textarea>
-    </section>
-
-    <!-- Mission Goals -->
-    <section class="card mb-10 p-6">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-bold">Mission Goals</h2>
-        <button id="add-mission-goal-btn" class="bg-emerald-600 text-white font-semibold px-4 py-2 rounded-lg shadow-sm hover:bg-emerald-700">+ Add Goal</button>
-      </div>
-      <div id="mission-goals-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
-    </section>
-
-    <main class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-      <!-- Left -->
-      <div class="lg:col-span-3 space-y-8">
-        <!-- Value Realized -->
-        <section id="value-realized" class="card p-6">
-          <div class="flex justify-between items-center mb-4">
-            <h2 class="text-2xl font-bold">Value Realized</h2>
-            <button id="add-value-btn" class="bg-emerald-600 text-white font-semibold px-4 py-2 rounded-lg shadow-sm hover:bg-emerald-700">+ Add Value</button>
-          </div>
-          <div id="value-container" class="space-y-4"></div>
-          <div id="no-value-message" class="hidden text-center py-10 px-4 text-slate-500">No value items added yet.</div>
-        </section>
-
-        <!-- Current Objectives -->
-        <section id="current-objectives" class="card p-6">
-          <div class="flex justify-between items-center mb-4">
-            <h2 class="text-2xl font-bold">Current Objectives</h2>
-            <button id="add-objective-btn" class="bg-cyan-600 text-white font-semibold px-4 py-2 rounded-lg shadow-sm hover:bg-cyan-700">+ Add Objective</button>
-          </div>
-          <div id="objectives-container" class="space-y-6"></div>
-        </section>
-
-        <!-- Past Objectives -->
-        <section id="past-objectives" class="card p-6">
-          <h2 class="text-2xl font-bold mb-4">Past Objectives Achieved</h2>
-          <div id="past-objectives-container" class="space-y-6"></div>
-          <div id="no-past-objectives" class="hidden text-center py-10 px-4 text-slate-500">Completed objectives will appear here.</div>
-        </section>
-      </div>
-
-      <!-- Right -->
-      <div class="lg:col-span-1 space-y-8">
-        <section class="card p-6">
-          <h3 class="text-lg font-semibold mb-3">Plan Details</h3>
-          <label class="block text-sm font-medium mb-1">Overall Health</label>
-          <select id="health-score" class="text-zone p-2">
-            <option value="green">🟢 On Track</option>
-            <option value="yellow">🟡 Needs Attention</option>
-            <option value="red">🔴 At Risk</option>
-          </select>
-        </section>
-
-        <section class="card p-6">
-          <h3 class="text-lg font-semibold mb-3">Find Similar Objectives</h3>
-          <div class="space-y-4">
+    <div id="app" class="max-w-screen-xl mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <header class="mb-10 p-8 rounded-xl bg-gradient-to-r from-cyan-800 to-emerald-600 text-white shadow-lg flex justify-between items-center">
             <div>
-              <label class="block text-sm font-medium mb-1">Industry</label>
-              <select id="filter-industry" class="text-zone colored-filter p-2">
-                <option>Technology</option>
-                <option>Finance</option>
-                <option>Healthcare</option>
-              </select>
+                <h1 class="text-4xl font-bold">Customer Success Plan</h1>
+                <p class="text-cyan-200 mt-2">A collaborative plan to track and achieve desired outcomes. Last updated: August 12, 2025</p>
             </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Segment</label>
-              <select id="filter-segment" class="text-zone colored-filter p-2">
-                <option>SMB</option>
-                <option>MM</option>
-                <option>Enterprise</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Products Owned</label>
-              <select id="filter-products" class="text-zone colored-filter p-2">
-                <option value="">Select a product...</option>
-                <option>Content Library</option>
-                <option>AI</option>
-                <option>Projects</option>
-                <option>Trust Center</option>
-              </select>
-            </div>
-            <div id="suggested-objectives-container" class="hidden pt-4 border-t">
-              <h4 class="text-sm font-semibold mb-2">Suggested Objectives</h4>
-              <div id="suggested-objectives-list" class="flex flex-wrap gap-2"></div>
-            </div>
-          </div>
+            <button id="export-pdf-btn" class="bg-white/20 text-white font-semibold px-4 py-2 rounded-lg hover:bg-white/30 transition-colors flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>
+                Generate PDF
+            </button>
+        </header>
+
+        <!-- Mission Summary Section -->
+        <section class="mb-6 bg-white p-6 rounded-xl shadow-sm border border-slate-200/80">
+            <h2 class="text-2xl font-bold text-slate-900 mb-4">Mission Summary</h2>
+            <textarea class="form-textarea bordered-textarea" rows="3" placeholder="Describe the primary business outcome and overall vision for this partnership...">To empower the sales team by centralizing our content, reducing response times, and providing data-driven insights that directly contribute to winning more business and increasing revenue.</textarea>
         </section>
 
-        <section class="card p-6">
-          <h3 class="text-lg font-semibold mb-3">Key Stakeholders</h3>
-          <div id="stakeholders-container" class="space-y-3 mb-3"></div>
-          <select id="add-stakeholder-select" class="text-zone p-2">
-            <option value="">+ Add a contact...</option>
-            <option value="new">Add New Stakeholder...</option>
-          </select>
+        <!-- Mission Goals Section -->
+        <section class="mb-10 bg-white p-6 rounded-xl shadow-sm border border-slate-200/80">
+             <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-slate-900">Mission Goals</h2>
+                <button id="add-mission-goal-btn" class="bg-emerald-600 text-white font-semibold px-4 py-2 rounded-lg shadow-sm hover:bg-emerald-700 transition-colors flex items-center">
+                    + Add Goal
+                </button>
+            </div>
+            <div id="mission-goals-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Mission goals will be injected here -->
+            </div>
         </section>
-      </div>
-    </main>
-  </div>
 
-  <script>
-    // ---------- Data ----------
+        <main class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            
+            <!-- Left Column / Main Content -->
+            <div class="lg:col-span-3 space-y-8">
+                 <!-- Value Realized Section -->
+                <section id="value-realized">
+                     <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold text-slate-900">Value Realized</h2>
+                        <button id="add-value-btn" class="bg-emerald-600 text-white font-semibold px-4 py-2 rounded-lg shadow-sm hover:bg-emerald-700 transition-colors flex items-center">
+                            + Add Value
+                        </button>
+                    </div>
+                    <div id="value-container" class="space-y-4">
+                         <!-- Content generated by JS -->
+                    </div>
+                    <div id="no-value-message" class="hidden text-center py-10 px-4 bg-white rounded-xl shadow-sm border border-slate-200/80 text-slate-500">No value items added yet.</div>
+                </section>
+
+                <!-- Current Objectives Section -->
+                <section id="current-objectives">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold text-slate-900">Current Objectives</h2>
+                        <button id="add-objective-btn" class="bg-cyan-600 text-white font-semibold px-4 py-2 rounded-lg shadow-sm hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transition-colors flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" /></svg>
+                            Add Objective
+                        </button>
+                    </div>
+                    <div id="objectives-container" class="space-y-6"></div>
+                </section>
+
+                <!-- Past Objectives Achieved Section -->
+                <section id="past-objectives">
+                    <h2 class="text-2xl font-bold text-slate-900 mb-4">Past Objectives Achieved</h2>
+                    <div id="past-objectives-container" class="space-y-6">
+                        <!-- Content generated by JS -->
+                    </div>
+                    <div id="no-past-objectives" class="hidden text-center py-10 px-4 bg-white rounded-xl shadow-sm border border-slate-200/80">
+                        <p class="text-slate-500">Completed objectives will appear here.</p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Column / Sidebar -->
+            <div class="lg:col-span-1 space-y-8">
+                <section class="bg-white p-6 rounded-xl shadow-sm border border-slate-200/80">
+                    <h3 class="text-lg font-semibold text-slate-900 mb-3">Plan Details</h3>
+                    <div class="space-y-4">
+                         <div>
+                            <label class="form-label">Overall Health</label>
+                            <select id="health-score" class="form-select">
+                                <option value="green">🟢 On Track</option>
+                                <option value="yellow">🟡 Needs Attention</option>
+                                <option value="red">🔴 At Risk</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="bg-white p-6 rounded-xl shadow-sm border border-slate-200/80">
+                    <h3 class="text-lg font-semibold text-slate-900 mb-3">Find Similar Objectives</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="form-label">Industry</label>
+                            <select id="filter-industry" class="form-select colored-filter">
+                                <option>Technology</option>
+                                <option>Finance</option>
+                                <option>Healthcare</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Segment</label>
+                            <select id="filter-segment" class="form-select colored-filter">
+                                <option>SMB</option>
+                                <option>MM</option>
+                                <option>Enterprise</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Products Owned</label>
+                            <select id="filter-products" class="form-select colored-filter">
+                                <option value="">Select a product...</option>
+                                <option>Content Library</option>
+                                <option>AI</option>
+                                <option>Projects</option>
+                                <option>Trust Center</option>
+                            </select>
+                        </div>
+                        <div id="suggested-objectives-container" class="hidden pt-4 border-t">
+                             <h4 class="text-sm font-semibold text-slate-800 mb-2">Suggested Objectives:</h4>
+                             <div id="suggested-objectives-list" class="flex flex-wrap gap-2"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="bg-white p-6 rounded-xl shadow-sm border border-slate-200/80">
+                    <h3 class="text-lg font-semibold text-slate-900 mb-3">Key Stakeholders</h3>
+                    <div id="stakeholders-container" class="space-y-3 mb-3"></div>
+                    <select id="add-stakeholder-select" class="form-select">
+                        <option value="">+ Add a contact...</option>
+                        <option value="new">Add New Stakeholder...</option>
+                    </select>
+                </section>
+                
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals will be injected into the body -->
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // --- DATA & STATE ---
+    const productKpiMap = {
+        'Content Library': ['Content utilization', 'Tagging Percentage', '% of Records with Reviews enabled', '% of content with ownership', '% of obsolete records', '% of duplicated records'],
+        'AI': ['Unedited AI responses', '% answer with AI', 'AI chatbot usage'],
+        'Projects': ['% Answer library usage', '% of manual answers', '% of Answers edited from Answer Library', 'Time spent per response'],
+        'Trust Center': ['% of profile views']
+    };
+
     const objectiveOptions = ['Reduce time spent per response', 'Adoption', 'Content library clean up', 'Increase win rate'];
     const valueOptions = ['Time Savings', 'Win Rate Increase', 'Adoption Rate', 'Cost Reduction', 'Revenue Growth', 'Productivity Gain'];
+    const timePeriods = ['monthly', 'quarterly', 'annually'];
 
     const mockContacts = [
-      { id: 1, name: 'Jane Doe', title: 'VP, Sales', email: 'jane.d@example.com' },
-      { id: 2, name: 'John Smith', title: 'Project Manager', email: 'john.s@example.com' },
-      { id: 3, name: 'Samantha Ray', title: 'Director of Ops', email: 'samantha.r@example.com' },
-      { id: 4, name: 'Mike Chen', title: 'Lead Engineer', email: 'mike.c@example.com' }
+        { id: 1, name: 'Jane Doe', title: 'VP, Sales', email: 'jane.d@example.com' },
+        { id: 2, name: 'John Smith', title: 'Project Manager', email: 'john.s@example.com' },
+        { id: 3, name: 'Samantha Ray', title: 'Director of Ops', email: 'samantha.r@example.com' },
+        { id: 4, name: 'Mike Chen', title: 'Lead Engineer', email: 'mike.c@example.com' }
     ];
 
+    // --- Centralized State ---
     const state = {
-      missionGoals: [
-        { id: Date.now(), title: 'Time Savings', description: 'Reduce time spent on manual tasks by 20% through automation and streamlined workflows.', customFields: [{id: 1, label: 'Collateral', value: 'https://example.com/deck'}] },
-        { id: Date.now() + 1, title: 'Winning More Business', description: 'Increase the sales win rate by 10% by leveraging improved content and faster response times.', customFields: [] }
-      ],
-      stakeholders: [mockContacts[0], mockContacts[1]],
-      objectives: [{
-        id: Date.now(), name: 'Reduce time spent per response', targetDate: '2025-09-30', status: 'In Progress',
-        kpiGoal: 'Reduce average response time from 45s to 30s.',
-        challenges: 'Team members are still learning the new workflow.',
-        nextSteps: 'Hold a workshop on advanced features.', s4Link: 'https://s4.example.com/ticket/12345',
-        editing: false, expanded: false
-      }, {
-        id: Date.now() + 2, name: 'Content library clean up', targetDate: '2025-10-31', status: 'Not Started',
-        kpiGoal: 'Archive 50% of obsolete content.',
-        challenges: 'Lack of clear ownership for older content.',
-        nextSteps: 'Work with Samantha Ray to identify content owners.', s4Link: 'https://s4.example.com/ticket/12346',
-        editing: false, expanded: false
-      }],
-      pastObjectives: [],
-      valueRealized: [{ id: Date.now(), type: 'Time Savings', description: 'Saved ~5 hours/week per agent in Q3.', date: '2025-07-30', link: 'https://datastudio.example.com/report/1' }],
+        missionGoals: [
+            { id: Date.now(), title: 'Time Savings', description: 'Reduce time spent on manual tasks by 20% through automation and streamlined workflows.', customFields: [{id: 1, label: 'Collateral', value: 'https://example.com/deck'}] },
+            { id: Date.now() + 1, title: 'Winning More Business', description: 'Increase the sales win rate by 10% by leveraging improved content and faster response times.', customFields: [] }
+        ],
+        stakeholders: [mockContacts[0], mockContacts[1]],
+        objectives: [{
+            id: Date.now(), name: 'Reduce time spent per response', targetDate: '2025-09-30', status: 'In Progress', view: 'quarterly',
+            challenges: 'Team members are still learning the new workflow.', s4Link: 'https://s4.example.com/ticket/12345',
+            kpiGoal: 'Reduce average response time from 45s to 30s.', nextSteps: 'Hold a workshop on advanced features.'
+        }, {
+            id: Date.now() + 2, name: 'Content library clean up', targetDate: '2025-10-31', status: 'Not Started', view: 'quarterly',
+            challenges: 'Lack of clear ownership for older content.', s4Link: 'https://s4.example.com/ticket/12346',
+            kpiGoal: 'Archive 50% of obsolete content.', nextSteps: 'Work with Samantha Ray to identify content owners.'
+        }],
+        pastObjectives: [],
+        valueRealized: [{ id: Date.now(), type: 'Time Savings', description: 'Saved ~5 hours/week per agent in Q3.', date: '2025-07-30', link: 'https://datastudio.example.com/report/1' }],
+        editingValueId: null,
+        editingObjectiveId: null,
     };
 
-    // ---------- Helpers ----------
-    const $ = (q, root=document) => root.querySelector(q);
-    const $$ = (q, root=document) => [...root.querySelectorAll(q)];
-    const truncate = (t, n=100) => (t||'').length>n ? t.slice(0,n).trim()+ '…' : (t||'');
-    const pillClass = (status) => ({'In Progress':'status-cyan','At Risk':'status-yellow','Completed':'status-green','Not Started':'status-gray'})[status]||'status-gray';
-    const health = (o) => {
-      if (o.status === 'Completed') return { dot:'bg-green-500', icon:'🟢' };
-      if (!o.targetDate) return { dot:'bg-green-500', icon:'🟢' };
-      const days = (new Date(o.targetDate) - new Date())/86400000;
-      if (days < 0) return { dot:'bg-red-500', icon:'🔴' };
-      if (days <= 30) return { dot:'bg-red-500', icon:'🔴' };
-      if (days <= 90) return { dot:'bg-yellow-500', icon:'🟡' };
-      return { dot:'bg-green-500', icon:'🟢' };
+    // --- DOM REFERENCES ---
+    const app = document.getElementById('app');
+    
+    // --- MODAL CLASS DEFINITION ---
+    class Modal {
+        constructor(overlayId) {
+            this.overlay = document.createElement('div');
+            this.overlay.id = overlayId;
+            this.overlay.className = 'modal-overlay fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 hidden z-50';
+            this.container = document.createElement('div');
+            this.container.className = 'modal-container bg-slate-50 rounded-xl shadow-2xl w-full transform scale-95';
+            this.overlay.appendChild(this.container);
+            document.body.appendChild(this.overlay);
+        }
+        open(content, maxWidth = 'max-w-3xl') {
+            this.container.className = `modal-container bg-slate-50 rounded-xl shadow-2xl w-full ${maxWidth} transform scale-95`;
+            this.container.innerHTML = content;
+            this.overlay.classList.remove('hidden');
+            setTimeout(() => {
+                this.overlay.classList.remove('opacity-0');
+                this.container.classList.remove('scale-95');
+            }, 10);
+        }
+        close() {
+            this.overlay.classList.add('opacity-0');
+            this.container.classList.add('scale-95');
+            setTimeout(() => this.overlay.classList.add('hidden'), 300);
+        }
+    }
+    const objectiveModal = new Modal('objective-modal-overlay');
+    const valueModal = new Modal('value-modal-overlay');
+    
+    // --- UTILITY & TEMPLATING FUNCTIONS ---
+    const getStatusPillClass = (status) => ({
+        'In Progress': 'status-cyan', 'At Risk': 'status-yellow',
+        'Completed': 'status-green', 'Not Started': 'status-gray'
+    })[status] || 'status-gray';
+    
+    const getHealthStatus = (objective) => {
+        if (objective.status === 'Completed') return { icon: '🟢', color: 'bg-green-500' };
+        if (!objective.targetDate) return { icon: '🟢', color: 'bg-green-500' };
+        const today = new Date();
+        const targetDate = new Date(objective.targetDate);
+        const daysUntilDue = (targetDate - today) / (1000 * 60 * 60 * 24);
+        if (daysUntilDue < 0) return { icon: '🔴', color: 'bg-red-500' };
+        if (daysUntilDue <= 30) return { icon: '🔴', color: 'bg-red-500' };
+        if (daysUntilDue <= 90) return { icon: '🟡', color: 'bg-yellow-500' };
+        return { icon: '🟢', color: 'bg-green-500' };
     };
 
-    // ---------- Renderers ----------
-    function renderMissionGoals(){
-      const c = $('#mission-goals-container');
-      c.innerHTML = state.missionGoals.map(g=>`
-        <div id="mission-goal-${g.id}" class="card p-4" data-id="${g.id}">
-          <div class="flex items-center justify-between gap-2">
-            <input class="text-zone p-2 font-semibold" value="${g.title}" data-role="goal-title" />
-            <button class="text-slate-400 hover:text-red-600" data-role="remove-goal">&times;</button>
-          </div>
-          <textarea class="text-zone text-area p-3 mt-2 text-sm" rows="3" placeholder="Goal description..." data-role="goal-desc">${g.description||''}</textarea>
-          <div class="mt-3 space-y-2" data-role="custom-fields">
-            ${(g.customFields||[]).map(f=>`
-              <div class="flex items-center gap-2" data-field-id="${f.id}">
-                <input class="text-zone p-2 text-xs font-semibold" value="${f.label}" placeholder="Field name" data-role="cf-label" />
-                <input class="text-zone p-2 text-xs flex-1" value="${f.value||''}" placeholder="Value or https://link" data-role="cf-value" />
-                <a href="${/^https?:\/\//.test(f.value)?f.value:'#'}" target="_blank" class="${/^https?:\/\//.test(f.value)?'linkish':'pointer-events-none opacity-40'} text-xs">Attach</a>
-                <button class="text-slate-400 hover:text-red-600" title="Remove" data-role="remove-cf">🗑️</button>
-              </div>
-            `).join('')}
-          </div>
-          <button class="text-cyan-700 font-semibold mt-2" data-role="add-cf">+ Add Custom Field</button>
-        </div>
-      `).join('');
-    }
+    const sanitize = (str = '') => String(str).replace(/[<>]/g, '');
 
-    function valueItemHTML(item){
-      return `
-        <div id="value-${item.id}" class="card p-4" data-id="${item.id}">
-          <div class="flex items-center justify-between">
-            <select class="text-zone p-2 text-sm font-semibold bg-white/60 border-0 value-type-select">
-              ${valueOptions.map(opt=>`<option ${opt===item.type?'selected':''}>${opt}</option>`).join('')}
-            </select>
-            <button class="text-slate-400 hover:text-slate-600" data-role="remove-value">&times;</button>
-          </div>
-          <div class="mt-3">
-            <label class="block text-xs font-medium mb-1">Description</label>
-            <textarea class="text-zone text-area p-3 text-sm" rows="3" data-role="value-desc">${item.description||''}</textarea>
-          </div>
-          <div class="grid grid-cols-2 gap-3 mt-3">
-            <div>
-              <label class="block text-xs font-medium mb-1">Date Realized</label>
-              <input type="date" value="${item.date||''}" class="text-zone p-2" data-role="value-date" />
-            </div>
-            <div>
-              <label class="block text-xs font-medium mb-1">Reference Link</label>
-              <input type="text" value="${item.link||''}" placeholder="https://" class="text-zone p-2" data-role="value-link" />
-            </div>
-          </div>
-        </div>`;
-    }
+    // --- RENDER FUNCTIONS ---
+    const renderObjectives = () => {
+        const objectivesContainer = document.getElementById('objectives-container');
+        const pastObjectivesContainer = document.getElementById('past-objectives-container');
+        const noPastObjectives = document.getElementById('no-past-objectives');
 
-    function renderValue(){
-      const c = $('#value-container');
-      c.innerHTML = state.valueRealized.map(valueItemHTML).join('');
-      $('#no-value-message').classList.toggle('hidden', state.valueRealized.length!==0);
-    }
+        const createObjectiveCard = (objective) => {
+            const isCompleted = objective.status === 'Completed';
+            const statusPillClass = getStatusPillClass(objective.status);
+            const health = getHealthStatus(objective);
+            return `<div id="objective-${objective.id}" class="objective-card bg-white p-6 rounded-xl shadow-sm border border-slate-200/80" data-id="${objective.id}">
+                        <div class="space-y-5">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                   <h3 class="font-semibold text-lg text-slate-800 flex items-center"><span class="health-icon ${health.color}"></span>${sanitize(objective.name)}</h3>
+                                    <div class="flex items-center mt-2">
+                                        <select class="status-select form-select text-xs font-semibold p-1 pr-7 border-0 rounded-full ${statusPillClass}" ${isCompleted ? 'disabled' : ''}>
+                                            <option value="Not Started" ${objective.status === 'Not Started' ? 'selected' : ''}>Not Started</option>
+                                            <option value="In Progress" ${objective.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                                            <option value="At Risk" ${objective.status === 'At Risk' ? 'selected' : ''}>At Risk</option>
+                                            <option value="Completed" ${objective.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                                        </select>
+                                        <input type="date" class="objective-target-date form-input text-sm p-1 w-auto border-0 bg-transparent ml-2" value="${objective.targetDate || ''}">
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                     <button class="view-details-btn text-sm font-semibold text-cyan-600 hover:text-cyan-800">View Details</button>
+                                     <button class="edit-objective-btn text-sm font-semibold text-slate-500 hover:text-slate-700">Edit</button>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div class="objective-box-cyan rounded-lg p-3">
+                                    <div class="text-xs font-semibold text-cyan-800">KPI Goal</div>
+                                    <div class="text-sm text-cyan-900 two-line-clamp">${sanitize(objective.kpiGoal) || 'Not specified'}</div>
+                                </div>
+                                <div class="objective-box-amber rounded-lg p-3">
+                                    <div class="text-xs font-semibold text-amber-800">Challenges</div>
+                                    <div class="text-sm text-amber-900 two-line-clamp">${sanitize(objective.challenges) || 'None identified'}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+        };
+        
+        objectivesContainer.innerHTML = state.objectives.map(createObjectiveCard).join('') || '<p class="text-slate-500 text-center py-4">No active objectives.</p>';
+        pastObjectivesContainer.innerHTML = state.pastObjectives.map(createObjectiveCard).join('');
+        noPastObjectives.style.display = state.pastObjectives.length === 0 ? 'block' : 'none';
+    };
 
-    function objectiveCardHTML(o){
-      const h = health(o);
-      const statusCls = pillClass(o.status);
-      if (o.editing) {
-        // Inline edit mode per objective
-        return `
-          <div id="objective-${o.id}" class="card p-6" data-id="${o.id}">
-            <div class="flex justify-between items-start gap-3">
-              <div class="flex-1">
-                <div class="flex items-center gap-2 mb-2">
-                  <span class="health-dot ${h.dot}"></span>
-                  <input class="text-zone p-2 font-semibold" value="${o.name}" data-role="edit-name" />
+    const renderValueRealized = () => {
+        const valueContainer = document.getElementById('value-container');
+        const noValueMessage = document.getElementById('no-value-message');
+        const createValueItem = (item) => `
+            <div id="value-${item.id}" class="value-item bg-slate-50 p-4 rounded-lg border space-y-3" data-id="${item.id}">
+                <div class="flex items-center justify-between">
+                    <select class="form-select text-sm font-semibold p-1 border-0 bg-transparent value-type-select w-auto">
+                        ${valueOptions.map(opt => `<option ${opt === item.type ? 'selected' : ''}>${opt}</option>`).join('')}
+                    </select>
+                    <button class="remove-value-btn text-slate-400 hover:text-slate-600" title="Remove">&times;</button>
                 </div>
-                <div class="flex flex-wrap items-center gap-2">
-                  <select class="text-zone p-1 text-xs ${statusCls}" data-role="edit-status">
-                    ${['Not Started','In Progress','At Risk','Completed'].map(s=>`<option ${o.status===s?'selected':''}>${s}</option>`).join('')}
-                  </select>
-                  <input type="date" class="text-zone p-1 text-sm w-auto" value="${o.targetDate||''}" data-role="edit-date" />
+                <div>
+                    <label class="form-label text-xs">Description</label>
+                    <div class="flex items-center space-x-2">
+                        <p class="description-preview flex-1">${item.description || 'Click to add...'}</p>
+                        <button class="edit-description-btn text-sm font-semibold text-cyan-600 hover:text-cyan-800">Edit</button>
+                    </div>
                 </div>
-              </div>
-              <div class="flex items-center gap-2">
-                <button class="px-3 py-1 rounded-md bg-slate-100" data-role="cancel-edit">Cancel</button>
-                <button class="px-3 py-1 rounded-md bg-cyan-600 text-white" data-role="save-edit">Save</button>
-              </div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div>
-                <label class="block text-sm font-medium mb-1">KPI Goal</label>
-                <textarea class="text-zone text-area p-3" rows="3" data-role="edit-kpi">${o.kpiGoal||''}</textarea>
-              </div>
-              <div>
-                <label class="block text-sm font-medium mb-1">Challenges</label>
-                <textarea class="text-zone text-area p-3" rows="3" data-role="edit-challenges">${o.challenges||''}</textarea>
-              </div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div>
-                <label class="block text-sm font-medium mb-1">Next Steps</label>
-                <textarea class="text-zone text-area p-3" rows="3" data-role="edit-steps">${o.nextSteps||''}</textarea>
-              </div>
-              <div>
-                <label class="block text-sm font-medium mb-1">S4 / External Link</label>
-                <input class="text-zone p-2" value="${o.s4Link||''}" placeholder="https://" data-role="edit-link" />
-                ${o.s4Link?`<a class="linkish text-sm mt-1 inline-block" href="${o.s4Link}" target="_blank">Open</a>`:''}
-              </div>
-            </div>
-          </div>`;
-      }
-      // View mode with always-on preview blocks
-      return `
-        <div id="objective-${o.id}" class="card p-6" data-id="${o.id}">
-          <div class="flex justify-between items-start">
-            <div>
-              <h3 class="font-semibold text-lg flex items-center"><span class="health-dot ${h.dot}"></span>${o.name}</h3>
-              <div class="flex items-center mt-2 gap-2">
-                <span class="status-pill ${statusCls}">${o.status}</span>
-                <input type="date" class="text-zone p-1 text-sm w-auto" value="${o.targetDate||''}" data-role="quick-date" />
-              </div>
-            </div>
-            <div class="flex items-center gap-3">
-              <button class="text-cyan-700 font-semibold" data-role="toggle-expand">${o.expanded?'Hide preview':'Show more'}</button>
-              <button class="text-slate-500 hover:text-slate-700" data-role="edit">Edit</button>
-            </div>
-          </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="form-label text-xs">Date Realized</label>
+                        <input type="date" value="${item.date}" class="form-input text-sm value-date-input">
+                    </div>
+                    <div>
+                        <label class="form-label text-xs">Reference Link</label>
+                        <div class="input-with-icon">
+                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd" /></svg>
+                            <input type="text" value="${item.link}" placeholder="https://" class="form-input text-sm value-link-input">
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        valueContainer.innerHTML = state.valueRealized.map(createValueItem).join('');
+        noValueMessage.style.display = state.valueRealized.length === 0 ? 'block' : 'none';
+    };
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <div class="preview-box">
-              <div class="text-xs font-semibold text-slate-600 mb-1">KPI Goal</div>
-              <div class="text-sm text-slate-700">${truncate(o.kpiGoal, o.expanded?1000:140) || '<span class=\'text-slate-400\'>Not set</span>'}</div>
-            </div>
-            <div class="preview-box">
-              <div class="text-xs font-semibold text-slate-600 mb-1">Challenges</div>
-              <div class="text-sm text-slate-700">${truncate(o.challenges, o.expanded?1000:140) || '<span class=\'text-slate-400\'>None</span>'}</div>
-            </div>
-          </div>
-          ${o.expanded ? `
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div class="preview-box">
-                <div class="text-xs font-semibold text-slate-600 mb-1">Next Steps</div>
-                <div class="text-sm text-slate-700">${o.nextSteps||'<span class=\'text-slate-400\'>Not specified</span>'}</div>
-              </div>
-              <div class="preview-box">
-                <div class="text-xs font-semibold text-slate-600 mb-1">Links</div>
-                ${o.s4Link ? `<a class="linkish text-sm" href="${o.s4Link}" target="_blank">Open S4</a>`: '<div class="text-sm text-slate-400">No links</div>'}
-              </div>
-            </div>` : ''}
-        </div>`;
-    }
+    const renderStakeholders = () => {
+        const stakeholdersContainer = document.getElementById('stakeholders-container');
+        const addStakeholderSelect = document.getElementById('add-stakeholder-select');
+        const createStakeholderCard = (stakeholder) => `
+            <div id="stakeholder-${stakeholder.id}" class="stakeholder-card flex items-center justify-between p-3 bg-slate-50 rounded-lg border" data-id="${stakeholder.id}">
+                <div>
+                    <p class="font-semibold text-slate-800">${sanitize(stakeholder.name)}</p>
+                    <p class="text-sm text-slate-500">${sanitize(stakeholder.title)}</p>
+                </div>
+                <button class="remove-stakeholder-btn text-slate-400 hover:text-red-600" title="Remove">&times;</button>
+            </div>`;
+        stakeholdersContainer.innerHTML = state.stakeholders.map(createStakeholderCard).join('');
+        const unselectedContacts = mockContacts.filter(mc => !state.stakeholders.find(sc => sc.id === mc.id));
+        addStakeholderSelect.innerHTML = '<option value="">+ Select a contact...</option>' + unselectedContacts.map(c => `<option value="${c.id}">${c.name}</option>`).join('') + '<option value="new">Add New Stakeholder...</option>';
+    };
 
-    function renderObjectives(){
-      const cur = $('#objectives-container');
-      cur.innerHTML = state.objectives.map(objectiveCardHTML).join('') || '<p class="text-slate-500 text-center py-4">No active objectives.</p>';
+    const renderMissionGoals = () => {
+        const missionGoalsContainer = document.getElementById('mission-goals-container');
+        const createMissionGoalItem = (goal) => `
+            <div id="mission-goal-${goal.id}" class="mission-goal-item bg-slate-50 p-4 rounded-lg border" data-id="${goal.id}">
+                <div class="flex items-center justify-between">
+                    <input type="text" class="form-input border-emerald-200 bg-emerald-50 text-base font-semibold text-slate-800 p-2" data-role="goal-title" value="${sanitize(goal.title)}" placeholder="Goal title">
+                    <button class="remove-mission-goal-btn text-slate-400 hover:text-red-600" title="Remove">&times;</button>
+                </div>
+                <textarea class="form-textarea bordered-textarea mt-2 text-sm" data-role="goal-description" rows="3" placeholder="Goal description...">${sanitize(goal.description)}</textarea>
+                <div class="custom-fields-container mt-2 space-y-2">
+                    ${(goal.customFields || []).map(field => `
+                        <div class="flex items-center gap-2" data-field-id="${field.id}">
+                            <input type="text" class="form-input text-xs font-semibold custom-field-label-input bg-cyan-50 border-cyan-200" data-role="field-label" value="${sanitize(field.label)}" placeholder="Field name">
+                            <input type="text" class="form-input text-xs custom-field-value-input bg-amber-50 border-amber-200" data-role="field-value" value="${sanitize(field.value)}" placeholder="https://link">
+                            <button class="open-custom-field-link-btn tag tag-emerald" title="Open link">Open</button>
+                            <button class="remove-custom-field-btn text-slate-400 hover:text-red-600" title="Remove Field">&times;</button>
+                        </div>
+                    `).join('')}
+                </div>
+                <button class="add-custom-field-btn text-xs font-semibold text-cyan-600 hover:text-cyan-800 mt-2">+ Add Custom Field</button>
+            </div>`;
+        missionGoalsContainer.innerHTML = state.missionGoals.map(createMissionGoalItem).join('');
+    };
 
-      const past = $('#past-objectives-container');
-      past.innerHTML = state.pastObjectives.map(objectiveCardHTML).join('');
-      $('#no-past-objectives').classList.toggle('hidden', state.pastObjectives.length!==0);
-    }
+    const renderAll = () => {
+        renderObjectives();
+        renderValueRealized();
+        renderStakeholders();
+        renderMissionGoals();
+    };
 
-    function renderStakeholders(){
-      const c = $('#stakeholders-container');
-      c.innerHTML = state.stakeholders.map(s=>`
-        <div id="stakeholder-${s.id}" class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border" data-id="${s.id}">
-          <div>
-            <p class="font-semibold">${s.name}</p>
-            <p class="text-sm text-slate-500">${s.title}</p>
-          </div>
-          <button class="text-slate-400 hover:text-red-600" data-role="remove-stakeholder">&times;</button>
-        </div>
-      `).join('');
+    // --- MODAL FUNCTIONS ---
+    const openObjectiveDetailsModal = (objective) => {
+        const statusPillClass = getStatusPillClass(objective.status);
+        const content = `<div class="p-8 bg-gradient-to-r from-cyan-800 to-emerald-600 text-white rounded-t-xl">
+                             <div class="flex justify-between items-start">
+                                <div>
+                                    <h2 class="text-3xl font-bold">${sanitize(objective.name)}</h2>
+                                    <div class="flex items-center mt-2 space-x-4">
+                                        <span class="status-pill ${statusPillClass} bg-white/20 text-white">${objective.status}</span>
+                                        <p class="text-cyan-200">Target: ${objective.targetDate || 'Not set'}</p>
+                                    </div>
+                                </div>
+                                <button class="objective-modal-close-btn text-cyan-200 hover:text-white text-3xl" title="Close">&times;</button>
+                            </div>
+                        </div>
+                        <div class="p-8 space-y-6 bg-slate-50 rounded-b-xl">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="bg-white p-4 rounded-lg border"><h4 class="font-semibold text-slate-800">Objective Goal</h4><p class="text-slate-600 mt-1">${sanitize(objective.kpiGoal) || 'Not specified'}</p></div>
+                                <div class="bg-white p-4 rounded-lg border"><h4 class="font-semibold text-slate-800">Next Steps</h4><p class="text-slate-600 mt-1">${sanitize(objective.nextSteps) || 'Not specified'}</p></div>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg border"><h4 class="font-semibold text-slate-800">Risks & Blockers</h4><p class="text-slate-600 mt-1">${sanitize(objective.challenges) || 'None identified'}</p>${objective.s4Link ? `<a href="${objective.s4Link}" target="_blank" class="text-cyan-600 text-sm hover:underline mt-2 inline-block">View in S4</a>` : ''}</div>
+                        </div>`;
+        objectiveModal.open(content);
+    };
 
-      const sel = $('#add-stakeholder-select');
-      const unselected = mockContacts.filter(mc => !state.stakeholders.find(sc=>sc.id===mc.id));
-      sel.innerHTML = '<option value="">+ Select a contact...</option>' + unselected.map(c=>`<option value="${c.id}">${c.name}</option>`).join('') + '<option value="new">Add New Stakeholder...</option>';
-    }
+    const openAddObjectiveModal = () => {
+        const content = `<div class="p-8">
+                            <h3 class="text-xl font-semibold text-slate-900 mb-6">Add New Objective</h3>
+                            <div class="space-y-4">
+                                <div><label class="form-label">Objective</label>
+                                    <select id="new-objective-name" class="form-select">
+                                        ${objectiveOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                                        <option value="custom">Create a new objective...</option>
+                                    </select>
+                                    <input type="text" id="new-objective-custom-name" class="form-input mt-2 hidden" placeholder="Enter custom objective name">
+                                </div>
+                                <div><label class="form-label">Target Date</label><input type="date" id="new-objective-date" class="form-input"></div>
+                                <div><label class="form-label">Objective Goal (KPI)</label><textarea id="new-objective-goal" class="form-textarea objective-editor-cyan" rows="4" placeholder="e.g., Increase by 10%"></textarea></div>
+                                <div><label class="form-label">Challenges</label><textarea id="new-objective-challenges" class="form-textarea objective-editor-amber" rows="3" placeholder="Known blockers or risks"></textarea></div>
+                                <div><label class="form-label">Next Steps</label><textarea id="new-objective-steps" class="form-textarea objective-editor-emerald" rows="3" placeholder="Immediate action items"></textarea></div>
+                                <div><label class="form-label">S4 Link</label><input type="text" id="new-objective-s4" class="form-input" placeholder="https://"></div>
+                            </div>
+                            <div class="mt-8 flex justify-end space-x-3">
+                                <button class="objective-modal-close-btn bg-slate-200 text-slate-700 font-semibold px-4 py-2 rounded-lg hover:bg-slate-300">Cancel</button>
+                                <button id="save-new-objective-btn" class="bg-cyan-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-cyan-700">Add Objective</button>
+                            </div>
+                        </div>`;
+        objectiveModal.open(content, 'max-w-2xl');
+    };
 
-    function renderAll(){
-      renderMissionGoals();
-      renderValue();
-      renderObjectives();
-      renderStakeholders();
-    }
+    const openEditObjectiveModal = (objective) => {
+        state.editingObjectiveId = objective.id;
+        const content = `<div class="p-8">
+                            <h3 class="text-xl font-semibold text-slate-900 mb-6">Edit Objective</h3>
+                            <div class="space-y-4">
+                                <div><label class="form-label">Objective Name</label><input type="text" id="edit-objective-name" class="form-input" value="${sanitize(objective.name)}"></div>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                    <div><label class="form-label">Target Date</label><input type="date" id="edit-objective-date" class="form-input" value="${objective.targetDate || ''}"></div>
+                                    <div><label class="form-label">Status</label>
+                                        <select id="edit-objective-status" class="form-select">
+                                            <option ${objective.status==='Not Started'?'selected':''}>Not Started</option>
+                                            <option ${objective.status==='In Progress'?'selected':''}>In Progress</option>
+                                            <option ${objective.status==='At Risk'?'selected':''}>At Risk</option>
+                                            <option ${objective.status==='Completed'?'selected':''}>Completed</option>
+                                        </select>
+                                    </div>
+                                    <div><label class="form-label">S4 Link</label><input type="text" id="edit-objective-s4" class="form-input" value="${sanitize(objective.s4Link || '')}" placeholder="https://"></div>
+                                </div>
+                                <div><label class="form-label">Objective Goal (KPI)</label><textarea id="edit-objective-goal" class="form-textarea objective-editor-cyan" rows="4" placeholder="e.g., Increase by 10%">${sanitize(objective.kpiGoal || '')}</textarea></div>
+                                <div><label class="form-label">Challenges</label><textarea id="edit-objective-challenges" class="form-textarea objective-editor-amber" rows="3" placeholder="Known blockers or risks">${sanitize(objective.challenges || '')}</textarea></div>
+                                <div><label class="form-label">Next Steps</label><textarea id="edit-objective-steps" class="form-textarea objective-editor-emerald" rows="3" placeholder="Immediate action items">${sanitize(objective.nextSteps || '')}</textarea></div>
+                            </div>
+                            <div class="mt-8 flex justify-end space-x-3">
+                                <button class="objective-modal-close-btn bg-slate-200 text-slate-700 font-semibold px-4 py-2 rounded-lg hover:bg-slate-300">Cancel</button>
+                                <button id="save-edit-objective-btn" class="bg-cyan-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-cyan-700">Save Changes</button>
+                            </div>
+                        </div>`;
+        objectiveModal.open(content, 'max-w-3xl');
+    };
+    
+    const openValueModal = (valueItem) => {
+        state.editingValueId = valueItem.id;
+        valueModal.open(`<div class="p-6">
+                            <h3 class="text-lg font-semibold text-slate-900 mb-4">Edit Value Description</h3>
+                            <textarea id="value-description-input" class="form-textarea w-full objective-editor-emerald" rows="6">${sanitize(valueItem.description)}</textarea>
+                            <div class="mt-4 flex justify-end space-x-2">
+                                <button id="value-modal-cancel-btn" class="bg-slate-200 text-slate-700 font-semibold px-4 py-2 rounded-lg hover:bg-slate-300">Cancel</button>
+                                <button id="value-modal-save-btn" class="bg-cyan-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-cyan-700">Save</button>
+                            </div>
+                        </div>`, 'max-w-lg');
+    };
 
-    // ---------- Event wiring ----------
-    function setupEvents(){
-      const app = $('#app');
+    // --- HANDLER FUNCTIONS ---
+    const handleAddObjective = (name, date, goal, steps, challenges, s4Link) => {
+        const title = (name === 'custom') ? '' : name;
+        state.objectives.unshift({
+            id: Date.now(), name: title || 'New Objective', targetDate: date || '', status: 'Not Started', view: 'quarterly',
+            challenges: challenges || '', s4Link: s4Link || '', kpiGoal: goal || '', nextSteps: steps || ''
+        });
+        renderObjectives();
+        objectiveModal.close();
+    };
+    
+    const handleAddValue = () => {
+        state.valueRealized.push({ id: Date.now(), type: 'Time Savings', description: '', date: '', link: '' });
+        renderValueRealized();
+    };
 
-      // Global clicks
-      app.addEventListener('click', (e)=>{
-        const card = e.target.closest('[data-id]');
+    const handleAddMissionGoal = () => {
+        state.missionGoals.push({ id: Date.now(), title: 'New Goal', description: '', customFields: [] });
+        renderMissionGoals();
+    };
 
-        if (e.target.id === 'add-mission-goal-btn'){
-          state.missionGoals.push({id:Date.now(), title:'New Goal', description:'', customFields:[]});
-          renderMissionGoals();
+    const handleAddStakeholder = (id) => {
+        const contactToAdd = mockContacts.find(c => c.id === id);
+        if (contactToAdd && !state.stakeholders.find(sc => sc.id === id)) {
+            state.stakeholders.push(contactToAdd);
+            renderStakeholders();
         }
+    };
+    
+    const handleRemove = (id, list, cardSelector, renderFunc) => {
+        const card = document.getElementById(`${cardSelector}-${id}`);
+        if (card) {
+            card.classList.add('removing');
+            setTimeout(() => {
+                const index = list.findIndex(item => item.id === id);
+                if (index > -1) list.splice(index, 1);
+                renderFunc();
+            }, 300);
+        }
+    };
 
-        if (e.target.id === 'add-value-btn'){
-          state.valueRealized.push({id:Date.now(), type:'Time Savings', description:'', date:'', link:''});
-          renderValue();
-        }
+    const handleStatusChange = (id, newStatus) => {
+        const objectiveIndex = state.objectives.findIndex(obj => obj.id === id);
+        if (objectiveIndex === -1) return;
+        const objective = state.objectives[objectiveIndex];
+        objective.status = newStatus;
 
-        if (e.target.id === 'add-objective-btn'){
-          const id = Date.now();
-          state.objectives.unshift({ id, name:'New Objective', targetDate:'', status:'Not Started', kpiGoal:'', challenges:'', nextSteps:'', s4Link:'', editing:true, expanded:true });
-          renderObjectives();
-        }
-
-        // Value list actions
-        if (e.target.matches('[data-role="remove-value"]')){
-          const id = Number(e.target.closest('[data-id]').dataset.id);
-          const i = state.valueRealized.findIndex(v=>v.id===id);
-          if (i>-1){ state.valueRealized.splice(i,1); renderValue(); }
-        }
-
-        // Mission goal actions
-        if (e.target.matches('[data-role="remove-goal"]')){
-          const id = Number(card.dataset.id);
-          const i = state.missionGoals.findIndex(g=>g.id===id);
-          if (i>-1){ state.missionGoals.splice(i,1); renderMissionGoals(); }
-        }
-        if (e.target.matches('[data-role="add-cf"]')){
-          const id = Number(card.dataset.id);
-          const g = state.missionGoals.find(x=>x.id===id);
-          if (!g.customFields) g.customFields = [];
-          g.customFields.push({id:Date.now()+Math.random(), label:'Field', value:''});
-          renderMissionGoals();
-        }
-        if (e.target.matches('[data-role="remove-cf"]')){
-          const id = Number(card.dataset.id);
-          const fieldWrap = e.target.closest('[data-field-id]');
-          const fid = Number(fieldWrap.dataset.fieldId);
-          const g = state.missionGoals.find(x=>x.id===id);
-          g.customFields = (g.customFields||[]).filter(f=>f.id!==fid);
-          renderMissionGoals();
-        }
-
-        // Objective actions
-        if (e.target.matches('[data-role="edit"]')){
-          const id = Number(card.dataset.id);
-          const o = state.objectives.find(x=>x.id===id) || state.pastObjectives.find(x=>x.id===id);
-          if (o){ o.editing = true; renderObjectives(); }
-        }
-        if (e.target.matches('[data-role="cancel-edit"]')){
-          const id = Number(card.dataset.id);
-          const o = state.objectives.find(x=>x.id===id) || state.pastObjectives.find(x=>x.id===id);
-          if (o){ o.editing = false; renderObjectives(); }
-        }
-        if (e.target.matches('[data-role="save-edit"]')){
-          const id = Number(card.dataset.id);
-          const wrap = card;
-          const o = state.objectives.find(x=>x.id===id);
-          if (o){
-            o.name = $('[data-role="edit-name"]', wrap).value.trim() || o.name;
-            o.status = $('[data-role="edit-status"]', wrap).value;
-            o.targetDate = $('[data-role="edit-date"]', wrap).value;
-            o.kpiGoal = $('[data-role="edit-kpi"]', wrap).value;
-            o.challenges = $('[data-role="edit-challenges"]', wrap).value;
-            o.nextSteps = $('[data-role="edit-steps"]', wrap).value;
-            o.s4Link = $('[data-role="edit-link"]', wrap).value;
-            o.editing = false;
+        if (newStatus === 'Completed') {
+            const card = document.getElementById(`objective-${id}`);
+            if (card) {
+                card.classList.add('removing');
+                setTimeout(() => {
+                    const [completedObjective] = state.objectives.splice(objectiveIndex, 1);
+                    state.pastObjectives.unshift(completedObjective);
+                    renderObjectives();
+                }, 300);
+            }
+        } else {
             renderObjectives();
-          }
         }
-        if (e.target.matches('[data-role="toggle-expand"]')){
-          const id = Number(card.dataset.id);
-          const o = state.objectives.find(x=>x.id===id);
-          if (o){ o.expanded = !o.expanded; renderObjectives(); }
-        }
-        if (e.target.matches('[data-role="remove-stakeholder"]')){
-          const id = Number(card.dataset.id);
-          state.stakeholders = state.stakeholders.filter(s=>s.id!==id);
-          renderStakeholders();
-        }
-      });
+    };
 
-      // Global changes
-      app.addEventListener('change', (e)=>{
-        // quick date change on objective card
-        if (e.target.matches('[data-role="quick-date"]')){
-          const id = Number(e.target.closest('[data-id]').dataset.id);
-          const o = state.objectives.find(x=>x.id===id);
-          if (o){ o.targetDate = e.target.value; renderObjectives(); }
-        }
+    const updateMissionGoalField = (goalId, fieldId, key, value) => {
+        const goal = state.missionGoals.find(g => g.id === goalId);
+        if (!goal) return;
+        const field = (goal.customFields || []).find(f => f.id === fieldId);
+        if (!field) return;
+        field[key] = value;
+    };
 
-        // mission goal inline edits
-        if (e.target.matches('[data-role="goal-title"]')){
-          const id = Number(e.target.closest('[data-id]').dataset.id);
-          const g = state.missionGoals.find(x=>x.id===id); if (g) g.title = e.target.value;
-        }
-        if (e.target.matches('[data-role="goal-desc"]')){
-          const id = Number(e.target.closest('[data-id]').dataset.id);
-          const g = state.missionGoals.find(x=>x.id===id); if (g) g.description = e.target.value;
-        }
-        if (e.target.matches('[data-role="cf-label"], [data-role="cf-value"]')){
-          const id = Number(e.target.closest('[data-id]').dataset.id);
-          const fid = Number(e.target.closest('[data-field-id]').dataset.fieldId);
-          const g = state.missionGoals.find(x=>x.id===id);
-          const f = (g.customFields||[]).find(y=>y.id===fid);
-          if (f){
-            if (e.target.dataset.role==='cf-label') f.label = e.target.value;
-            if (e.target.dataset.role==='cf-value') f.value = e.target.value;
-          }
-        }
+    // --- EVENT LISTENERS SETUP ---
+    const setupEventListeners = () => {
+        app.addEventListener('click', (e) => {
+            if (e.target.closest('#add-objective-btn')) {
+                openAddObjectiveModal();
+            } else if (e.target.closest('#add-value-btn')) {
+                handleAddValue();
+            } else if (e.target.closest('#add-mission-goal-btn')) {
+                handleAddMissionGoal();
+            } else if (e.target.closest('.remove-value-btn')) {
+                const id = parseInt(e.target.closest('.value-item').dataset.id, 10);
+                handleRemove(id, state.valueRealized, 'value', renderValueRealized);
+            } else if (e.target.closest('.remove-stakeholder-btn')) {
+                const id = parseInt(e.target.closest('.stakeholder-card').dataset.id, 10);
+                handleRemove(id, state.stakeholders, 'stakeholder', renderStakeholders);
+            } else if (e.target.closest('.view-details-btn')) {
+                const id = parseInt(e.target.closest('.objective-card').dataset.id, 10);
+                const objective = state.objectives.find(o => o.id === id) || state.pastObjectives.find(o => o.id === id);
+                if (objective) openObjectiveDetailsModal(objective);
+            } else if (e.target.closest('.edit-description-btn') || e.target.closest('.description-preview')) {
+                const id = parseInt(e.target.closest('.value-item').dataset.id, 10);
+                const valueItem = state.valueRealized.find(v => v.id === id);
+                if (valueItem) openValueModal(valueItem);
+            } else if (e.target.closest('.remove-mission-goal-btn')) {
+                const id = parseInt(e.target.closest('.mission-goal-item').dataset.id, 10);
+                handleRemove(id, state.missionGoals, 'mission-goal', renderMissionGoals);
+            } else if (e.target.closest('.cycle-view-btn')) {
+                const card = e.target.closest('.objective-card');
+                const id = parseInt(card.dataset.id, 10);
+                const objective = state.objectives.find(o => o.id === id);
+                if (objective) {
+                    const currentIndex = timePeriods.indexOf(objective.view);
+                    objective.view = timePeriods[(currentIndex + 1) % timePeriods.length];
+                    renderObjectives();
+                }
+            } else if (e.target.closest('.edit-objective-btn')) {
+                const id = parseInt(e.target.closest('.objective-card').dataset.id, 10);
+                const objective = state.objectives.find(o => o.id === id);
+                if (objective) openEditObjectiveModal(objective);
+            } else if (e.target.closest('.add-custom-field-btn')) {
+                const goalEl = e.target.closest('.mission-goal-item');
+                const goalId = parseInt(goalEl.dataset.id, 10);
+                const goal = state.missionGoals.find(g => g.id === goalId);
+                if (!goal) return;
+                if (!goal.customFields) goal.customFields = [];
+                goal.customFields.push({ id: Date.now() + Math.floor(Math.random()*1000), label: '', value: '' });
+                renderMissionGoals();
+            } else if (e.target.closest('.remove-custom-field-btn')) {
+                const wrapper = e.target.closest('[data-field-id]');
+                const fieldId = parseInt(wrapper.dataset.fieldId, 10);
+                const goalId = parseInt(e.target.closest('.mission-goal-item').dataset.id, 10);
+                const goal = state.missionGoals.find(g => g.id === goalId);
+                if (!goal) return;
+                goal.customFields = (goal.customFields || []).filter(f => f.id !== fieldId);
+                renderMissionGoals();
+            } else if (e.target.closest('.open-custom-field-link-btn')) {
+                const container = e.target.closest('[data-field-id]');
+                const linkInput = container.querySelector('[data-role="field-value"]');
+                let url = (linkInput?.value || '').trim();
+                if (!url) return;
+                if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+                window.open(url, '_blank');
+            }
+        });
+        
+        app.addEventListener('input', (e) => {
+            // Mission goal inline edits
+            const goalItem = e.target.closest('.mission-goal-item');
+            if (goalItem) {
+                const goalId = parseInt(goalItem.dataset.id, 10);
+                const goal = state.missionGoals.find(g => g.id === goalId);
+                if (!goal) return;
+                const role = e.target.getAttribute('data-role');
+                if (role === 'goal-title') {
+                    goal.title = e.target.value;
+                } else if (role === 'goal-description') {
+                    goal.description = e.target.value;
+                } else if (role === 'field-label' || role === 'field-value') {
+                    const fieldId = parseInt(e.target.closest('[data-field-id]').dataset.fieldId, 10);
+                    updateMissionGoalField(goalId, fieldId, role === 'field-label' ? 'label' : 'value', e.target.value);
+                }
+            }
+            // Value realized inline edits
+            if (e.target.classList.contains('value-type-select')) {
+                const id = parseInt(e.target.closest('.value-item').dataset.id, 10);
+                const item = state.valueRealized.find(v => v.id === id);
+                if (item) item.type = e.target.value;
+            } else if (e.target.classList.contains('value-date-input')) {
+                const id = parseInt(e.target.closest('.value-item').dataset.id, 10);
+                const item = state.valueRealized.find(v => v.id === id);
+                if (item) item.date = e.target.value;
+            } else if (e.target.classList.contains('value-link-input')) {
+                const id = parseInt(e.target.closest('.value-item').dataset.id, 10);
+                const item = state.valueRealized.find(v => v.id === id);
+                if (item) item.link = e.target.value;
+            }
+        });
+        
+        document.getElementById('add-stakeholder-select').addEventListener('change', (e) => {
+            const val = e.target.value;
+            if (val === 'new') {
+                // Simple prompt flow for demo
+                const name = prompt('Enter stakeholder name');
+                const title = prompt('Enter stakeholder title');
+                if (name) {
+                    const newStakeholder = { id: Date.now(), name, title: title || '' };
+                    state.stakeholders.push(newStakeholder);
+                    renderStakeholders();
+                }
+                e.target.value = '';
+                return;
+            }
+            const selectedId = parseInt(val, 10);
+            if (selectedId) {
+                handleAddStakeholder(selectedId);
+                e.target.value = '';
+            }
+        });
 
-        // Value edits
-        if (e.target.closest('#value-container')){
-          const wrap = e.target.closest('[data-id]');
-          const id = wrap ? Number(wrap.dataset.id) : null;
-          const it = state.valueRealized.find(v=>v.id===id);
-          if (!it) return;
-          if (e.target.dataset.role==='value-desc') it.description = e.target.value;
-          if (e.target.dataset.role==='value-date') it.date = e.target.value;
-          if (e.target.dataset.role==='value-link') it.link = e.target.value;
-          if (e.target.classList.contains('value-type-select')) it.type = e.target.value;
-        }
-      });
+        objectiveModal.overlay.addEventListener('click', (e) => {
+            if (e.target === objectiveModal.overlay || e.target.closest('.objective-modal-close-btn')) {
+                objectiveModal.close();
+                return;
+            }
+            if (e.target.id === 'save-new-objective-btn') {
+                const nameSelect = document.getElementById('new-objective-name');
+                let name = nameSelect.value;
+                if (name === 'custom') {
+                    name = document.getElementById('new-objective-custom-name').value;
+                }
+                const date = document.getElementById('new-objective-date').value;
+                const goal = document.getElementById('new-objective-goal').value;
+                const steps = document.getElementById('new-objective-steps').value;
+                const challenges = document.getElementById('new-objective-challenges').value;
+                const s4 = document.getElementById('new-objective-s4').value;
+                handleAddObjective(name, date, goal, steps, challenges, s4);
+            } else if (e.target.id === 'save-edit-objective-btn') {
+                const id = state.editingObjectiveId;
+                const objective = state.objectives.find(o => o.id === id);
+                if (!objective) return;
+                objective.name = document.getElementById('edit-objective-name').value;
+                objective.targetDate = document.getElementById('edit-objective-date').value;
+                objective.status = document.getElementById('edit-objective-status').value;
+                objective.s4Link = document.getElementById('edit-objective-s4').value;
+                objective.kpiGoal = document.getElementById('edit-objective-goal').value;
+                objective.challenges = document.getElementById('edit-objective-challenges').value;
+                objective.nextSteps = document.getElementById('edit-objective-steps').value;
+                renderObjectives();
+                objectiveModal.close();
+            }
+        });
 
-      // Stakeholder add select
-      $('#add-stakeholder-select').addEventListener('change', (e)=>{
-        const id = Number(e.target.value);
-        if (id){
-          const pick = mockContacts.find(c=>c.id===id);
-          if (pick && !state.stakeholders.find(s=>s.id===id)) state.stakeholders.push(pick);
-          renderStakeholders();
-          e.target.value = '';
-        }
-      });
-    }
+        objectiveModal.overlay.addEventListener('change', (e) => {
+            if (e.target.id === 'new-objective-name') {
+                const showCustom = e.target.value === 'custom';
+                const customInput = document.getElementById('new-objective-custom-name');
+                if (customInput) customInput.classList.toggle('hidden', !showCustom);
+            }
+        });
+        
+        valueModal.overlay.addEventListener('click', (e) => {
+            if (e.target === valueModal.overlay || e.target.closest('#value-modal-cancel-btn')) {
+                valueModal.close();
+                return;
+            }
+            if (e.target.id === 'value-modal-save-btn') {
+                const item = state.valueRealized.find(v => v.id === state.editingValueId);
+                if (item) {
+                    item.description = document.getElementById('value-description-input').value;
+                    renderValueRealized();
+                    valueModal.close();
+                }
+            }
+        });
 
-    // ---------- Init ----------
+        app.addEventListener('change', (e) => {
+            if (e.target.classList.contains('status-select')) {
+                const id = parseInt(e.target.closest('.objective-card').dataset.id, 10);
+                handleStatusChange(id, e.target.value);
+            } else if (e.target.classList.contains('objective-target-date')) {
+                const id = parseInt(e.target.closest('.objective-card').dataset.id, 10);
+                const objective = state.objectives.find(o => o.id === id);
+                if (objective) {
+                    objective.targetDate = e.target.value;
+                    renderObjectives(); // Re-render to update health status
+                }
+            }
+        });
+    };
+
+    // --- INITIAL RENDER & SETUP ---
     renderAll();
-    setupEvents();
-  </script>
+    setupEventListeners();
+});
+</script>
 </body>
 </html>
