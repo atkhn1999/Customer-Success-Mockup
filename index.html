@@ -6,7 +6,6 @@
   <title>Customer Success Plan - Responsive Platform</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1950,27 +1949,297 @@
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
         
-        // Add content
-        doc.setFontSize(20);
-        doc.text('Customer Success Plan - Responsive Platform', 20, 20);
+        // Define theme colors
+        const colors = {
+          primary: [20, 184, 166], // Teal
+          primaryDark: [13, 148, 136],
+          text: [17, 24, 39],
+          textSecondary: [107, 114, 128],
+          background: [249, 250, 251],
+          success: [16, 185, 129],
+          warning: [245, 158, 11],
+          danger: [239, 68, 68],
+          border: [229, 231, 235]
+        };
+        
+        // Page setup
+        const pageWidth = 210;
+        const pageHeight = 297;
+        const margin = 15;
+        const contentWidth = pageWidth - (margin * 2);
+        let y = margin;
+        
+        // Header with gradient background
+        doc.setFillColor(...colors.primary);
+        doc.rect(0, 0, pageWidth, 35, 'F');
+        
+        // Company logo placeholder
+        doc.setFillColor(255, 255, 255);
+        doc.circle(margin + 8, 17.5, 7, 'F');
+        
+        // Title
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(18);
+        doc.setFont(undefined, 'bold');
+        doc.text('Customer Success Plan', margin + 20, 15);
         
         doc.setFontSize(12);
-        doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 30);
+        doc.setFont(undefined, 'normal');
+        doc.text(state.customerName, margin + 20, 22);
         
-        // Add sections
-        let y = 50;
-        
-        // Mission Summary
-        doc.setFontSize(14);
-        doc.text('Mission Summary', 20, y);
-        y += 10;
+        // Date
         doc.setFontSize(10);
-        const summaryLines = doc.splitTextToSize(state.missionSummary || 'Not defined', 170);
-        doc.text(summaryLines, 20, y);
-        y += summaryLines.length * 5 + 10;
+        doc.text(`Generated: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`, pageWidth - margin - 50, 20);
+        
+        y = 45;
+        
+        // Mission Summary Section
+        doc.setTextColor(...colors.text);
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'bold');
+        doc.text('Mission Summary', margin, y);
+        y += 8;
+        
+        doc.setFontSize(9);
+        doc.setFont(undefined, 'normal');
+        doc.setTextColor(...colors.textSecondary);
+        const summaryLines = doc.splitTextToSize(state.missionSummary || 'No mission summary defined', contentWidth);
+        doc.text(summaryLines, margin, y);
+        y += summaryLines.length * 4 + 8;
+        
+        // Two-column layout for Goals and Value Realized
+        const colWidth = (contentWidth - 10) / 2;
+        const col1X = margin;
+        const col2X = margin + colWidth + 10;
+        let col1Y = y;
+        let col2Y = y;
+        
+        // Mission Goals (Left Column)
+        doc.setTextColor(...colors.text);
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'bold');
+        doc.text('Mission Goals', col1X, col1Y);
+        col1Y += 6;
+        
+        if (state.missionGoals.length > 0) {
+          state.missionGoals.forEach((goal, idx) => {
+            // Goal box
+            doc.setFillColor(...colors.background);
+            doc.setDrawColor(...colors.border);
+            doc.roundedRect(col1X, col1Y, colWidth, 22, 2, 2, 'FD');
+            
+            // Goal title
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(...colors.primaryDark);
+            doc.text(goal.title, col1X + 3, col1Y + 5);
+            
+            // Goal description
+            doc.setFontSize(8);
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(...colors.textSecondary);
+            const descLines = doc.splitTextToSize(goal.description, colWidth - 6);
+            doc.text(descLines.slice(0, 2), col1X + 3, col1Y + 10);
+            
+            col1Y += 25;
+          });
+        } else {
+          doc.setFontSize(8);
+          doc.setTextColor(...colors.textSecondary);
+          doc.text('No goals defined', col1X, col1Y + 5);
+          col1Y += 10;
+        }
+        
+        // Value Realized (Right Column)
+        doc.setTextColor(...colors.text);
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'bold');
+        doc.text('Value Realized', col2X, col2Y);
+        col2Y += 6;
+        
+        if (state.valueRealized.length > 0) {
+          state.valueRealized.forEach((value, idx) => {
+            // Value box
+            doc.setFillColor(...colors.background);
+            doc.setDrawColor(...colors.border);
+            doc.roundedRect(col2X, col2Y, colWidth, 22, 2, 2, 'FD');
+            
+            // Value icon based on type
+            const iconColor = value.type.includes('Savings') || value.type.includes('Reduction') ? colors.success : 
+                            value.type.includes('Increase') ? colors.primary : colors.warning;
+            doc.setFillColor(...iconColor);
+            doc.circle(col2X + 5, col2Y + 11, 2, 'F');
+            
+            // Value type
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(...colors.text);
+            doc.text(value.type, col2X + 10, col2Y + 5);
+            
+            // Value description
+            doc.setFontSize(8);
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(...colors.textSecondary);
+            const valueLines = doc.splitTextToSize(value.description, colWidth - 13);
+            doc.text(valueLines.slice(0, 2), col2X + 10, col2Y + 10);
+            
+            // Date
+            doc.setFontSize(7);
+            doc.text(new Date(value.date).toLocaleDateString(), col2X + colWidth - 25, col2Y + 19);
+            
+            col2Y += 25;
+          });
+        } else {
+          doc.setFontSize(8);
+          doc.setTextColor(...colors.textSecondary);
+          doc.text('No value realized yet', col2X, col2Y + 5);
+          col2Y += 10;
+        }
+        
+        // Set y to the max of both columns
+        y = Math.max(col1Y, col2Y) + 10;
+        
+        // Current Objectives Section
+        doc.setTextColor(...colors.text);
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'bold');
+        doc.text('Current Objectives', margin, y);
+        y += 8;
+        
+        if (state.objectives.length > 0) {
+          state.objectives.forEach((obj, idx) => {
+            // Objective card
+            const cardHeight = obj.kpis && obj.kpis.length > 0 ? 30 + (obj.kpis.length * 8) : 30;
+            doc.setFillColor(...colors.background);
+            doc.setDrawColor(...colors.border);
+            doc.roundedRect(margin, y, contentWidth, cardHeight, 3, 3, 'FD');
+            
+            // Status indicator
+            const statusColor = obj.status === 'Completed' ? colors.success : 
+                              obj.status === 'In Progress' ? colors.primary : 
+                              colors.textSecondary;
+            doc.setFillColor(...statusColor);
+            doc.circle(margin + 5, y + 5, 2, 'F');
+            
+            // Objective name
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(...colors.text);
+            doc.text(obj.name, margin + 10, y + 6);
+            
+            // Target date
+            doc.setFontSize(8);
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(...colors.textSecondary);
+            doc.text(`Target: ${new Date(obj.targetDate).toLocaleDateString()}`, contentWidth - 20, y + 6);
+            
+            // Description
+            doc.setFontSize(8);
+            const descLines = doc.splitTextToSize(obj.description, contentWidth - 10);
+            doc.text(descLines.slice(0, 2), margin + 5, y + 12);
+            
+            // KPIs
+            if (obj.kpis && obj.kpis.length > 0) {
+              let kpiY = y + 20;
+              obj.kpis.forEach(kpi => {
+                const type = getKPIType(kpi.typeKey);
+                const delta = calculateDelta(kpi.currentValue, kpi.previousValue);
+                const deltaNum = parseFloat(delta);
+                const isPositive = type.higherIsBetter ? deltaNum >= 0 : deltaNum <= 0;
+                
+                // KPI name
+                doc.setFontSize(8);
+                doc.setFont(undefined, 'normal');
+                doc.setTextColor(...colors.textSecondary);
+                doc.text(`• ${type.label}:`, margin + 10, kpiY);
+                
+                // Current value
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(...colors.text);
+                doc.text(`${kpi.currentValue}${type.unit}`, margin + 60, kpiY);
+                
+                // Delta
+                if (kpi.comparePrevious && kpi.previousValue !== undefined) {
+                  doc.setTextColor(...(isPositive ? colors.success : colors.danger));
+                  doc.text(`${delta > 0 ? '+' : ''}${delta}%`, margin + 80, kpiY);
+                }
+                
+                kpiY += 8;
+              });
+            }
+            
+            y += cardHeight + 5;
+          });
+        } else {
+          doc.setFontSize(9);
+          doc.setTextColor(...colors.textSecondary);
+          doc.text('No current objectives defined', margin, y + 5);
+          y += 15;
+        }
+        
+        // Key Stakeholders Section (if space permits)
+        if (y < pageHeight - 60) {
+          doc.setTextColor(...colors.text);
+          doc.setFontSize(14);
+          doc.setFont(undefined, 'bold');
+          doc.text('Key Stakeholders', margin, y);
+          y += 8;
+          
+          if (state.stakeholders.length > 0) {
+            // Create a row of stakeholder badges
+            let xPos = margin;
+            state.stakeholders.slice(0, 4).forEach((stakeholder, idx) => {
+              const badgeWidth = 45;
+              
+              // Badge background
+              doc.setFillColor(...colors.background);
+              doc.setDrawColor(...colors.border);
+              doc.roundedRect(xPos, y, badgeWidth, 20, 2, 2, 'FD');
+              
+              // Initials circle
+              doc.setFillColor(...colors.primary);
+              doc.circle(xPos + 8, y + 10, 6, 'F');
+              doc.setTextColor(255, 255, 255);
+              doc.setFontSize(8);
+              doc.setFont(undefined, 'bold');
+              const initials = stakeholder.name.split(' ').map(n => n[0]).join('');
+              doc.text(initials, xPos + 5, y + 12);
+              
+              // Name
+              doc.setTextColor(...colors.text);
+              doc.setFontSize(7);
+              doc.setFont(undefined, 'normal');
+              const firstName = stakeholder.name.split(' ')[0];
+              doc.text(firstName, xPos + 16, y + 8);
+              
+              // Role
+              doc.setTextColor(...colors.textSecondary);
+              doc.setFontSize(6);
+              const shortTitle = stakeholder.title.length > 20 ? stakeholder.title.substring(0, 17) + '...' : stakeholder.title;
+              doc.text(shortTitle, xPos + 16, y + 13);
+              
+              xPos += badgeWidth + 5;
+            });
+            
+            if (state.stakeholders.length > 4) {
+              doc.setFontSize(8);
+              doc.setTextColor(...colors.textSecondary);
+              doc.text(`+${state.stakeholders.length - 4} more`, xPos, y + 10);
+            }
+          }
+        }
+        
+        // Footer
+        doc.setFillColor(...colors.primary);
+        doc.rect(0, pageHeight - 15, pageWidth, 15, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(8);
+        doc.text('Responsive Platform - Customer Success', margin, pageHeight - 8);
+        doc.text(`Products: ${state.products.join(', ')}`, pageWidth - margin - 60, pageHeight - 8);
         
         // Save
-        doc.save('customer-success-plan-responsive.pdf');
+        const filename = `${state.customerName.replace(/\s+/g, '-').toLowerCase()}-success-plan-${new Date().toISOString().split('T')[0]}.pdf`;
+        doc.save(filename);
         showNotification('PDF exported successfully', 'success');
       } catch (error) {
         showNotification('PDF export failed. Please try again.', 'error');
