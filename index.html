@@ -535,14 +535,28 @@
         </div>
         <div class="flex flex-col md:flex-row items-start md:items-center gap-4">
           <p class="text-teal-50/90 text-sm font-light whitespace-nowrap">Last updated: <span id="last-updated-date"></span></p>
-          <div class="flex items-center gap-3">
-            <button id="export-excel-btn" class="btn btn-header" aria-label="Export to Excel">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M13 7h-2v4H9v2h2v4h2v-4h4v-2h-4V7zm-8 6h4v2H5v-2z"/></svg>
-              Export Excel
+          <div class="flex flex-wrap items-center gap-3">
+            <button id="import-data-btn" class="btn btn-header group relative overflow-hidden" aria-label="Import Data">
+              <span class="absolute inset-0 bg-gradient-to-r from-teal-400 to-teal-600 opacity-0 group-hover:opacity-20 transition-opacity"></span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform group-hover:scale-110" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 4.414V13a1 1 0 11-2 0V4.414L6.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+              </svg>
+              <span class="relative z-10">Import Data</span>
             </button>
-            <button id="export-pdf-btn" class="btn btn-primary flex items-center" aria-label="Export to PDF">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>
-              Export PDF
+            <button id="export-excel-btn" class="btn btn-header group relative overflow-hidden" aria-label="Generate Excel Report">
+              <span class="absolute inset-0 bg-gradient-to-r from-emerald-400 to-emerald-600 opacity-0 group-hover:opacity-20 transition-opacity"></span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
+                <path d="M8 13h2v2H8zm0 3h2v2H8zm3-3h2v2h-2zm0 3h2v2h-2zm3-3h2v2h-2zm0 3h2v2h-2z"/>
+              </svg>
+              <span class="relative z-10">Generate Excel Report</span>
+            </button>
+            <button id="export-pdf-btn" class="btn btn-primary group relative overflow-hidden shadow-lg hover:shadow-xl transform transition-all hover:-translate-y-0.5" aria-label="Generate PDF Report">
+              <span class="absolute inset-0 bg-gradient-to-r from-teal-600 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity"></span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform group-hover:scale-110 relative z-10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zM9.5 17.5a2.5 2.5 0 115 0c0 .6-.4 1.3-.8 1.9l-1.7 2.1-1.7-2.1c-.4-.6-.8-1.3-.8-1.9zM14 9h-1V2l7 7h-6z"/>
+              </svg>
+              <span class="relative z-10 font-semibold">Generate PDF Report</span>
             </button>
           </div>
         </div>
@@ -1141,9 +1155,7 @@
               <button class="btn btn-ghost btn-sm" onclick="editObjective(${obj.id}, ${isPast})">Edit</button>
               ${!isPast ? `
                 <button class="btn btn-primary btn-sm" onclick="showAddKPIModal(${obj.id})">+ Add KPI</button>
-              ` : `
-                <button class="btn btn-danger btn-sm" onclick="removePastObjective(${obj.id})">Remove</button>
-              `}
+              ` : ''}
             </div>
           </div>
           
@@ -1621,6 +1633,19 @@
           </div>
         </div>
       `, [
+        ...(isPast ? [{ 
+          label: 'Remove', 
+          class: 'btn-danger', 
+          action: () => {
+            if (confirm('Are you sure you want to permanently remove this past objective?')) {
+              state.pastObjectives = state.pastObjectives.filter(o => o.id !== id);
+              renderAll();
+              saveToLocalStorage();
+              closeModal();
+              showNotification('Past objective removed', 'success');
+            }
+          }
+        }] : []),
         { label: 'Cancel', class: 'btn-ghost', action: () => closeModal() },
         { label: 'Save Changes', class: 'btn-primary', action: () => {
           const oldStatus = obj.status;
@@ -1935,9 +1960,245 @@
         saveToLocalStorage();
       });
       
-      // Export buttons
+      // Export/Import buttons
       $('#export-pdf-btn')?.addEventListener('click', exportToPDF);
       $('#export-excel-btn')?.addEventListener('click', exportToExcel);
+      $('#import-data-btn')?.addEventListener('click', showImportModal);
+    }
+
+    // ---------- Import Function ----------
+    function showImportModal() {
+      const modal = createModal('Import Data', `
+        <div class="space-y-4">
+          <div class="p-4 bg-yellow-50 border border-yellow-200 rounded">
+            <p class="text-sm font-medium text-yellow-800">⚠️ Warning</p>
+            <p class="text-sm text-yellow-700 mt-1">
+              Importing data will <strong>completely overwrite</strong> all existing data. 
+              This action cannot be undone. Please make sure you have exported a backup if needed.
+            </p>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-2">Select Excel file to import:</label>
+            <input type="file" id="import-file" accept=".xlsx,.xls" class="text-zone p-3 w-full">
+            <p class="text-xs text-gray-500 mt-1">Accepts Excel files exported from this platform</p>
+          </div>
+          
+          <div id="import-preview" class="hidden">
+            <h4 class="font-medium text-sm mb-2">File Preview:</h4>
+            <div id="import-preview-content" class="text-sm text-gray-600 p-3 bg-gray-50 border rounded"></div>
+          </div>
+          
+          <div id="import-error" class="hidden p-3 bg-red-50 border border-red-200 rounded">
+            <p class="text-sm text-red-700"></p>
+          </div>
+        </div>
+      `, [
+        { label: 'Cancel', class: 'btn-ghost', action: () => closeModal() },
+        { 
+          label: 'Import Data', 
+          class: 'btn-primary', 
+          action: () => importData()
+        }
+      ]);
+      
+      // File change handler
+      $('#import-file')?.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          previewImportFile(file);
+        }
+      });
+    }
+    
+    function previewImportFile(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          
+          // Check if it has the expected sheets
+          const expectedSheets = ['Executive Summary', 'Objectives & Performance', 'Stakeholders & Value'];
+          const hasValidSheets = expectedSheets.some(sheet => workbook.SheetNames.includes(sheet));
+          
+          if (!hasValidSheets) {
+            $('#import-error').classList.remove('hidden');
+            $('#import-error p').textContent = 'Invalid file format. Please select an Excel file exported from this platform.';
+            $('#import-preview').classList.add('hidden');
+            return;
+          }
+          
+          // Show preview
+          $('#import-error').classList.add('hidden');
+          $('#import-preview').classList.remove('hidden');
+          
+          // Extract customer name from first sheet
+          const summarySheet = workbook.Sheets['Executive Summary'];
+          const summaryData = XLSX.utils.sheet_to_json(summarySheet);
+          const customerRow = summaryData.find(row => row.Field === 'Customer Name');
+          const customerName = customerRow ? customerRow.Value : 'Unknown';
+          
+          $('#import-preview-content').innerHTML = `
+            <p><strong>Customer:</strong> ${customerName}</p>
+            <p><strong>Sheets found:</strong> ${workbook.SheetNames.join(', ')}</p>
+            <p class="text-yellow-600 mt-2">This will replace all data for the current customer.</p>
+          `;
+          
+          // Store workbook for import
+          window.importWorkbook = workbook;
+          window.importCustomerName = customerName;
+          
+        } catch (error) {
+          $('#import-error').classList.remove('hidden');
+          $('#import-error p').textContent = 'Error reading file. Please make sure it\'s a valid Excel file.';
+          $('#import-preview').classList.add('hidden');
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+    
+    function importData() {
+      if (!window.importWorkbook) {
+        showNotification('Please select a file first', 'error');
+        return;
+      }
+      
+      try {
+        // Clear all existing data if customer name is different
+        const newCustomerName = window.importCustomerName || 'Customer';
+        if (newCustomerName !== state.customerName) {
+          // Reset to default state
+          state.objectives = [];
+          state.pastObjectives = [];
+          state.valueRealized = [];
+          state.stakeholders = [];
+          state.missionGoals = [];
+          state.missionSummary = '';
+          state.products = [];
+          state.planHealth = 'green';
+        }
+        
+        state.customerName = newCustomerName;
+        
+        // Import from Executive Summary
+        const summaryData = XLSX.utils.sheet_to_json(window.importWorkbook.Sheets['Executive Summary']);
+        summaryData.forEach(row => {
+          if (row.Field === 'Overall Health') {
+            const health = row.Value.toLowerCase();
+            state.planHealth = ['green', 'yellow', 'red'].includes(health) ? health : 'green';
+          } else if (row.Field === 'Active Products' && row.Value) {
+            state.products = row.Value.split(', ').filter(p => p);
+          } else if (row.Field === 'Mission Summary') {
+            state.missionSummary = row.Value || '';
+          } else if (row.Field && row.Field.startsWith('  Goal ')) {
+            // Mission goals are in the format "  Goal 1", "  Goal 2", etc.
+            const goalNumber = parseInt(row.Field.replace('  Goal ', ''));
+            if (!state.missionGoals[goalNumber - 1]) {
+              state.missionGoals.push({
+                id: Date.now() + goalNumber,
+                title: row.Value || '',
+                description: row.Notes || '',
+                customFields: []
+              });
+            }
+          }
+        });
+        
+        // Import Objectives & Performance
+        if (window.importWorkbook.Sheets['Objectives & Performance']) {
+          const perfData = XLSX.utils.sheet_to_json(window.importWorkbook.Sheets['Objectives & Performance']);
+          let currentObjective = null;
+          
+          perfData.forEach(row => {
+            if (row['Objective Name'] && !row['Objective Name'].startsWith('  →')) {
+              // This is an objective
+              const obj = {
+                id: Date.now() + Math.random(),
+                name: row['Objective Name'],
+                status: row['Status'] || 'Not Started',
+                targetDate: row['Target Date'] !== 'Not set' ? row['Target Date'] : '',
+                description: row['Description'] || '',
+                challenges: row['Challenges'] || '',
+                nextSteps: row['Next Steps'] || '',
+                kpis: []
+              };
+              
+              if (row['Type'] === 'Past Objective' || row['Status'] === 'Completed') {
+                state.pastObjectives.push(obj);
+                currentObjective = null;
+              } else {
+                state.objectives.push(obj);
+                currentObjective = obj;
+              }
+            } else if (row['Objective Name'] && row['Objective Name'].startsWith('  →') && currentObjective) {
+              // This is a KPI
+              const kpiLabel = row['Objective Name'].replace('  → ', '');
+              const kpiType = getAvailableKPITypes().find(t => t.label === kpiLabel);
+              
+              if (kpiType) {
+                const valueMatch = row['Status'].match(/^([\d.]+)/);
+                const currentValue = valueMatch ? parseFloat(valueMatch[1]) : 0;
+                
+                currentObjective.kpis.push({
+                  id: Date.now() + Math.random(),
+                  typeKey: kpiType.key,
+                  currentValue: currentValue,
+                  previousValue: 0,
+                  period: 'Quarter',
+                  comparePrevious: false
+                });
+              }
+            }
+          });
+        }
+        
+        // Import Stakeholders & Value
+        if (window.importWorkbook.Sheets['Stakeholders & Value']) {
+          const detailsData = XLSX.utils.sheet_to_json(window.importWorkbook.Sheets['Stakeholders & Value']);
+          let inStakeholders = false;
+          let inValueRealized = false;
+          
+          detailsData.forEach(row => {
+            if (row['Category'] === 'KEY STAKEHOLDERS') {
+              inStakeholders = true;
+              inValueRealized = false;
+            } else if (row['Category'] === 'VALUE REALIZED') {
+              inStakeholders = false;
+              inValueRealized = true;
+            } else if (row['Category'] === 'Stakeholder' && inStakeholders) {
+              state.stakeholders.push({
+                id: Date.now() + Math.random(),
+                name: row['Name'] || '',
+                title: row['Details'] || '',
+                email: row['Contact'] || ''
+              });
+            } else if (inValueRealized && row['Category'] && row['Category'] !== 'VALUE REALIZED') {
+              state.valueRealized.push({
+                id: Date.now() + Math.random(),
+                type: row['Category'],
+                date: row['Name'] !== 'Not specified' ? row['Name'] : '',
+                description: row['Details'] || '',
+                link: row['Contact'] || ''
+              });
+            }
+          });
+        }
+        
+        // Clean up
+        delete window.importWorkbook;
+        delete window.importCustomerName;
+        
+        // Update UI
+        renderAll();
+        saveToLocalStorage();
+        closeModal();
+        showNotification('Data imported successfully', 'success');
+        
+      } catch (error) {
+        console.error('Import error:', error);
+        showNotification('Import failed. Please check the file format.', 'error');
+      }
     }
 
     // ---------- Export Functions ----------
@@ -1950,81 +2211,466 @@
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
         
-        // Add content
-        doc.setFontSize(20);
-        doc.text('Customer Success Plan - Responsive Platform', 20, 20);
+        // Define colors matching website
+        const tealColor = [20, 184, 166]; // #14b8a6
+        const darkColor = [15, 23, 42]; // #0f172a
+        const grayColor = [107, 114, 128]; // #6b7280
+        
+        // Helper function to check if we need a new page
+        function checkPageBreak(yPos, requiredSpace = 30) {
+          if (yPos + requiredSpace > 270) {
+            doc.addPage();
+            return 20;
+          }
+          return yPos;
+        }
+        
+        // Add header with gradient effect (simulated)
+        doc.setFillColor(...tealColor);
+        doc.rect(0, 0, 210, 40, 'F');
+        
+        // Title
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(24);
+        doc.setFont(undefined, 'bold');
+        doc.text(`${state.customerName} Success Plan`, 20, 20);
         
         doc.setFontSize(12);
-        doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 30);
+        doc.setFont(undefined, 'normal');
+        doc.text('Responsive Platform', 20, 30);
+        doc.text(`Generated: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`, 130, 30);
         
-        // Add sections
-        let y = 50;
+        let y = 55;
         
         // Mission Summary
-        doc.setFontSize(14);
+        doc.setTextColor(...darkColor);
+        doc.setFontSize(16);
+        doc.setFont(undefined, 'bold');
         doc.text('Mission Summary', 20, y);
-        y += 10;
-        doc.setFontSize(10);
+        y += 8;
+        
+        doc.setFontSize(11);
+        doc.setFont(undefined, 'normal');
+        doc.setTextColor(...grayColor);
         const summaryLines = doc.splitTextToSize(state.missionSummary || 'Not defined', 170);
         doc.text(summaryLines, 20, y);
-        y += summaryLines.length * 5 + 10;
+        y += summaryLines.length * 5 + 15;
+        
+        // Mission Goals
+        y = checkPageBreak(y);
+        doc.setTextColor(...darkColor);
+        doc.setFontSize(16);
+        doc.setFont(undefined, 'bold');
+        doc.text('Mission Goals', 20, y);
+        y += 10;
+        
+        state.missionGoals.forEach((goal, index) => {
+          y = checkPageBreak(y, 40);
+          
+          // Goal box
+          doc.setDrawColor(...tealColor);
+          doc.setLineWidth(0.5);
+          doc.rect(20, y - 5, 170, 30, 'S');
+          
+          doc.setFontSize(12);
+          doc.setFont(undefined, 'bold');
+          doc.setTextColor(...darkColor);
+          doc.text(goal.title, 25, y);
+          y += 7;
+          
+          doc.setFontSize(10);
+          doc.setFont(undefined, 'normal');
+          doc.setTextColor(...grayColor);
+          const descLines = doc.splitTextToSize(goal.description, 160);
+          doc.text(descLines, 25, y);
+          y += descLines.length * 4 + 15;
+        });
+        
+        // Value Realized
+        y = checkPageBreak(y);
+        doc.setTextColor(...darkColor);
+        doc.setFontSize(16);
+        doc.setFont(undefined, 'bold');
+        doc.text('Value Realized', 20, y);
+        y += 10;
+        
+        state.valueRealized.forEach((value) => {
+          y = checkPageBreak(y, 25);
+          
+          doc.setFillColor(16, 185, 129); // Green for value
+          doc.circle(25, y - 2, 2, 'F');
+          
+          doc.setFontSize(11);
+          doc.setFont(undefined, 'bold');
+          doc.setTextColor(16, 185, 129);
+          doc.text(value.type, 30, y);
+          
+          doc.setFont(undefined, 'normal');
+          doc.setTextColor(...grayColor);
+          doc.setFontSize(10);
+          const valueLines = doc.splitTextToSize(value.description, 155);
+          doc.text(valueLines, 30, y + 5);
+          
+          if (value.date) {
+            doc.setFontSize(9);
+            doc.text(`Realized: ${value.date}`, 30, y + 5 + valueLines.length * 4 + 3);
+          }
+          
+          y += 25 + valueLines.length * 4;
+        });
+        
+        // Current Objectives
+        y = checkPageBreak(y);
+        doc.setTextColor(...darkColor);
+        doc.setFontSize(16);
+        doc.setFont(undefined, 'bold');
+        doc.text('Current Objectives', 20, y);
+        y += 10;
+        
+        state.objectives.forEach((obj) => {
+          y = checkPageBreak(y, 50);
+          
+          // Objective header
+          doc.setFillColor(...tealColor);
+          doc.rect(20, y - 5, 170, 8, 'F');
+          doc.setTextColor(255, 255, 255);
+          doc.setFontSize(12);
+          doc.setFont(undefined, 'bold');
+          doc.text(obj.name, 25, y);
+          y += 10;
+          
+          // Status and date
+          doc.setTextColor(...darkColor);
+          doc.setFontSize(10);
+          doc.text(`Status: ${obj.status}`, 25, y);
+          doc.text(`Target: ${obj.targetDate || 'Not set'}`, 100, y);
+          y += 7;
+          
+          // Description
+          doc.setTextColor(...grayColor);
+          doc.setFont(undefined, 'normal');
+          if (obj.description) {
+            const descLines = doc.splitTextToSize(obj.description, 160);
+            doc.text(descLines, 25, y);
+            y += descLines.length * 4 + 5;
+          }
+          
+          // KPIs
+          if (obj.kpis && obj.kpis.length > 0) {
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(...darkColor);
+            doc.text('Key Performance Indicators:', 25, y);
+            y += 5;
+            
+            obj.kpis.forEach(kpi => {
+              const type = getKPIType(kpi.typeKey);
+              doc.setFont(undefined, 'normal');
+              doc.text(`• ${type.label}: ${kpi.currentValue}${type.unit}`, 30, y);
+              
+              if (kpi.comparePrevious && kpi.previousValue !== undefined) {
+                const delta = calculateDelta(kpi.currentValue, kpi.previousValue);
+                const deltaNum = parseFloat(delta);
+                const isPositive = type.higherIsBetter ? deltaNum >= 0 : deltaNum <= 0;
+                doc.setTextColor(isPositive ? 16 : 239, isPositive ? 185 : 68, isPositive ? 129 : 68);
+                doc.text(` (${deltaNum > 0 ? '+' : ''}${delta}%)`, 80, y);
+                doc.setTextColor(...grayColor);
+              }
+              y += 5;
+            });
+          }
+          
+          y += 10;
+        });
+        
+        // Past Objectives
+        if (state.pastObjectives.length > 0) {
+          y = checkPageBreak(y);
+          doc.setTextColor(...darkColor);
+          doc.setFontSize(16);
+          doc.setFont(undefined, 'bold');
+          doc.text('Past Objectives Achieved', 20, y);
+          y += 10;
+          
+          state.pastObjectives.forEach((obj) => {
+            y = checkPageBreak(y, 30);
+            
+            // Completed objective with checkmark
+            doc.setTextColor(16, 185, 129);
+            doc.setFontSize(14);
+            doc.text('✓', 20, y);
+            
+            doc.setTextColor(...darkColor);
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.text(obj.name, 30, y);
+            y += 7;
+            
+            doc.setTextColor(...grayColor);
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            doc.text(`Completed: ${obj.targetDate || 'N/A'}`, 30, y);
+            y += 5;
+            
+            if (obj.description) {
+              const descLines = doc.splitTextToSize(obj.description, 150);
+              doc.text(descLines, 30, y);
+              y += descLines.length * 4;
+            }
+            
+            y += 10;
+          });
+        }
+        
+        // Footer on each page
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+          doc.setPage(i);
+          doc.setFontSize(9);
+          doc.setTextColor(...grayColor);
+          doc.text(`Page ${i} of ${pageCount}`, 105, 285, { align: 'center' });
+          doc.text('Responsive Platform - Customer Success Plan', 20, 285);
+        }
         
         // Save
-        doc.save('customer-success-plan-responsive.pdf');
-        showNotification('PDF exported successfully', 'success');
+        doc.save(`${state.customerName.toLowerCase().replace(/\s+/g, '-')}-success-plan.pdf`);
+        showNotification('PDF report generated successfully', 'success');
       } catch (error) {
-        showNotification('PDF export failed. Please try again.', 'error');
+        console.error('PDF export error:', error);
+        showNotification('PDF generation failed. Please try again.', 'error');
       }
       
       btn.disabled = false;
-      btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>Export PDF';
+      btn.innerHTML = '<span class="absolute inset-0 bg-gradient-to-r from-teal-600 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity"></span><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform group-hover:scale-110 relative z-10" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zM9.5 17.5a2.5 2.5 0 115 0c0 .6-.4 1.3-.8 1.9l-1.7 2.1-1.7-2.1c-.4-.6-.8-1.3-.8-1.9zM14 9h-1V2l7 7h-6z"/></svg><span class="relative z-10 font-semibold">Generate PDF Report</span>';
     }
 
     function exportToExcel() {
+      const btn = $('#export-excel-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="animate-spin">⟳</span> Generating...';
+      
       try {
         const wb = XLSX.utils.book_new();
         
-        // Plan Overview
-        const overview = [{
-          'Mission Summary': state.missionSummary,
-          'Health Status': state.planHealth,
-          'Active Products': state.products.join(', ')
-        }];
+        // Sheet 1: Executive Summary
+        const summary = [];
         
-        // Objectives with KPIs
-        const objectives = [];
+        // Header info
+        summary.push({
+          'Field': 'Customer Name',
+          'Value': state.customerName,
+          'Notes': ''
+        });
+        summary.push({
+          'Field': 'Overall Health',
+          'Value': state.planHealth.charAt(0).toUpperCase() + state.planHealth.slice(1),
+          'Notes': state.planHealth === 'green' ? 'On Track' : state.planHealth === 'yellow' ? 'Needs Attention' : 'At Risk'
+        });
+        summary.push({
+          'Field': 'Active Products',
+          'Value': state.products.join(', '),
+          'Notes': `${state.products.length} products active`
+        });
+        summary.push({
+          'Field': 'Report Generated',
+          'Value': new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+          'Notes': ''
+        });
+        summary.push({ 'Field': '', 'Value': '', 'Notes': '' }); // Empty row
+        
+        // Mission Summary
+        summary.push({
+          'Field': 'Mission Summary',
+          'Value': state.missionSummary || 'Not defined',
+          'Notes': ''
+        });
+        summary.push({ 'Field': '', 'Value': '', 'Notes': '' }); // Empty row
+        
+        // Mission Goals
+        summary.push({
+          'Field': 'Mission Goals',
+          'Value': `${state.missionGoals.length} goals defined`,
+          'Notes': ''
+        });
+        state.missionGoals.forEach((goal, index) => {
+          summary.push({
+            'Field': `  Goal ${index + 1}`,
+            'Value': goal.title,
+            'Notes': goal.description
+          });
+        });
+        summary.push({ 'Field': '', 'Value': '', 'Notes': '' }); // Empty row
+        
+        // Value Realized Summary
+        summary.push({
+          'Field': 'Value Realized',
+          'Value': `${state.valueRealized.length} value items captured`,
+          'Notes': ''
+        });
+        const valueTypes = {};
+        state.valueRealized.forEach(v => {
+          valueTypes[v.type] = (valueTypes[v.type] || 0) + 1;
+        });
+        Object.entries(valueTypes).forEach(([type, count]) => {
+          summary.push({
+            'Field': `  ${type}`,
+            'Value': `${count} item${count > 1 ? 's' : ''}`,
+            'Notes': ''
+          });
+        });
+        
+        // Sheet 2: Objectives & Performance
+        const performance = [];
+        
+        // Current Objectives
         state.objectives.forEach(obj => {
-          objectives.push({
-            'Objective': obj.name,
+          performance.push({
+            'Objective Name': obj.name,
             'Status': obj.status,
-            'Target Date': obj.targetDate,
-            'Type': 'Current'
+            'Target Date': obj.targetDate || 'Not set',
+            'Type': 'Current Objective',
+            'Description': obj.description || '',
+            'Challenges': obj.challenges || '',
+            'Next Steps': obj.nextSteps || ''
           });
           
-          if (obj.kpis) {
+          // Add KPIs for this objective
+          if (obj.kpis && obj.kpis.length > 0) {
             obj.kpis.forEach(kpi => {
               const type = getKPIType(kpi.typeKey);
-              objectives.push({
-                'Objective': `  → ${type.label}`,
-                'Status': `${kpi.currentValue} ${type.unit}`,
-                'Target Date': `Delta: ${calculateDelta(kpi.currentValue, kpi.previousValue)}%`,
-                'Type': 'KPI'
+              const delta = calculateDelta(kpi.currentValue, kpi.previousValue);
+              const deltaNum = parseFloat(delta);
+              const trend = type.higherIsBetter ? 
+                (deltaNum >= 0 ? 'Positive' : 'Negative') : 
+                (deltaNum <= 0 ? 'Positive' : 'Negative');
+              
+              performance.push({
+                'Objective Name': `  → ${type.label}`,
+                'Status': `${kpi.currentValue}${type.unit}`,
+                'Target Date': kpi.comparePrevious ? `${delta}% change` : 'No comparison',
+                'Type': 'KPI',
+                'Description': `Period: ${kpi.period}`,
+                'Challenges': kpi.previousValue ? `Previous: ${kpi.previousValue}${type.unit}` : '',
+                'Next Steps': trend
               });
             });
           }
         });
         
-        // Add sheets
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(overview), 'Overview');
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(objectives), 'Objectives & KPIs');
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(state.missionGoals), 'Mission Goals');
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(state.valueRealized), 'Value Realized');
+        // Add separator
+        if (state.objectives.length > 0 && state.pastObjectives.length > 0) {
+          performance.push({
+            'Objective Name': '',
+            'Status': '',
+            'Target Date': '',
+            'Type': '',
+            'Description': '',
+            'Challenges': '',
+            'Next Steps': ''
+          });
+        }
         
-        XLSX.writeFile(wb, 'customer-success-plan-responsive.xlsx');
-        showNotification('Excel exported successfully', 'success');
+        // Past Objectives
+        state.pastObjectives.forEach(obj => {
+          performance.push({
+            'Objective Name': obj.name,
+            'Status': 'Completed',
+            'Target Date': obj.targetDate || 'N/A',
+            'Type': 'Past Objective',
+            'Description': obj.description || '',
+            'Challenges': obj.challenges || '',
+            'Next Steps': 'Completed'
+          });
+        });
+        
+        // Sheet 3: Stakeholders & Details
+        const details = [];
+        
+        // Stakeholders section
+        details.push({
+          'Category': 'KEY STAKEHOLDERS',
+          'Name': '',
+          'Details': '',
+          'Contact': ''
+        });
+        state.stakeholders.forEach(s => {
+          details.push({
+            'Category': 'Stakeholder',
+            'Name': s.name,
+            'Details': s.title,
+            'Contact': s.email
+          });
+        });
+        
+        // Empty row
+        details.push({
+          'Category': '',
+          'Name': '',
+          'Details': '',
+          'Contact': ''
+        });
+        
+        // Value Realized section
+        details.push({
+          'Category': 'VALUE REALIZED',
+          'Name': '',
+          'Details': '',
+          'Contact': ''
+        });
+        state.valueRealized.forEach(v => {
+          details.push({
+            'Category': v.type,
+            'Name': v.date || 'Not specified',
+            'Details': v.description,
+            'Contact': v.link || ''
+          });
+        });
+        
+        // Create sheets with styling
+        const ws1 = XLSX.utils.json_to_sheet(summary);
+        const ws2 = XLSX.utils.json_to_sheet(performance);
+        const ws3 = XLSX.utils.json_to_sheet(details);
+        
+        // Set column widths
+        ws1['!cols'] = [
+          { wch: 20 }, // Field
+          { wch: 60 }, // Value
+          { wch: 30 }  // Notes
+        ];
+        
+        ws2['!cols'] = [
+          { wch: 30 }, // Objective Name
+          { wch: 15 }, // Status
+          { wch: 15 }, // Target Date
+          { wch: 20 }, // Type
+          { wch: 40 }, // Description
+          { wch: 30 }, // Challenges
+          { wch: 30 }  // Next Steps
+        ];
+        
+        ws3['!cols'] = [
+          { wch: 20 }, // Category
+          { wch: 25 }, // Name
+          { wch: 50 }, // Details
+          { wch: 30 }  // Contact
+        ];
+        
+        // Add sheets to workbook
+        XLSX.utils.book_append_sheet(wb, ws1, 'Executive Summary');
+        XLSX.utils.book_append_sheet(wb, ws2, 'Objectives & Performance');
+        XLSX.utils.book_append_sheet(wb, ws3, 'Stakeholders & Value');
+        
+        // Generate filename with customer name and date
+        const filename = `${state.customerName.toLowerCase().replace(/\s+/g, '-')}-success-plan-${new Date().toISOString().split('T')[0]}.xlsx`;
+        
+        XLSX.writeFile(wb, filename);
+        showNotification('Excel report generated successfully', 'success');
       } catch (error) {
-        showNotification('Excel export failed. Please try again.', 'error');
+        console.error('Excel export error:', error);
+        showNotification('Excel generation failed. Please try again.', 'error');
       }
+      
+      btn.disabled = false;
+      btn.innerHTML = '<span class="absolute inset-0 bg-gradient-to-r from-emerald-400 to-emerald-600 opacity-0 group-hover:opacity-20 transition-opacity"></span><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm4 18H6V4h7v5h5v11z"/><path d="M8 13h2v2H8zm0 3h2v2H8zm3-3h2v2h-2zm0 3h2v2h-2zm3-3h2v2h-2zm0 3h2v2h-2z"/></svg><span class="relative z-10">Generate Excel Report</span>';
     }
 
     // ---------- Storage ----------
