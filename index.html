@@ -13,9 +13,18 @@
     body { font-family: 'Inter', sans-serif; background:#f1f5f9; color:var(--ink); }
 
     /* Unified text zones: every text/edit surface is clearly bordered and resizable where applicable */
-    .text-zone { @apply w-full rounded-lg border shadow-sm bg-white/60 border-slate-300 focus:ring-2 focus:ring-cyan-600 focus:border-cyan-600 transition-all; }
+    .text-zone { @apply w-full rounded-lg border shadow-sm bg-white/60 focus:ring-2 focus:ring-cyan-600 focus:border-cyan-600 transition-all; }
     .text-area { resize: both; min-height: 2.75rem; }
     .chip { @apply inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-md border; }
+
+    /* Distinct text zone colors for different purposes */
+    .text-zone-mission { @apply border-blue-300 bg-blue-50/60; }
+    .text-zone-goal { @apply border-emerald-300 bg-emerald-50/60; }
+    .text-zone-objective { @apply border-cyan-300 bg-cyan-50/60; }
+    .text-zone-value { @apply border-purple-300 bg-purple-50/60; }
+    .text-zone-stakeholder { @apply border-orange-300 bg-orange-50/60; }
+    .text-zone-custom { @apply border-amber-300 bg-amber-50/60; }
+    .text-zone-filter { @apply border-emerald-300 bg-emerald-50/60; }
 
     /* Status pills */
     .status-pill { @apply text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full; }
@@ -25,8 +34,7 @@
     .status-gray { @apply bg-slate-200 text-slate-800; }
     .status-cyan { @apply bg-cyan-100 text-cyan-800; }
 
-    /* Colored filters for "Find Similar" area */
-    .colored-filter { @apply bg-emerald-50 border-emerald-300 focus:ring-emerald-500 focus:border-emerald-500; }
+
 
     /* Cards + micro-transitions */
     .card { @apply bg-white rounded-xl shadow-sm border border-slate-200/80; }
@@ -39,6 +47,11 @@
     /* Small helpers */
     .health-dot { @apply w-3 h-3 rounded-full inline-block mr-2; }
     .linkish { @apply underline decoration-dotted text-cyan-700 hover:text-cyan-900; }
+
+    /* Custom field styling */
+    .custom-field-row { @apply flex items-center gap-2 p-2 bg-amber-50/50 border border-amber-200 rounded-lg hover:bg-amber-100/50 transition-colors; }
+    .custom-field-input { @apply text-zone text-zone-custom p-2 text-xs; }
+    .custom-field-add-btn { @apply text-cyan-700 font-semibold mt-2 hover:text-cyan-900 transition-colors; }
   </style>
 </head>
 <body>
@@ -46,18 +59,28 @@
     <header class="mb-10 p-8 rounded-xl bg-gradient-to-r from-cyan-800 to-emerald-600 text-white shadow-lg flex justify-between items-center">
       <div>
         <h1 class="text-4xl font-bold">Customer Success Plan</h1>
-        <p class="text-cyan-200 mt-2">A collaborative plan to track and achieve outcomes. Last updated: Aug 12, 2025</p>
+        <p class="text-cyan-200 mt-2">A collaborative plan to track and achieve outcomes. Last updated: <span id="last-updated">Aug 12, 2025</span> | Current time: <span id="current-time"></span></p>
       </div>
-      <button id="export-pdf-btn" class="bg-white/20 text-white font-semibold px-4 py-2 rounded-lg hover:bg-white/30 transition-colors flex items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>
-        Generate PDF
-      </button>
+      <div class="flex gap-3">
+        <button id="import-json-btn" class="bg-white/20 text-white font-semibold px-4 py-2 rounded-lg hover:bg-white/30 transition-colors flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011 1v3a1 1 0 11-2 0v-3a1 1 0 011-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+          Import Data
+        </button>
+        <button id="export-json-btn" class="bg-white/20 text-white font-semibold px-4 py-2 rounded-lg hover:bg-white/30 transition-colors flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" /></svg>
+          Export Data
+        </button>
+        <button id="export-pdf-btn" class="bg-white/20 text-white font-semibold px-4 py-2 rounded-lg hover:bg-white/30 transition-colors flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>
+          Generate PDF
+        </button>
+      </div>
     </header>
 
     <!-- Mission Summary -->
     <section class="card mb-6 p-6">
       <h2 class="text-2xl font-bold mb-4">Mission Summary</h2>
-      <textarea id="mission-summary" class="text-zone text-area p-3" rows="3" placeholder="Describe the primary business outcome and vision...">To empower the sales team by centralizing our content, reducing response times, and providing data-driven insights that directly contribute to winning more business and increasing revenue.</textarea>
+      <textarea id="mission-summary" class="text-zone text-zone-mission text-area p-3" rows="3" placeholder="Describe the primary business outcome and vision...">To empower the sales team by centralizing our content, reducing response times, and providing data-driven insights that directly contribute to winning more business and increasing revenue.</textarea>
     </section>
 
     <!-- Mission Goals -->
@@ -104,7 +127,7 @@
         <section class="card p-6">
           <h3 class="text-lg font-semibold mb-3">Plan Details</h3>
           <label class="block text-sm font-medium mb-1">Overall Health</label>
-          <select id="health-score" class="text-zone p-2">
+          <select id="health-score" class="text-zone text-zone-objective p-2">
             <option value="green">🟢 On Track</option>
             <option value="yellow">🟡 Needs Attention</option>
             <option value="red">🔴 At Risk</option>
@@ -116,7 +139,7 @@
           <div class="space-y-4">
             <div>
               <label class="block text-sm font-medium mb-1">Industry</label>
-              <select id="filter-industry" class="text-zone colored-filter p-2">
+              <select id="filter-industry" class="text-zone text-zone-filter p-2">
                 <option>Technology</option>
                 <option>Finance</option>
                 <option>Healthcare</option>
@@ -124,7 +147,7 @@
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Segment</label>
-              <select id="filter-segment" class="text-zone colored-filter p-2">
+              <select id="filter-segment" class="text-zone text-zone-filter p-2">
                 <option>SMB</option>
                 <option>MM</option>
                 <option>Enterprise</option>
@@ -132,7 +155,7 @@
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Products Owned</label>
-              <select id="filter-products" class="text-zone colored-filter p-2">
+              <select id="filter-products" class="text-zone text-zone-filter p-2">
                 <option value="">Select a product...</option>
                 <option>Content Library</option>
                 <option>AI</option>
@@ -150,7 +173,7 @@
         <section class="card p-6">
           <h3 class="text-lg font-semibold mb-3">Key Stakeholders</h3>
           <div id="stakeholders-container" class="space-y-3 mb-3"></div>
-          <select id="add-stakeholder-select" class="text-zone p-2">
+          <select id="add-stakeholder-select" class="text-zone text-zone-stakeholder p-2">
             <option value="">+ Add a contact...</option>
             <option value="new">Add New Stakeholder...</option>
           </select>
@@ -209,27 +232,49 @@
       return { dot:'bg-green-500', icon:'🟢' };
     };
 
+    // Update last updated timestamp
+    function updateLastUpdated() {
+      const now = new Date();
+      const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+      const formattedDate = now.toLocaleDateString('en-US', options);
+      $('#last-updated').textContent = formattedDate;
+    }
+
+    // Update current time
+    function updateCurrentTime() {
+      const now = new Date();
+      const options = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+      const formattedTime = now.toLocaleTimeString('en-US', options);
+      $('#current-time').textContent = formattedTime;
+    }
+
+    // Helper function to save state and update timestamp
+    function saveState() {
+      localStorage.setItem('customerSuccessPlan', JSON.stringify(state));
+      updateLastUpdated();
+    }
+
     // ---------- Renderers ----------
     function renderMissionGoals(){
       const c = $('#mission-goals-container');
       c.innerHTML = state.missionGoals.map(g=>`
         <div id="mission-goal-${g.id}" class="card p-4" data-id="${g.id}">
           <div class="flex items-center justify-between gap-2">
-            <input class="text-zone p-2 font-semibold" value="${g.title}" data-role="goal-title" />
+            <input class="text-zone text-zone-goal p-2 font-semibold" value="${g.title}" data-role="goal-title" />
             <button class="text-slate-400 hover:text-red-600" data-role="remove-goal">&times;</button>
           </div>
-          <textarea class="text-zone text-area p-3 mt-2 text-sm" rows="3" placeholder="Goal description..." data-role="goal-desc">${g.description||''}</textarea>
+          <textarea class="text-zone text-zone-goal text-area p-3 mt-2 text-sm" rows="3" placeholder="Goal description..." data-role="goal-desc">${g.description||''}</textarea>
           <div class="mt-3 space-y-2" data-role="custom-fields">
             ${(g.customFields||[]).map(f=>`
-              <div class="flex items-center gap-2" data-field-id="${f.id}">
-                <input class="text-zone p-2 text-xs font-semibold" value="${f.label}" placeholder="Field name" data-role="cf-label" />
-                <input class="text-zone p-2 text-xs flex-1" value="${f.value||''}" placeholder="Value or https://link" data-role="cf-value" />
-                <a href="${/^https?:\/\//.test(f.value)?f.value:'#'}" target="_blank" class="${/^https?:\/\//.test(f.value)?'linkish':'pointer-events-none opacity-40'} text-xs">Attach</a>
+              <div class="custom-field-row" data-field-id="${f.id}">
+                <input class="custom-field-input font-semibold flex-1" value="${f.label}" placeholder="Field name" data-role="cf-label" />
+                <input class="custom-field-input flex-1" value="${f.value||''}" placeholder="Value or https://link" data-role="cf-value" />
+                <a href="${/^https?:\/\//.test(f.value)?f.value:'#'}" target="_blank" class="${/^https?:\/\//.test(f.value)?'linkish':'pointer-events-none opacity-40'} text-xs px-2 py-1 bg-amber-100 rounded hover:bg-amber-200 transition-colors">Attach</a>
                 <button class="text-slate-400 hover:text-red-600" title="Remove" data-role="remove-cf">🗑️</button>
               </div>
             `).join('')}
           </div>
-          <button class="text-cyan-700 font-semibold mt-2" data-role="add-cf">+ Add Custom Field</button>
+          <button class="custom-field-add-btn" data-role="add-cf">+ Add Custom Field</button>
         </div>
       `).join('');
     }
@@ -238,23 +283,23 @@
       return `
         <div id="value-${item.id}" class="card p-4" data-id="${item.id}">
           <div class="flex items-center justify-between">
-            <select class="text-zone p-2 text-sm font-semibold bg-white/60 border-0 value-type-select">
+            <select class="text-zone text-zone-value p-2 text-sm font-semibold value-type-select">
               ${valueOptions.map(opt=>`<option ${opt===item.type?'selected':''}>${opt}</option>`).join('')}
             </select>
             <button class="text-slate-400 hover:text-slate-600" data-role="remove-value">&times;</button>
           </div>
           <div class="mt-3">
             <label class="block text-xs font-medium mb-1">Description</label>
-            <textarea class="text-zone text-area p-3 text-sm" rows="3" data-role="value-desc">${item.description||''}</textarea>
+            <textarea class="text-zone text-zone-value text-area p-3 text-sm" rows="3" data-role="value-desc">${item.description||''}</textarea>
           </div>
           <div class="grid grid-cols-2 gap-3 mt-3">
             <div>
               <label class="block text-xs font-medium mb-1">Date Realized</label>
-              <input type="date" value="${item.date||''}" class="text-zone p-2" data-role="value-date" />
+              <input type="date" value="${item.date||''}" class="text-zone text-zone-value p-2" data-role="value-date" />
             </div>
             <div>
               <label class="block text-xs font-medium mb-1">Reference Link</label>
-              <input type="text" value="${item.link||''}" placeholder="https://" class="text-zone p-2" data-role="value-link" />
+              <input type="text" value="${item.link||''}" placeholder="https://" class="text-zone text-zone-value p-2" data-role="value-link" />
             </div>
           </div>
         </div>`;
@@ -269,6 +314,7 @@
     function objectiveCardHTML(o){
       const h = health(o);
       const statusCls = pillClass(o.status);
+      const isPast = state.pastObjectives.find(p => p.id === o.id);
       if (o.editing) {
         // Inline edit mode per objective
         return `
@@ -277,13 +323,13 @@
               <div class="flex-1">
                 <div class="flex items-center gap-2 mb-2">
                   <span class="health-dot ${h.dot}"></span>
-                  <input class="text-zone p-2 font-semibold" value="${o.name}" data-role="edit-name" />
+                  <input class="text-zone text-zone-objective p-2 font-semibold" value="${o.name}" data-role="edit-name" />
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
-                  <select class="text-zone p-1 text-xs ${statusCls}" data-role="edit-status">
+                  <select class="text-zone text-zone-objective p-1 text-xs ${statusCls}" data-role="edit-status">
                     ${['Not Started','In Progress','At Risk','Completed'].map(s=>`<option ${o.status===s?'selected':''}>${s}</option>`).join('')}
                   </select>
-                  <input type="date" class="text-zone p-1 text-sm w-auto" value="${o.targetDate||''}" data-role="edit-date" />
+                  <input type="date" class="text-zone text-zone-objective p-1 text-sm w-auto" value="${o.targetDate||''}" data-role="edit-date" />
                 </div>
               </div>
               <div class="flex items-center gap-2">
@@ -294,21 +340,21 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div>
                 <label class="block text-sm font-medium mb-1">KPI Goal</label>
-                <textarea class="text-zone text-area p-3" rows="3" data-role="edit-kpi">${o.kpiGoal||''}</textarea>
+                <textarea class="text-zone text-zone-objective text-area p-3" rows="3" data-role="edit-kpi">${o.kpiGoal||''}</textarea>
               </div>
               <div>
                 <label class="block text-sm font-medium mb-1">Challenges</label>
-                <textarea class="text-zone text-area p-3" rows="3" data-role="edit-challenges">${o.challenges||''}</textarea>
+                <textarea class="text-zone text-zone-objective text-area p-3" rows="3" data-role="edit-challenges">${o.challenges||''}</textarea>
               </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div>
                 <label class="block text-sm font-medium mb-1">Next Steps</label>
-                <textarea class="text-zone text-area p-3" rows="3" data-role="edit-steps">${o.nextSteps||''}</textarea>
+                <textarea class="text-zone text-zone-objective text-area p-3" rows="3" data-role="edit-steps">${o.nextSteps||''}</textarea>
               </div>
               <div>
                 <label class="block text-sm font-medium mb-1">S4 / External Link</label>
-                <input class="text-zone p-2" value="${o.s4Link||''}" placeholder="https://" data-role="edit-link" />
+                <input class="text-zone text-zone-objective p-2" value="${o.s4Link||''}" placeholder="https://" data-role="edit-link" />
                 ${o.s4Link?`<a class="linkish text-sm mt-1 inline-block" href="${o.s4Link}" target="_blank">Open</a>`:''}
               </div>
             </div>
@@ -322,12 +368,13 @@
               <h3 class="font-semibold text-lg flex items-center"><span class="health-dot ${h.dot}"></span>${o.name}</h3>
               <div class="flex items-center mt-2 gap-2">
                 <span class="status-pill ${statusCls}">${o.status}</span>
-                <input type="date" class="text-zone p-1 text-sm w-auto" value="${o.targetDate||''}" data-role="quick-date" />
+                <input type="date" class="text-zone text-zone-objective p-1 text-sm w-auto" value="${o.targetDate||''}" data-role="quick-date" />
               </div>
             </div>
             <div class="flex items-center gap-3">
               <button class="text-cyan-700 font-semibold" data-role="toggle-expand">${o.expanded?'Hide preview':'Show more'}</button>
               <button class="text-slate-500 hover:text-slate-700" data-role="edit">Edit</button>
+              ${o.status !== 'Completed' ? `<button class="text-green-600 hover:text-green-800 text-sm" data-role="mark-complete">✓ Complete</button>` : ''}
             </div>
           </div>
 
@@ -335,10 +382,12 @@
             <div class="preview-box">
               <div class="text-xs font-semibold text-slate-600 mb-1">KPI Goal</div>
               <div class="text-sm text-slate-700">${truncate(o.kpiGoal, o.expanded?1000:140) || '<span class=\'text-slate-400\'>Not set</span>'}</div>
+              <button class="text-xs text-cyan-600 hover:text-cyan-800 mt-1" data-role="quick-edit-kpi">Quick edit</button>
             </div>
             <div class="preview-box">
               <div class="text-xs font-semibold text-slate-600 mb-1">Challenges</div>
               <div class="text-sm text-slate-700">${truncate(o.challenges, o.expanded?1000:140) || '<span class=\'text-slate-400\'>None</span>'}</div>
+              <button class="text-xs text-cyan-600 hover:text-cyan-800 mt-1" data-role="quick-edit-challenges">Quick edit</button>
             </div>
           </div>
           ${o.expanded ? `
@@ -367,7 +416,7 @@
     function renderStakeholders(){
       const c = $('#stakeholders-container');
       c.innerHTML = state.stakeholders.map(s=>`
-        <div id="stakeholder-${s.id}" class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border" data-id="${s.id}">
+        <div id="stakeholder-${s.id}" class="flex items-center justify-between p-3 bg-orange-50/50 rounded-lg border border-orange-200" data-id="${s.id}">
           <div>
             <p class="font-semibold">${s.name}</p>
             <p class="text-sm text-slate-500">${s.title}</p>
@@ -399,38 +448,42 @@
         if (e.target.id === 'add-mission-goal-btn'){
           state.missionGoals.push({id:Date.now(), title:'New Goal', description:'', customFields:[]});
           renderMissionGoals();
+          saveState();
         }
 
         if (e.target.id === 'add-value-btn'){
           state.valueRealized.push({id:Date.now(), type:'Time Savings', description:'', date:'', link:''});
           renderValue();
+          saveState();
         }
 
         if (e.target.id === 'add-objective-btn'){
           const id = Date.now();
           state.objectives.unshift({ id, name:'New Objective', targetDate:'', status:'Not Started', kpiGoal:'', challenges:'', nextSteps:'', s4Link:'', editing:true, expanded:true });
           renderObjectives();
+          saveState();
         }
 
         // Value list actions
         if (e.target.matches('[data-role="remove-value"]')){
           const id = Number(e.target.closest('[data-id]').dataset.id);
           const i = state.valueRealized.findIndex(v=>v.id===id);
-          if (i>-1){ state.valueRealized.splice(i,1); renderValue(); }
+          if (i>-1){ state.valueRealized.splice(i,1); renderValue(); saveState(); }
         }
 
         // Mission goal actions
         if (e.target.matches('[data-role="remove-goal"]')){
           const id = Number(card.dataset.id);
           const i = state.missionGoals.findIndex(g=>g.id===id);
-          if (i>-1){ state.missionGoals.splice(i,1); renderMissionGoals(); }
+          if (i>-1){ state.missionGoals.splice(i,1); renderMissionGoals(); saveState(); }
         }
         if (e.target.matches('[data-role="add-cf"]')){
           const id = Number(card.dataset.id);
           const g = state.missionGoals.find(x=>x.id===id);
           if (!g.customFields) g.customFields = [];
-          g.customFields.push({id:Date.now()+Math.random(), label:'Field', value:''});
+          g.customFields.push({id:Date.now()+Math.random(), label:'New Field', value:''});
           renderMissionGoals();
+          saveState();
         }
         if (e.target.matches('[data-role="remove-cf"]')){
           const id = Number(card.dataset.id);
@@ -439,6 +492,45 @@
           const g = state.missionGoals.find(x=>x.id===id);
           g.customFields = (g.customFields||[]).filter(f=>f.id!==fid);
           renderMissionGoals();
+          saveState();
+        }
+
+        // Export functionality
+        if (e.target.id === 'export-json-btn'){
+          const dataStr = JSON.stringify(state, null, 2);
+          const dataBlob = new Blob([dataStr], {type: 'application/json'});
+          const url = URL.createObjectURL(dataBlob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = 'customer-success-plan.json';
+          link.click();
+          URL.revokeObjectURL(url);
+        }
+
+        // Import functionality
+        if (e.target.id === 'import-json-btn'){
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.accept = '.json';
+          input.onchange = (event) => {
+            const file = event.target.files[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                try {
+                  const importedData = JSON.parse(e.target.result);
+                  Object.assign(state, importedData);
+                  saveState();
+                  renderAll();
+                  alert('Data imported successfully!');
+                } catch (error) {
+                  alert('Error importing data. Please check the file format.');
+                }
+              };
+              reader.readAsText(file);
+            }
+          };
+          input.click();
         }
 
         // Objective actions
@@ -466,6 +558,7 @@
             o.s4Link = $('[data-role="edit-link"]', wrap).value;
             o.editing = false;
             renderObjectives();
+            saveState();
           }
         }
         if (e.target.matches('[data-role="toggle-expand"]')){
@@ -473,10 +566,48 @@
           const o = state.objectives.find(x=>x.id===id);
           if (o){ o.expanded = !o.expanded; renderObjectives(); }
         }
+        if (e.target.matches('[data-role="quick-edit-kpi"]')){
+          const id = Number(card.dataset.id);
+          const o = state.objectives.find(x=>x.id===id);
+          if (o){ 
+            const newKpi = prompt('Enter KPI Goal:', o.kpiGoal || '');
+            if (newKpi !== null) {
+              o.kpiGoal = newKpi;
+              renderObjectives();
+              saveState();
+            }
+          }
+        }
+        if (e.target.matches('[data-role="quick-edit-challenges"]')){
+          const id = Number(card.dataset.id);
+          const o = state.objectives.find(x=>x.id===id);
+          if (o){ 
+            const newChallenges = prompt('Enter Challenges:', o.challenges || '');
+            if (newChallenges !== null) {
+              o.challenges = newChallenges;
+              renderObjectives();
+              saveState();
+            }
+          }
+        }
+        if (e.target.matches('[data-role="mark-complete"]')){
+          const id = Number(card.dataset.id);
+          const o = state.objectives.find(x=>x.id===id);
+          if (o){ 
+            o.status = 'Completed';
+            o.completedDate = new Date().toISOString().split('T')[0];
+            // Move to past objectives
+            state.pastObjectives.unshift({...o});
+            state.objectives = state.objectives.filter(obj => obj.id !== id);
+            renderObjectives();
+            saveState();
+          }
+        }
         if (e.target.matches('[data-role="remove-stakeholder"]')){
           const id = Number(card.dataset.id);
           state.stakeholders = state.stakeholders.filter(s=>s.id!==id);
           renderStakeholders();
+          saveState();
         }
       });
 
@@ -486,17 +617,19 @@
         if (e.target.matches('[data-role="quick-date"]')){
           const id = Number(e.target.closest('[data-id]').dataset.id);
           const o = state.objectives.find(x=>x.id===id);
-          if (o){ o.targetDate = e.target.value; renderObjectives(); }
+          if (o){ o.targetDate = e.target.value; renderObjectives(); saveState(); }
         }
 
         // mission goal inline edits
         if (e.target.matches('[data-role="goal-title"]')){
           const id = Number(e.target.closest('[data-id]').dataset.id);
           const g = state.missionGoals.find(x=>x.id===id); if (g) g.title = e.target.value;
+          saveState();
         }
         if (e.target.matches('[data-role="goal-desc"]')){
           const id = Number(e.target.closest('[data-id]').dataset.id);
           const g = state.missionGoals.find(x=>x.id===id); if (g) g.description = e.target.value;
+          saveState();
         }
         if (e.target.matches('[data-role="cf-label"], [data-role="cf-value"]')){
           const id = Number(e.target.closest('[data-id]').dataset.id);
@@ -506,6 +639,8 @@
           if (f){
             if (e.target.dataset.role==='cf-label') f.label = e.target.value;
             if (e.target.dataset.role==='cf-value') f.value = e.target.value;
+            // Auto-save to localStorage for persistence
+            saveState();
           }
         }
 
@@ -519,6 +654,7 @@
           if (e.target.dataset.role==='value-date') it.date = e.target.value;
           if (e.target.dataset.role==='value-link') it.link = e.target.value;
           if (e.target.classList.contains('value-type-select')) it.type = e.target.value;
+          saveState();
         }
       });
 
@@ -529,14 +665,31 @@
           const pick = mockContacts.find(c=>c.id===id);
           if (pick && !state.stakeholders.find(s=>s.id===id)) state.stakeholders.push(pick);
           renderStakeholders();
+          saveState();
           e.target.value = '';
         }
       });
     }
 
     // ---------- Init ----------
+    // Load saved state from localStorage
+    const savedState = localStorage.getItem('customerSuccessPlan');
+    if (savedState) {
+      try {
+        const parsed = JSON.parse(savedState);
+        Object.assign(state, parsed);
+      } catch (e) {
+        console.log('Could not load saved state:', e);
+      }
+    }
+    
     renderAll();
     setupEvents();
+    updateLastUpdated();
+    updateCurrentTime();
+    
+    // Update current time every second
+    setInterval(updateCurrentTime, 1000);
   </script>
 </body>
 </html>
