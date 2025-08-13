@@ -64,13 +64,14 @@
 
     /* Buttons: high-contrast, modern */
     .btn { display:inline-flex; align-items:center; gap:.5rem; font-weight:600; border-radius:2px; padding:.5rem .75rem; border:1px solid transparent; transition: all .2s ease; }
+    .btn:hover { filter: brightness(0.97); }
     .btn-sm { padding:.25rem .5rem; font-size:.875rem; border-radius:2px; }
-    .btn-primary { background:#0f172a; color:#fff; }
-    .btn-primary:hover { background:#111827; }
+    .btn-primary { background: linear-gradient(90deg, #0284c7, #4f46e5); color:#fff; border:0; }
+    .btn-primary:hover { filter: brightness(0.95); }
     .btn-success { background:#059669; color:#fff; }
     .btn-success:hover { background:#047857; }
     .btn-outline { background:#fff; color:#0f172a; border-color:#cbd5e1; }
-    .btn-outline:hover { background:#f1f5f9; }
+    .btn-outline:hover { background:#e2e8f0; }
     .btn-ghost { background:transparent; color:#0f172a; }
     .btn-ghost:hover { background:rgba(15,23,42,0.06); }
   </style>
@@ -93,17 +94,23 @@
 
     <!-- Mission Summary -->
     <section class="card mb-6 p-6">
-      <h2 class="text-2xl font-bold mb-4">Mission Summary</h2>
-      <textarea id="mission-summary" class="text-zone text-area p-3" rows="3" placeholder="Describe the primary business outcome and vision..."></textarea>
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-2xl font-bold">Mission Summary</h2>
+        <button class="btn btn-outline btn-sm" id="edit-mission">Edit</button>
+      </div>
+      <textarea id="mission-summary" class="text-zone text-area p-3" rows="3" placeholder="Describe the primary business outcome and vision..." disabled></textarea>
     </section>
 
     <!-- Mission Goals -->
     <section class="card mb-10 p-6">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-2xl font-bold">Mission Goals</h2>
-        <button id="add-mission-goal-btn" class="btn btn-success">+ Add Goal</button>
+        <div class="flex items-center gap-2">
+          <button class="btn btn-outline btn-sm" id="edit-goals">Edit</button>
+          <button id="add-mission-goal-btn" class="btn btn-success" disabled>+ Add Goal</button>
+        </div>
       </div>
-      <div id="mission-goals-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+      <div id="mission-goals-container" class="grid grid-cols-1 md:grid-cols-2 gap-6" data-editable="false"></div>
     </section>
 
     <main class="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -113,9 +120,12 @@
         <section id="value-realized" class="card p-6">
           <div class="flex justify-between items-center mb-4">
             <h2 class="text-2xl font-bold">Value Realized</h2>
-            <button id="add-value-btn" class="btn btn-success">+ Add Value</button>
+            <div class="flex items-center gap-2">
+              <button class="btn btn-outline btn-sm" id="edit-value">Edit</button>
+              <button id="add-value-btn" class="btn btn-success" disabled>+ Add Value Realized</button>
+            </div>
           </div>
-          <div id="value-container" class="space-y-4"></div>
+          <div id="value-container" class="space-y-4" data-editable="false"></div>
           <div id="no-value-message" class="hidden text-center py-10 px-4 text-slate-500">No value items added yet.</div>
         </section>
 
@@ -138,8 +148,6 @@
 
       <!-- Right -->
       <div class="lg:col-span-1 space-y-8">
-        <section id="kpi-section" class="card p-6"></section>
-        <section id="metrics-section" class="card p-6"></section>
         <section class="card p-6">
           <h3 class="text-lg font-semibold mb-3">Plan Details</h3>
           <label class="block text-sm font-medium mb-1">Overall Health</label>
@@ -248,15 +256,23 @@
         kpiGoal: 'Reduce average response time from 45s to 30s.',
         challenges: 'Team members are still learning the new workflow.',
         nextSteps: 'Hold a workshop on advanced features.', s4Link: 'https://s4.example.com/ticket/12345',
+        kpiCompare: 'QoQ',
+        kpis: [
+          { id: Date.now()+501, typeKey: 'avg_response_time', name: 'Average Response Time', unit: 'seconds', value: 37, delta: -5 }
+        ],
         editing: false, expanded: false
       }, {
         id: Date.now() + 2, name: 'Content library clean up', targetDate: '2025-10-31', status: 'Not Started',
         kpiGoal: 'Archive 50% of obsolete content.',
         challenges: 'Lack of clear ownership for older content.',
         nextSteps: 'Work with Samantha Ray to identify content owners.', s4Link: 'https://s4.example.com/ticket/12346',
+        kpiCompare: 'MoM',
+        kpis: [
+          { id: Date.now()+502, typeKey: 'obsolete_content_pct', name: 'Obsolete Content Percentage', unit: '%', value: 22, delta: -4 }
+        ],
         editing: false, expanded: false
       }],
-      pastObjectives: [{ id: Date.now()+100, name: 'Increase win rate', targetDate: '2025-06-30', status: 'Completed', kpiGoal: 'Raise win rate from 30% to 35% by Q2.', challenges: 'Competitive pricing pressure.', nextSteps: 'Monitor sustainment and share best practices.', s4Link: 'https://s4.example.com/ticket/12001', editing: false, expanded: false }],
+      pastObjectives: [{ id: Date.now()+100, name: 'Increase win rate', targetDate: '2025-06-30', status: 'Completed', kpiGoal: 'Raise win rate from 30% to 35% by Q2.', challenges: 'Competitive pricing pressure.', nextSteps: 'Monitor sustainment and share best practices.', s4Link: 'https://s4.example.com/ticket/12001', kpiCompare: 'YoY', kpis: [{ id: Date.now()+503, typeKey: 'content_utilization', name: 'Content Utilization', unit: '%', value: 68, delta: 6 }], editing: false, expanded: false }],
       valueRealized: [{ id: Date.now(), type: 'Time Savings', description: 'Saved ~5 hours/week per agent in Q3.', date: '2025-07-30', link: 'https://datastudio.example.com/report/1' }],
       planHealth: 'green',
       missionSummary: 'To empower the sales team by centralizing our content, reducing response times, and providing data-driven insights that directly contribute to winning more business and increasing revenue.',
@@ -265,16 +281,7 @@
         { id: Date.now()+402, typeKey: 'obsolete_content_pct', name: 'Obsolete Content Percentage', unit: '%', value: 22, delta: -4 },
         { id: Date.now()+403, typeKey: 'avg_response_time', name: 'Average Response Time', unit: 'seconds', value: 37, delta: -5 }
       ],
-      metrics: {
-        periodType: 'Quarter',
-        month: new Date().toISOString().slice(0,7),
-        quarter: Math.floor((new Date().getMonth())/3)+1,
-        year: new Date().getFullYear(),
-        items: [
-          { id: Date.now()+101, name: 'Win Rate', valuePercent: 37, deltaPercent: 5 },
-          { id: Date.now()+102, name: 'Adoption', valuePercent: 62, deltaPercent: 8 }
-        ]
-      }
+      // Deprecated metrics removed; using KPI list per objective
     };
 
     // ---------- Helpers ----------
@@ -323,7 +330,7 @@
             ${(g.customFields||[]).map(f=>`
               <div class="flex items-center gap-2" data-field-id="${f.id}">
                 <input class="text-zone p-2 text-xs font-semibold" value="${f.label}" placeholder="Field name" data-role="cf-label" />
-                <input class="text-zone p-2 text-xs flex-1" value="${f.value||''}" placeholder="Value or https://link" data-role="cf-value" />
+                <input class="text-zone p-2 text-xs flex-1 min-w-[280px] sm:min-w-[320px]" value="${f.value||''}" placeholder="Value or https://link" data-role="cf-value" />
                 <a href="${/^https?:\/\//.test(f.value)?f.value:'#'}" target="_blank" class="${/^https?:\/\//.test(f.value)?'linkish':'pointer-events-none opacity-40'} text-xs">Attach</a>
                 <button class="text-slate-400 hover:text-red-600" title="Remove" data-role="remove-cf">🗑️</button>
               </div>
@@ -672,8 +679,6 @@
       renderValue();
       renderObjectives();
       renderStakeholders();
-      renderMetrics();
-      renderKPISection();
       syncTopControls();
     }
 
@@ -685,42 +690,59 @@
     }
 
     // ---------- Event wiring ----------
-    function setupEvents(){
-            const app = $('#app');
-
-       // Auto-resize on input
-       document.addEventListener('input', (e)=>{ if (e.target && e.target.classList && e.target.classList.contains('text-area')) autoResizeTextarea(e.target); });
-
-       // Global clicks
-      app.addEventListener('click', (e)=>{
-        const card = e.target.closest('[data-id]');
-
-        if (e.target.id === 'add-mission-goal-btn'){
-          showAddMissionGoalModal();
+         function setupEvents(){
+             const app = $('#app');
+ 
+        // Auto-resize on input
+        document.addEventListener('input', (e)=>{ if (e.target && e.target.classList && e.target.classList.contains('text-area')) autoResizeTextarea(e.target); });
+ 
+        // Global clicks
+       app.addEventListener('click', (e)=>{
+         const card = e.target.closest('[data-id]');
+ 
+        if (e.target.id === 'edit-mission'){
+          const ta = document.getElementById('mission-summary');
+          const now = ta.hasAttribute('disabled');
+          if (now) { ta.removeAttribute('disabled'); e.target.textContent = 'Done'; }
+          else { ta.setAttribute('disabled',''); e.target.textContent = 'Edit'; state.missionSummary = ta.value; autoSave(); }
         }
 
-        if (e.target.id === 'add-value-btn'){
-          showAddValueRealizedModal();
+        if (e.target.id === 'edit-goals'){
+          const cont = document.getElementById('mission-goals-container');
+          const btn = document.getElementById('add-mission-goal-btn');
+          const now = cont.getAttribute('data-editable') !== 'true';
+          cont.setAttribute('data-editable', now ? 'true' : 'false');
+          btn.disabled = !now;
+          e.target.textContent = now ? 'Done' : 'Edit';
+          // disable/enable inputs inside
+          cont.querySelectorAll('input, textarea, select, button[data-role="remove-goal"], button[data-role="add-cf"], button[data-role="remove-cf"]').forEach(el=>{
+            if (el.dataset.role === 'remove-goal' || el.dataset.role === 'add-cf' || el.dataset.role === 'remove-cf') el.disabled = !now;
+            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') el.disabled = !now;
+          });
         }
 
-        if (e.target.id === 'add-objective-btn'){
-          showAddObjectiveModal();
+        if (e.target.id === 'edit-value'){
+          const cont = document.getElementById('value-container');
+          const addBtn = document.getElementById('add-value-btn');
+          const now = cont.getAttribute('data-editable') !== 'true';
+          cont.setAttribute('data-editable', now ? 'true' : 'false');
+          addBtn.disabled = !now;
+          e.target.textContent = now ? 'Done' : 'Edit';
+          cont.querySelectorAll('input, textarea, select, button').forEach(el=>{
+            if (el.dataset && el.dataset.role === 'remove-value') el.disabled = !now;
+            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') el.disabled = !now;
+          });
         }
 
-        // Metrics actions
-        if (e.target.matches('[data-role="set-period-type"]')){
-          state.metrics.periodType = e.target.dataset.value;
-          renderMetrics();
-        }
-        if (e.target.matches('[data-role="add-metric"]')){
-          state.metrics.items.push({ id: Date.now()+Math.random(), name: 'New Metric', valuePercent: 0, deltaPercent: 0 });
-          renderMetrics();
-        }
-        if (e.target && e.target.matches('[data-role="remove-metric"]')){
-          const id = Number(e.target.closest('[data-id]').dataset.id);
-          state.metrics.items = state.metrics.items.filter(m=>m.id!==id);
-          renderMetrics();
-        }
+        // handlers combined above
+ 
+         if (e.target.id === 'add-mission-goal-btn'){
+           showAddMissionGoalModal();
+         }
+ 
+         if (e.target.id === 'add-value-btn'){
+           showAddValueRealizedModal();
+         }
 
         // Value list actions
         if (e.target.matches('[data-role="remove-value"]')){
@@ -869,22 +891,7 @@
         }
 
         // Metrics edits
-        if (e.target.id === 'metrics-month'){
-          state.metrics.month = e.target.value;
-          autoSave();
-        }
-        if (e.target.id === 'metrics-quarter'){
-          state.metrics.quarter = Number(e.target.value);
-          autoSave();
-        }
-        if (e.target.id === 'metrics-year'){
-          state.metrics.year = Number(e.target.value);
-          autoSave();
-        }
-        if (e.target.id === 'metrics-year-only'){
-          state.metrics.year = Number(e.target.value);
-          autoSave();
-        }
+        // Metrics controls removed
 
         // Plan Details + Mission Summary
         if (e.target.id === 'health-score'){
@@ -893,20 +900,7 @@
         }
       });
 
-      // Metric item live input updates
-      app.addEventListener('input', (e)=>{
-        if (e.target.closest('#metrics-items-list')){
-          const row = e.target.closest('[data-id]');
-          if (!row) return;
-          const id = Number(row.dataset.id);
-          const m = state.metrics.items.find(x=>x.id===id);
-          if (!m) return;
-          if (e.target.dataset.role === 'metric-name') m.name = e.target.value;
-          if (e.target.dataset.role === 'metric-value') m.valuePercent = Number(e.target.value||0);
-          if (e.target.dataset.role === 'metric-delta') m.deltaPercent = Number(e.target.value||0);
-          autoSave();
-        }
-      });
+             // Metric item live input updates — removed
 
       // Stakeholder add select
       $('#add-stakeholder-select').addEventListener('change', (e)=>{
@@ -1015,9 +1009,7 @@
       try {
         const wb = XLSX.utils.book_new();
         
-        const m = state.metrics;
-        const periodLabel = (m.periodType==='Quarter') ? `Q${m.quarter} ${m.year}` : (m.periodType==='Month' ? m.month : `${m.year}`);
-        const planOverview = [{ MissionSummary: state.missionSummary || '', Health: state.planHealth || 'green', PeriodType: m.periodType, Period: periodLabel }];
+        const planOverview = [{ MissionSummary: state.missionSummary || '', Health: state.planHealth || 'green' }];
 
         const missionGoalsData = state.missionGoals.map(g=>({
           Title: g.title,
@@ -1030,7 +1022,7 @@
           ...state.pastObjectives.map(o=>({ Type:'Past', Name:o.name, Status:o.status, TargetDate:o.targetDate, KPIGoal:o.kpiGoal, Challenges:o.challenges, NextSteps:o.nextSteps, Link:o.s4Link }))
         ];
         const valueData = state.valueRealized.map(v=>({ Type:v.type, Description:v.description, Date:v.date, Link:v.link }));
-        const metricsData = (m.items||[]).map(x=>({ PeriodType:m.periodType, Period: periodLabel, Metric:x.name, ValuePercent:x.valuePercent, DeltaVsPrevQ:x.deltaPercent }));
+        const kpiExport = (state.kpis||[]).map(k=>({ Type: (KPI_TYPES.find(t=>t.key===k.typeKey)||{}).label || k.name, Unit: k.unit, Value: k.value, Delta: k.delta, LinkedObjective: (k.objectiveId ? (state.objectives.concat(state.pastObjectives).find(o=>o.id===k.objectiveId)||{}).name : '') }));
         
         const addSheet = (data, name) => {
           const ws = XLSX.utils.json_to_sheet(data.length?data:[{}]);
@@ -1041,7 +1033,7 @@
         addSheet(objectivesData, 'Objectives');
         addSheet(valueData, 'Value Realized');
         addSheet(stakeholdersData, 'Stakeholders');
-        addSheet(metricsData, 'Metrics');
+        addSheet(kpiExport, 'KPIs');
         
         XLSX.writeFile(wb, 'customer-success-plan.xlsx');
         showNotification('Excel exported successfully!', 'success');
@@ -1057,7 +1049,7 @@
       modal.className = 'modal-overlay';
       modal.innerHTML = `
         <div class="modal-panel p-6 w-[700px] max-w-[90vw] max-h-[90vh] overflow-y-auto">
-          <div class="flex justify-between items-start mb-4">
+          <div class="modal-header flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold">Objective Details</h3>
             <button id="close-details-modal" class="text-slate-400 hover:text-slate-600">&times;</button>
           </div>
@@ -1127,7 +1119,7 @@
       modal.className = 'modal-overlay';
       modal.innerHTML = `
         <div class="modal-panel p-6 w-[600px] max-w-[90vw] max-h-[90vh] overflow-y-auto">
-          <h3 class="text-lg font-semibold mb-4">Add New Objective</h3>
+          <div class="modal-header flex items-center justify-between mb-2"><h3 class="text-lg font-semibold">Add New Objective</h3><button id="new-obj-x" class="text-slate-400 hover:text-slate-600">&times;</button></div>
           <div class="space-y-4">
             <div>
               <label class="block text-sm font-medium mb-1">Objective Name</label>
@@ -1171,9 +1163,11 @@
       
       document.body.appendChild(modal);
       
-      // Show/hide custom objective input
-      const nameSelect = modal.querySelector('#new-objective-name');
-      const customInput = modal.querySelector('#custom-objective-input');
+             modal.querySelector('#new-obj-x').addEventListener('click', () => modal.remove());
+
+       // Show/hide custom objective input
+       const nameSelect = modal.querySelector('#new-objective-name');
+       const customInput = modal.querySelector('#custom-objective-input');
       
       nameSelect.addEventListener('change', () => {
         if (nameSelect.value === 'custom') {
@@ -1227,8 +1221,9 @@
       modal.className = 'modal-overlay';
       modal.innerHTML = `
         <div class="modal-panel w-[600px] max-w-[90vw]">
-          <div class="modal-header">
+          <div class="modal-header flex items-center justify-between">
             <h3 class="text-lg font-semibold">Add Mission Goal</h3>
+            <button id="mg-x" class="text-slate-400 hover:text-slate-600">&times;</button>
           </div>
           <div class="modal-body space-y-4">
             <div>
@@ -1267,8 +1262,9 @@
         fieldsContainer.appendChild(row);
       };
       modal.querySelector('#mg-add-field').addEventListener('click', addFieldRow);
-      modal.querySelector('#mg-cancel').addEventListener('click', () => modal.remove());
-      modal.querySelector('#mg-save').addEventListener('click', () => {
+             modal.querySelector('#mg-x').addEventListener('click', () => modal.remove());
+       modal.querySelector('#mg-cancel').addEventListener('click', () => modal.remove());
+       modal.querySelector('#mg-save').addEventListener('click', () => {
         const title = modal.querySelector('#mg-title').value.trim() || 'New Goal';
         const desc = modal.querySelector('#mg-desc').value.trim();
         const customFields = [...modal.querySelectorAll('[data-field-row]')].map((row) => {
@@ -1289,8 +1285,9 @@
       modal.className = 'modal-overlay';
       modal.innerHTML = `
         <div class="modal-panel w-[600px] max-w-[90vw]">
-          <div class="modal-header">
+          <div class="modal-header flex items-center justify-between">
             <h3 class="text-lg font-semibold">Add Value Realized</h3>
+            <button id="vr-x" class="text-slate-400 hover:text-slate-600">&times;</button>
           </div>
           <div class="modal-body space-y-4">
             <div>
@@ -1322,9 +1319,10 @@
       `;
       document.body.appendChild(modal);
       applyAutoResize(modal);
-      modal.querySelector('#vr-cancel').addEventListener('click', ()=> modal.remove());
-      modal.querySelector('#vr-save').addEventListener('click', ()=>{
-        const type = modal.querySelector('#vr-type').value;
+             modal.querySelector('#vr-x').addEventListener('click', ()=> modal.remove());
+       modal.querySelector('#vr-cancel').addEventListener('click', ()=> modal.remove());
+       modal.querySelector('#vr-save').addEventListener('click', ()=>{
+const type = modal.querySelector('#vr-type').value;
         const description = modal.querySelector('#vr-desc').value.trim();
         const date = modal.querySelector('#vr-date').value;
         const link = modal.querySelector('#vr-link').value.trim();
@@ -1341,7 +1339,7 @@
       modal.className = 'modal-overlay';
       modal.innerHTML = `
         <div class="modal-panel p-6 w-96 max-w-md mx-4">
-          <h3 class="text-lg font-semibold mb-4">Add New Stakeholder</h3>
+          <div class="modal-header flex items-center justify-between mb-2"><h3 class="text-lg font-semibold">Add New Stakeholder</h3><button id="ns-x" class="text-slate-400 hover:text-slate-600">&times;</button></div>
           <div class="space-y-4">
             <div>
               <label class="block text-sm font-medium mb-1">Name</label>
@@ -1365,8 +1363,9 @@
       
       document.body.appendChild(modal);
       
-      // Event handlers
-      modal.querySelector('#cancel-new-stakeholder').addEventListener('click', () => modal.remove());
+             // Event handlers
+       modal.querySelector('#ns-x').addEventListener('click', () => modal.remove());
+       modal.querySelector('#cancel-new-stakeholder').addEventListener('click', () => modal.remove());
       modal.querySelector('#save-new-stakeholder').addEventListener('click', () => {
         const name = modal.querySelector('#new-stakeholder-name').value.trim();
         const title = modal.querySelector('#new-stakeholder-title').value.trim();
@@ -1420,15 +1419,7 @@
            const parsed = JSON.parse(saved);
            Object.assign(state, parsed);
            // Ensure metrics shape exists after upgrades
-           if (!state.metrics) {
-             state.metrics = {
-               periodType: 'Quarter',
-               month: new Date().toISOString().slice(0,7),
-               quarter: Math.floor((new Date().getMonth())/3)+1,
-               year: new Date().getFullYear(),
-               items: []
-             };
-           }
+                     // metrics removed
            if (!state.kpis) state.kpis = [];
            if (typeof state.planHealth === 'undefined') state.planHealth = 'green';
            if (typeof state.missionSummary === 'undefined') state.missionSummary = '';
