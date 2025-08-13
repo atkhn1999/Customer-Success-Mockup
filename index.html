@@ -182,12 +182,14 @@
         kpiGoal: 'Reduce average response time from 45s to 30s.',
         challenges: 'Team members are still learning the new workflow.',
         nextSteps: 'Hold a workshop on advanced features.', s4Link: 'https://s4.example.com/ticket/12345',
+        customFields: [],
         editing: false, expanded: false
       }, {
         id: Date.now() + 2, name: 'Content library clean up', targetDate: '2025-10-31', status: 'Not Started',
         kpiGoal: 'Archive 50% of obsolete content.',
         challenges: 'Lack of clear ownership for older content.',
         nextSteps: 'Work with Samantha Ray to identify content owners.', s4Link: 'https://s4.example.com/ticket/12346',
+        customFields: [],
         editing: false, expanded: false
       }],
       pastObjectives: [],
@@ -312,6 +314,22 @@
                 ${o.s4Link?`<a class="linkish text-sm mt-1 inline-block" href="${o.s4Link}" target="_blank">Open</a>`:''}
               </div>
             </div>
+            <div class="mt-4">
+              <div class="flex items-center justify-between">
+                <label class="block text-sm font-medium">Custom Fields</label>
+                <button class="text-cyan-700 font-semibold" data-role="obj-add-cf">+ Add Custom Field</button>
+              </div>
+              <div class="mt-2 space-y-2" data-role="obj-cf-list">
+                ${(o.customFields||[]).map(f=>`
+                  <div class="flex items-center gap-2" data-obj-cf-row data-field-id="${f.id}">
+                    <input class="text-zone p-2 text-xs font-semibold" value="${f.label||''}" placeholder="Field name" data-role="obj-cf-label" />
+                    <input class="text-zone p-2 text-xs flex-1" value="${f.value||''}" placeholder="Value or https://link" data-role="obj-cf-value" />
+                    <a href="${/^https?:\/\//.test(f.value)?f.value:'#'}" target="_blank" class="${/^https?:\/\//.test(f.value)?'linkish':'pointer-events-none opacity-40'} text-xs">Attach</a>
+                    <button class="text-slate-400 hover:text-red-600" title="Remove" data-role="obj-remove-cf">🗑️</button>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
           </div>`;
       }
       // View mode with always-on preview blocks
@@ -326,12 +344,13 @@
               </div>
             </div>
             <div class="flex items-center gap-3">
+              ${o.s4Link?`<a class="linkish text-sm" href="${o.s4Link}" target="_blank">Open Link</a>`:''}
               <button class="text-cyan-700 font-semibold" data-role="toggle-expand">${o.expanded?'Hide preview':'Show more'}</button>
               <button class="text-slate-500 hover:text-slate-700" data-role="edit">Edit</button>
             </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
             <div class="preview-box">
               <div class="text-xs font-semibold text-slate-600 mb-1">KPI Goal</div>
               <div class="text-sm text-slate-700">${truncate(o.kpiGoal, o.expanded?1000:140) || '<span class=\'text-slate-400\'>Not set</span>'}</div>
@@ -340,7 +359,19 @@
               <div class="text-xs font-semibold text-slate-600 mb-1">Challenges</div>
               <div class="text-sm text-slate-700">${truncate(o.challenges, o.expanded?1000:140) || '<span class=\'text-slate-400\'>None</span>'}</div>
             </div>
+            <div class="preview-box">
+              <div class="text-xs font-semibold text-slate-600 mb-1">Next Steps</div>
+              <div class="text-sm text-slate-700">${truncate(o.nextSteps, o.expanded?1000:140) || '<span class=\'text-slate-400\'>Not specified</span>'}</div>
+            </div>
           </div>
+          ${(o.customFields&&o.customFields.length) ? `
+            <div class="flex flex-wrap gap-2 mt-3">
+              ${o.customFields.map(f=>`
+                <a href="${/^https?:\/\//.test(f.value)?f.value:'#'}" target="_blank" class="chip bg-sky-50 border-sky-300 text-sky-800 ${/^https?:\/\//.test(f.value)?'':'pointer-events-none opacity-60'}">
+                  <span>${f.label||'Field'}</span>
+                </a>
+              `).join('')}
+            </div>` : ''}
           ${o.expanded ? `
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div class="preview-box">
@@ -408,7 +439,7 @@
 
         if (e.target.id === 'add-objective-btn'){
           const id = Date.now();
-          state.objectives.unshift({ id, name:'New Objective', targetDate:'', status:'Not Started', kpiGoal:'', challenges:'', nextSteps:'', s4Link:'', editing:true, expanded:true });
+          state.objectives.unshift({ id, name:'New Objective', targetDate:'', status:'Not Started', kpiGoal:'', challenges:'', nextSteps:'', s4Link:'', customFields:[], editing:true, expanded:true });
           renderObjectives();
         }
 
@@ -464,6 +495,12 @@
             o.challenges = $('[data-role="edit-challenges"]', wrap).value;
             o.nextSteps = $('[data-role="edit-steps"]', wrap).value;
             o.s4Link = $('[data-role="edit-link"]', wrap).value;
+            const cfRows = [...wrap.querySelectorAll('[data-obj-cf-row]')];
+            o.customFields = cfRows.map(r => ({
+              id: Number(r.dataset.fieldId) || Date.now()+Math.random(),
+              label: $('[data-role="obj-cf-label"]', r).value,
+              value: $('[data-role="obj-cf-value"]', r).value
+            }));
             o.editing = false;
             renderObjectives();
           }
@@ -477,6 +514,24 @@
           const id = Number(card.dataset.id);
           state.stakeholders = state.stakeholders.filter(s=>s.id!==id);
           renderStakeholders();
+        }
+        if (e.target.matches('[data-role="obj-add-cf"]')){
+          const id = Number(card.dataset.id);
+          const o = state.objectives.find(x=>x.id===id);
+          if (o){
+            if (!o.customFields) o.customFields = [];
+            o.customFields.push({id: Date.now()+Math.random(), label: 'Field', value: ''});
+            renderObjectives();
+          }
+        }
+        if (e.target.matches('[data-role="obj-remove-cf"]')){
+          const id = Number(card.dataset.id);
+          const fid = Number(e.target.closest('[data-field-id]').dataset.fieldId);
+          const o = state.objectives.find(x=>x.id===id);
+          if (o){
+            o.customFields = (o.customFields||[]).filter(f=>f.id!==fid);
+            renderObjectives();
+          }
         }
       });
 
@@ -506,6 +561,18 @@
           if (f){
             if (e.target.dataset.role==='cf-label') f.label = e.target.value;
             if (e.target.dataset.role==='cf-value') f.value = e.target.value;
+          }
+        }
+        if (e.target.matches('[data-role="obj-cf-label"], [data-role="obj-cf-value"]')){
+          const id = Number(e.target.closest('[data-id]').dataset.id);
+          const fid = Number(e.target.closest('[data-field-id]').dataset.fieldId);
+          const o = state.objectives.find(x=>x.id===id);
+          if (o){
+            const f = (o.customFields||[]).find(y=>y.id===fid);
+            if (f){
+              if (e.target.dataset.role==='obj-cf-label') f.label = e.target.value;
+              if (e.target.dataset.role==='obj-cf-value') f.value = e.target.value;
+            }
           }
         }
 
