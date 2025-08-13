@@ -536,23 +536,21 @@
         <div class="flex flex-col md:flex-row items-start md:items-center gap-4">
           <p class="text-teal-50/90 text-sm font-light whitespace-nowrap">Last updated: <span id="last-updated-date"></span></p>
           <div class="flex flex-wrap items-center gap-3">
-            <button id="import-data-btn" class="btn btn-header group relative overflow-hidden" aria-label="Import Data">
-              <span class="absolute inset-0 bg-gradient-to-r from-teal-400 to-teal-600 opacity-0 group-hover:opacity-20 transition-opacity"></span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform group-hover:scale-110" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <button id="import-data-btn" class="btn group relative overflow-hidden bg-white/90 backdrop-blur-sm text-gray-700 border border-gray-200 hover:bg-white hover:border-gray-300 shadow-sm hover:shadow-md transition-all" aria-label="Import Data">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform group-hover:scale-110 text-gray-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 4.414V13a1 1 0 11-2 0V4.414L6.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
               </svg>
-              <span class="relative z-10">Import Data</span>
+              <span class="font-medium">Import Data</span>
             </button>
-            <button id="export-excel-btn" class="btn btn-header group relative overflow-hidden" aria-label="Generate Excel Report">
-              <span class="absolute inset-0 bg-gradient-to-r from-emerald-400 to-emerald-600 opacity-0 group-hover:opacity-20 transition-opacity"></span>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <button id="export-excel-btn" class="btn group relative overflow-hidden bg-white/90 backdrop-blur-sm text-gray-700 border border-gray-200 hover:bg-white hover:border-gray-300 shadow-sm hover:shadow-md transition-all" aria-label="Generate Excel Report">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform group-hover:scale-110 text-green-600" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
                 <path d="M8 13h2v2H8zm0 3h2v2H8zm3-3h2v2h-2zm0 3h2v2h-2zm3-3h2v2h-2zm0 3h2v2h-2z"/>
               </svg>
-              <span class="relative z-10">Generate Excel Report</span>
+              <span class="font-medium">Generate Excel Report</span>
             </button>
-            <button id="export-pdf-btn" class="btn btn-primary group relative overflow-hidden shadow-lg hover:shadow-xl transform transition-all hover:-translate-y-0.5" aria-label="Generate PDF Report">
-              <span class="absolute inset-0 bg-gradient-to-r from-teal-600 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity"></span>
+            <button id="export-pdf-btn" class="btn group relative overflow-hidden bg-gradient-to-r from-slate-700 to-slate-800 text-white shadow-md hover:shadow-lg transform transition-all hover:-translate-y-0.5" aria-label="Generate PDF Report">
+              <span class="absolute inset-0 bg-gradient-to-r from-slate-800 to-slate-900 opacity-0 group-hover:opacity-100 transition-opacity"></span>
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform group-hover:scale-110 relative z-10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zM9.5 17.5a2.5 2.5 0 115 0c0 .6-.4 1.3-.8 1.9l-1.7 2.1-1.7-2.1c-.4-.6-.8-1.3-.8-1.9zM14 9h-1V2l7 7h-6z"/>
               </svg>
@@ -2211,145 +2209,264 @@
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
         
-        // Define colors matching website
-        const tealColor = [20, 184, 166]; // #14b8a6
-        const darkColor = [15, 23, 42]; // #0f172a
-        const grayColor = [107, 114, 128]; // #6b7280
+        // Define colors
+        const primaryGradient = [[20, 184, 166], [13, 148, 136]]; // teal gradient
+        const secondaryGradient = [[71, 85, 105], [51, 65, 85]]; // slate gradient
+        const accentGreen = [16, 185, 129];
+        const darkText = [15, 23, 42];
+        const grayText = [107, 114, 128];
+        const lightGray = [243, 244, 246];
+        const white = [255, 255, 255];
         
-        // Helper function to check if we need a new page
+        // Helper function to check page breaks
         function checkPageBreak(yPos, requiredSpace = 30) {
           if (yPos + requiredSpace > 270) {
             doc.addPage();
-            return 20;
+            addPageDecoration();
+            return 25;
           }
           return yPos;
         }
         
-        // Add header with gradient effect (simulated)
-        doc.setFillColor(...tealColor);
-        doc.rect(0, 0, 210, 40, 'F');
+        // Helper to add subtle page decoration
+        function addPageDecoration() {
+          // Subtle top border
+          doc.setDrawColor(...primaryGradient[0]);
+          doc.setLineWidth(0.5);
+          doc.line(0, 0, 210, 0);
+        }
+        
+        // Helper to draw gradient-like rectangles
+        function drawGradientRect(x, y, w, h, colors, opacity = 1) {
+          const steps = 10;
+          const stepHeight = h / steps;
+          for (let i = 0; i < steps; i++) {
+            const ratio = i / steps;
+            const r = Math.round(colors[0][0] + (colors[1][0] - colors[0][0]) * ratio);
+            const g = Math.round(colors[0][1] + (colors[1][1] - colors[0][1]) * ratio);
+            const b = Math.round(colors[0][2] + (colors[1][2] - colors[0][2]) * ratio);
+            doc.setFillColor(r, g, b);
+            doc.setGDOpacity(opacity);
+            doc.rect(x, y + i * stepHeight, w, stepHeight, 'F');
+          }
+          doc.setGDOpacity(1);
+        }
+        
+        // Add header with gradient
+        drawGradientRect(0, 0, 210, 45, primaryGradient);
+        
+        // Add subtle pattern overlay
+        doc.setDrawColor(...white);
+        doc.setGDOpacity(0.1);
+        for (let i = 0; i < 20; i++) {
+          doc.circle(Math.random() * 210, Math.random() * 45, Math.random() * 20 + 5, 'S');
+        }
+        doc.setGDOpacity(1);
         
         // Title
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(24);
+        doc.setTextColor(...white);
+        doc.setFontSize(26);
         doc.setFont(undefined, 'bold');
-        doc.text(`${state.customerName} Success Plan`, 20, 20);
+        doc.text(`${state.customerName} Success Plan`, 20, 22);
         
-        doc.setFontSize(12);
+        doc.setFontSize(13);
         doc.setFont(undefined, 'normal');
-        doc.text('Responsive Platform', 20, 30);
-        doc.text(`Generated: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`, 130, 30);
+        doc.text('Responsive Platform', 20, 32);
         
-        let y = 55;
+        // Date with icon
+        doc.setFontSize(11);
+        const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        doc.text(dateStr, 190, 32, { align: 'right' });
         
-        // Mission Summary
-        doc.setTextColor(...darkColor);
-        doc.setFontSize(16);
+        let y = 60;
+        
+        // Overall Health Status
+        const healthColors = {
+          green: [34, 197, 94],
+          yellow: [250, 204, 21],
+          red: [239, 68, 68]
+        };
+        const healthLabels = {
+          green: 'On Track',
+          yellow: 'Needs Attention',
+          red: 'At Risk'
+        };
+        
+        doc.setFillColor(...healthColors[state.planHealth]);
+        doc.roundedRect(20, y - 8, 170, 18, 3, 3, 'F');
+        doc.setTextColor(...white);
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'bold');
+        doc.text(`Overall Health: ${healthLabels[state.planHealth]}`, 105, y, { align: 'center' });
+        y += 25;
+        
+        // Mission Summary Section
+        y = checkPageBreak(y);
+        doc.setTextColor(...darkText);
+        doc.setFontSize(18);
         doc.setFont(undefined, 'bold');
         doc.text('Mission Summary', 20, y);
-        y += 8;
+        
+        // Decorative line
+        drawGradientRect(20, y + 2, 50, 0.5, primaryGradient);
+        y += 12;
+        
+        // Summary content with background
+        doc.setFillColor(...lightGray);
+        doc.setGDOpacity(0.5);
+        const summaryLines = doc.splitTextToSize(state.missionSummary || 'Not defined', 160);
+        const summaryHeight = summaryLines.length * 5 + 10;
+        doc.roundedRect(18, y - 5, 174, summaryHeight, 3, 3, 'F');
+        doc.setGDOpacity(1);
         
         doc.setFontSize(11);
         doc.setFont(undefined, 'normal');
-        doc.setTextColor(...grayColor);
-        const summaryLines = doc.splitTextToSize(state.missionSummary || 'Not defined', 170);
-        doc.text(summaryLines, 20, y);
-        y += summaryLines.length * 5 + 15;
+        doc.setTextColor(...grayText);
+        doc.text(summaryLines, 25, y + 3);
+        y += summaryHeight + 15;
         
-        // Mission Goals
+        // Mission Goals Section
         y = checkPageBreak(y);
-        doc.setTextColor(...darkColor);
-        doc.setFontSize(16);
+        doc.setTextColor(...darkText);
+        doc.setFontSize(18);
         doc.setFont(undefined, 'bold');
         doc.text('Mission Goals', 20, y);
-        y += 10;
+        drawGradientRect(20, y + 2, 50, 0.5, primaryGradient);
+        y += 12;
         
         state.missionGoals.forEach((goal, index) => {
           y = checkPageBreak(y, 40);
           
-          // Goal box
-          doc.setDrawColor(...tealColor);
-          doc.setLineWidth(0.5);
-          doc.rect(20, y - 5, 170, 30, 'S');
+          // Goal card with gradient border
+          drawGradientRect(20, y - 5, 2, 35, primaryGradient);
+          doc.setFillColor(...white);
+          doc.rect(22, y - 5, 168, 35, 'F');
+          doc.setDrawColor(...lightGray);
+          doc.rect(22, y - 5, 168, 35, 'S');
           
-          doc.setFontSize(12);
+          // Goal number badge
+          doc.setFillColor(...primaryGradient[0]);
+          doc.circle(30, y + 10, 8, 'F');
+          doc.setTextColor(...white);
+          doc.setFontSize(10);
           doc.setFont(undefined, 'bold');
-          doc.setTextColor(...darkColor);
-          doc.text(goal.title, 25, y);
-          y += 7;
+          doc.text(`${index + 1}`, 30, y + 10, { align: 'center' });
+          
+          // Goal content
+          doc.setFontSize(13);
+          doc.setFont(undefined, 'bold');
+          doc.setTextColor(...darkText);
+          doc.text(goal.title, 45, y + 3);
+          y += 10;
           
           doc.setFontSize(10);
           doc.setFont(undefined, 'normal');
-          doc.setTextColor(...grayColor);
-          const descLines = doc.splitTextToSize(goal.description, 160);
-          doc.text(descLines, 25, y);
-          y += descLines.length * 4 + 15;
+          doc.setTextColor(...grayText);
+          const goalDescLines = doc.splitTextToSize(goal.description, 140);
+          doc.text(goalDescLines, 45, y);
+          y += goalDescLines.length * 4 + 20;
         });
         
-        // Value Realized
+        // Value Realized Section
         y = checkPageBreak(y);
-        doc.setTextColor(...darkColor);
-        doc.setFontSize(16);
+        doc.setTextColor(...darkText);
+        doc.setFontSize(18);
         doc.setFont(undefined, 'bold');
         doc.text('Value Realized', 20, y);
-        y += 10;
+        drawGradientRect(20, y + 2, 50, 0.5, [[34, 197, 94], [16, 185, 129]]);
+        y += 12;
         
         state.valueRealized.forEach((value) => {
-          y = checkPageBreak(y, 25);
+          y = checkPageBreak(y, 30);
           
-          doc.setFillColor(16, 185, 129); // Green for value
-          doc.circle(25, y - 2, 2, 'F');
+          // Value card
+          doc.setFillColor(...white);
+          doc.setDrawColor(...accentGreen);
+          doc.setLineWidth(0.5);
+          doc.roundedRect(20, y - 3, 170, 25, 2, 2, 'FD');
+          
+          // Value type badge
+          doc.setFillColor(...accentGreen);
+          doc.setGDOpacity(0.1);
+          doc.roundedRect(25, y, 50, 6, 1, 1, 'F');
+          doc.setGDOpacity(1);
           
           doc.setFontSize(11);
           doc.setFont(undefined, 'bold');
-          doc.setTextColor(16, 185, 129);
-          doc.text(value.type, 30, y);
+          doc.setTextColor(...accentGreen);
+          doc.text(value.type, 27, y + 4);
           
+          // Value description
           doc.setFont(undefined, 'normal');
-          doc.setTextColor(...grayColor);
+          doc.setTextColor(...grayText);
           doc.setFontSize(10);
-          const valueLines = doc.splitTextToSize(value.description, 155);
-          doc.text(valueLines, 30, y + 5);
+          const valueLines = doc.splitTextToSize(value.description, 160);
+          doc.text(valueLines, 25, y + 10);
           
           if (value.date) {
-            doc.setFontSize(9);
-            doc.text(`Realized: ${value.date}`, 30, y + 5 + valueLines.length * 4 + 3);
+            doc.setFontSize(8);
+            doc.setTextColor(...grayText);
+            doc.text(value.date, 185, y + 4, { align: 'right' });
           }
           
-          y += 25 + valueLines.length * 4;
+          y += 30;
         });
         
-        // Current Objectives
+        // Current Objectives Section
         y = checkPageBreak(y);
-        doc.setTextColor(...darkColor);
-        doc.setFontSize(16);
+        doc.setTextColor(...darkText);
+        doc.setFontSize(18);
         doc.setFont(undefined, 'bold');
         doc.text('Current Objectives', 20, y);
-        y += 10;
+        drawGradientRect(20, y + 2, 50, 0.5, primaryGradient);
+        y += 15;
         
         state.objectives.forEach((obj) => {
-          y = checkPageBreak(y, 50);
+          y = checkPageBreak(y, 60);
           
-          // Objective header
-          doc.setFillColor(...tealColor);
-          doc.rect(20, y - 5, 170, 8, 'F');
-          doc.setTextColor(255, 255, 255);
+          // Objective card with gradient header
+          drawGradientRect(20, y - 5, 170, 10, secondaryGradient);
+          
+          // Objective name
+          doc.setTextColor(...white);
           doc.setFontSize(12);
           doc.setFont(undefined, 'bold');
           doc.text(obj.name, 25, y);
+          y += 8;
+          
+          // Card body
+          doc.setFillColor(...white);
+          doc.rect(20, y - 3, 170, 45, 'F');
+          doc.setDrawColor(...lightGray);
+          doc.rect(20, y - 3, 170, 45, 'S');
+          
+          // Status badge
+          const statusColors = {
+            'In Progress': [6, 182, 212],
+            'Not Started': [107, 114, 128],
+            'Completed': [34, 197, 94],
+            'At Risk': [251, 146, 60]
+          };
+          const statusColor = statusColors[obj.status] || statusColors['Not Started'];
+          
+          doc.setFillColor(...statusColor);
+          doc.setGDOpacity(0.1);
+          doc.roundedRect(25, y + 1, 40, 6, 1, 1, 'F');
+          doc.setGDOpacity(1);
+          doc.setTextColor(...statusColor);
+          doc.setFontSize(9);
+          doc.setFont(undefined, 'bold');
+          doc.text(obj.status, 27, y + 5);
+          
+          // Target date
+          doc.setTextColor(...grayText);
+          doc.setFont(undefined, 'normal');
+          doc.text(`Target: ${obj.targetDate || 'Not set'}`, 185, y + 5, { align: 'right' });
           y += 10;
           
-          // Status and date
-          doc.setTextColor(...darkColor);
-          doc.setFontSize(10);
-          doc.text(`Status: ${obj.status}`, 25, y);
-          doc.text(`Target: ${obj.targetDate || 'Not set'}`, 100, y);
-          y += 7;
-          
           // Description
-          doc.setTextColor(...grayColor);
-          doc.setFont(undefined, 'normal');
           if (obj.description) {
+            doc.setFontSize(10);
             const descLines = doc.splitTextToSize(obj.description, 160);
             doc.text(descLines, 25, y);
             y += descLines.length * 4 + 5;
@@ -2358,66 +2475,98 @@
           // KPIs
           if (obj.kpis && obj.kpis.length > 0) {
             doc.setFont(undefined, 'bold');
-            doc.setTextColor(...darkColor);
+            doc.setTextColor(...darkText);
+            doc.setFontSize(10);
             doc.text('Key Performance Indicators:', 25, y);
-            y += 5;
+            y += 6;
             
             obj.kpis.forEach(kpi => {
               const type = getKPIType(kpi.typeKey);
-              doc.setFont(undefined, 'normal');
-              doc.text(`• ${type.label}: ${kpi.currentValue}${type.unit}`, 30, y);
               
-              if (kpi.comparePrevious && kpi.previousValue !== undefined) {
+              // KPI background
+              doc.setFillColor(...lightGray);
+              doc.setGDOpacity(0.3);
+              doc.roundedRect(28, y - 3, 155, 6, 1, 1, 'F');
+              doc.setGDOpacity(1);
+              
+              doc.setFont(undefined, 'normal');
+              doc.setTextColor(...grayText);
+              doc.setFontSize(9);
+              doc.text(`• ${type.label}:`, 30, y);
+              
+              // Current value
+              doc.setFont(undefined, 'bold');
+              doc.setTextColor(...darkText);
+              doc.text(`${kpi.currentValue}${type.unit}`, 80, y);
+              
+              // Delta calculation with proper handling
+              if (kpi.comparePrevious && kpi.previousValue !== undefined && kpi.previousValue !== null) {
                 const delta = calculateDelta(kpi.currentValue, kpi.previousValue);
                 const deltaNum = parseFloat(delta);
-                const isPositive = type.higherIsBetter ? deltaNum >= 0 : deltaNum <= 0;
-                doc.setTextColor(isPositive ? 16 : 239, isPositive ? 185 : 68, isPositive ? 129 : 68);
-                doc.text(` (${deltaNum > 0 ? '+' : ''}${delta}%)`, 80, y);
-                doc.setTextColor(...grayColor);
+                
+                if (!isNaN(deltaNum)) {
+                  const isImprovement = type.higherIsBetter ? deltaNum >= 0 : deltaNum <= 0;
+                  const deltaColor = isImprovement ? accentGreen : [239, 68, 68];
+                  
+                  doc.setTextColor(...deltaColor);
+                  doc.setFont(undefined, 'normal');
+                  const deltaText = `${deltaNum > 0 ? '+' : ''}${delta}%`;
+                  doc.text(deltaText, 110, y);
+                  
+                  // Trend arrow
+                  const arrow = deltaNum > 0 ? '↑' : deltaNum < 0 ? '↓' : '→';
+                  doc.text(arrow, 130, y);
+                }
               }
-              y += 5;
+              y += 7;
             });
           }
           
-          y += 10;
+          y += 15;
         });
         
-        // Past Objectives
+        // Past Objectives Section
         if (state.pastObjectives.length > 0) {
           y = checkPageBreak(y);
-          doc.setTextColor(...darkColor);
-          doc.setFontSize(16);
+          doc.setTextColor(...darkText);
+          doc.setFontSize(18);
           doc.setFont(undefined, 'bold');
           doc.text('Past Objectives Achieved', 20, y);
-          y += 10;
+          drawGradientRect(20, y + 2, 50, 0.5, [[34, 197, 94], [16, 185, 129]]);
+          y += 12;
           
           state.pastObjectives.forEach((obj) => {
-            y = checkPageBreak(y, 30);
+            y = checkPageBreak(y, 35);
             
-            // Completed objective with checkmark
-            doc.setTextColor(16, 185, 129);
-            doc.setFontSize(14);
-            doc.text('✓', 20, y);
+            // Achievement card
+            doc.setFillColor(...accentGreen);
+            doc.setGDOpacity(0.05);
+            doc.roundedRect(20, y - 3, 170, 30, 2, 2, 'F');
+            doc.setGDOpacity(1);
             
-            doc.setTextColor(...darkColor);
-            doc.setFontSize(12);
+            // Checkmark
+            doc.setTextColor(...accentGreen);
+            doc.setFontSize(16);
+            doc.text('✓', 25, y + 5);
+            
+            // Objective details
+            doc.setTextColor(...darkText);
+            doc.setFontSize(11);
             doc.setFont(undefined, 'bold');
-            doc.text(obj.name, 30, y);
-            y += 7;
+            doc.text(obj.name, 35, y + 5);
             
-            doc.setTextColor(...grayColor);
-            doc.setFontSize(10);
+            doc.setTextColor(...grayText);
+            doc.setFontSize(9);
             doc.setFont(undefined, 'normal');
-            doc.text(`Completed: ${obj.targetDate || 'N/A'}`, 30, y);
-            y += 5;
+            doc.text(`Completed: ${obj.targetDate || 'N/A'}`, 35, y + 11);
             
             if (obj.description) {
-              const descLines = doc.splitTextToSize(obj.description, 150);
-              doc.text(descLines, 30, y);
-              y += descLines.length * 4;
+              doc.setFontSize(9);
+              const descLines = doc.splitTextToSize(obj.description, 145);
+              doc.text(descLines, 35, y + 17);
             }
             
-            y += 10;
+            y += 35;
           });
         }
         
@@ -2425,10 +2574,16 @@
         const pageCount = doc.internal.getNumberOfPages();
         for (let i = 1; i <= pageCount; i++) {
           doc.setPage(i);
+          
+          // Footer gradient line
+          drawGradientRect(0, 290, 210, 0.5, primaryGradient);
+          
           doc.setFontSize(9);
-          doc.setTextColor(...grayColor);
+          doc.setTextColor(...grayText);
           doc.text(`Page ${i} of ${pageCount}`, 105, 285, { align: 'center' });
+          doc.setFont(undefined, 'italic');
           doc.text('Responsive Platform - Customer Success Plan', 20, 285);
+          doc.text(state.customerName, 190, 285, { align: 'right' });
         }
         
         // Save
@@ -2440,7 +2595,7 @@
       }
       
       btn.disabled = false;
-      btn.innerHTML = '<span class="absolute inset-0 bg-gradient-to-r from-teal-600 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity"></span><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform group-hover:scale-110 relative z-10" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zM9.5 17.5a2.5 2.5 0 115 0c0 .6-.4 1.3-.8 1.9l-1.7 2.1-1.7-2.1c-.4-.6-.8-1.3-.8-1.9zM14 9h-1V2l7 7h-6z"/></svg><span class="relative z-10 font-semibold">Generate PDF Report</span>';
+      btn.innerHTML = '<span class="absolute inset-0 bg-gradient-to-r from-slate-800 to-slate-900 opacity-0 group-hover:opacity-100 transition-opacity"></span><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform group-hover:scale-110 relative z-10" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zM9.5 17.5a2.5 2.5 0 115 0c0 .6-.4 1.3-.8 1.9l-1.7 2.1-1.7-2.1c-.4-.6-.8-1.3-.8-1.9zM14 9h-1V2l7 7h-6z"/></svg><span class="relative z-10 font-semibold">Generate PDF Report</span>';
     }
 
     function exportToExcel() {
@@ -2670,7 +2825,7 @@
       }
       
       btn.disabled = false;
-      btn.innerHTML = '<span class="absolute inset-0 bg-gradient-to-r from-emerald-400 to-emerald-600 opacity-0 group-hover:opacity-20 transition-opacity"></span><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm4 18H6V4h7v5h5v11z"/><path d="M8 13h2v2H8zm0 3h2v2H8zm3-3h2v2h-2zm0 3h2v2h-2zm3-3h2v2h-2zm0 3h2v2h-2z"/></svg><span class="relative z-10">Generate Excel Report</span>';
+      btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform group-hover:scale-110 text-green-600" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm4 18H6V4h7v5h5v11z"/><path d="M8 13h2v2H8zm0 3h2v2H8zm3-3h2v2h-2zm0 3h2v2h-2zm3-3h2v2h-2zm0 3h2v2h-2z"/></svg><span class="font-medium">Generate Excel Report</span>';
     }
 
     // ---------- Storage ----------
