@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Customer Success Plan — Enhanced</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -32,6 +34,16 @@
     .card { @apply bg-white rounded-xl shadow-sm border border-slate-200/80; }
     .fade { transition: all .2s ease; }
     .removing { transform: scale(.98); opacity:.0; max-height:0; padding-top:0; padding-bottom:0; margin-top:0; margin-bottom:0; border-width:0; }
+    
+    /* Enhanced desktop layout */
+    .desktop-optimized { @apply max-w-screen-xl mx-auto; }
+    
+    /* Better spacing for wide screens */
+    @media (min-width: 1280px) {
+      .lg\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .lg\:col-span-3 { grid-column: span 3 / span 3; }
+      .lg\:col-span-1 { grid-column: span 1 / span 1; }
+    }
 
     /* Preview blocks inside objective cards */
     .preview-box { @apply bg-slate-50 border border-slate-200 rounded-lg p-3; }
@@ -163,6 +175,14 @@
     // ---------- Data ----------
     const objectiveOptions = ['Reduce time spent per response', 'Adoption', 'Content library clean up', 'Increase win rate'];
     const valueOptions = ['Time Savings', 'Win Rate Increase', 'Adoption Rate', 'Cost Reduction', 'Revenue Growth', 'Productivity Gain'];
+    
+    // Suggested KPIs based on product selection
+    const productKPIs = {
+      'AI': ['Unedited AI responses', '% answer with AI', 'AI response quality score', 'AI adoption rate'],
+      'Content Library': ['Content usage rate', 'Content creation time', 'Content approval time', 'Content search efficiency'],
+      'Projects': ['Project completion rate', 'Project delivery time', 'Project budget adherence', 'Stakeholder satisfaction'],
+      'Trust Center': ['Trust score improvement', 'Compliance rate', 'Security incident reduction', 'Customer confidence score']
+    };
 
     const mockContacts = [
       { id: 1, name: 'Jane Doe', title: 'VP, Sales', email: 'jane.d@example.com' },
@@ -327,6 +347,7 @@
             </div>
             <div class="flex items-center gap-3">
               <button class="text-cyan-700 font-semibold" data-role="toggle-expand">${o.expanded?'Hide preview':'Show more'}</button>
+              <button class="text-slate-500 hover:text-slate-700" data-role="view-details">View Details</button>
               <button class="text-slate-500 hover:text-slate-700" data-role="edit">Edit</button>
             </div>
           </div>
@@ -407,9 +428,7 @@
         }
 
         if (e.target.id === 'add-objective-btn'){
-          const id = Date.now();
-          state.objectives.unshift({ id, name:'New Objective', targetDate:'', status:'Not Started', kpiGoal:'', challenges:'', nextSteps:'', s4Link:'', editing:true, expanded:true });
-          renderObjectives();
+          showAddObjectiveModal();
         }
 
         // Value list actions
@@ -429,7 +448,7 @@
           const id = Number(card.dataset.id);
           const g = state.missionGoals.find(x=>x.id===id);
           if (!g.customFields) g.customFields = [];
-          g.customFields.push({id:Date.now()+Math.random(), label:'Field', value:''});
+          g.customFields.push({id:Date.now()+Math.random(), label:'New Field', value:''});
           renderMissionGoals();
         }
         if (e.target.matches('[data-role="remove-cf"]')){
@@ -457,6 +476,7 @@
           const wrap = card;
           const o = state.objectives.find(x=>x.id===id);
           if (o){
+            const oldStatus = o.status;
             o.name = $('[data-role="edit-name"]', wrap).value.trim() || o.name;
             o.status = $('[data-role="edit-status"]', wrap).value;
             o.targetDate = $('[data-role="edit-date"]', wrap).value;
@@ -465,6 +485,18 @@
             o.nextSteps = $('[data-role="edit-steps"]', wrap).value;
             o.s4Link = $('[data-role="edit-link"]', wrap).value;
             o.editing = false;
+            
+            // Handle status change to Completed
+            if (oldStatus !== 'Completed' && o.status === 'Completed') {
+              // Move to past objectives
+              const index = state.objectives.findIndex(obj => obj.id === id);
+              if (index > -1) {
+                const completedObj = state.objectives.splice(index, 1)[0];
+                state.pastObjectives.unshift(completedObj);
+                showNotification('Objective completed! Moved to Past Objectives.', 'success');
+              }
+            }
+            
             renderObjectives();
           }
         }
@@ -472,6 +504,11 @@
           const id = Number(card.dataset.id);
           const o = state.objectives.find(x=>x.id===id);
           if (o){ o.expanded = !o.expanded; renderObjectives(); }
+        }
+        if (e.target.matches('[data-role="view-details"]')){
+          const id = Number(card.dataset.id);
+          const o = state.objectives.find(x=>x.id===id) || state.pastObjectives.find(x=>x.id===id);
+          if (o){ showObjectiveDetailsModal(o); }
         }
         if (e.target.matches('[data-role="remove-stakeholder"]')){
           const id = Number(card.dataset.id);
@@ -486,7 +523,26 @@
         if (e.target.matches('[data-role="quick-date"]')){
           const id = Number(e.target.closest('[data-id]').dataset.id);
           const o = state.objectives.find(x=>x.id===id);
-          if (o){ o.targetDate = e.target.value; renderObjectives(); }
+          if (o){ 
+            o.targetDate = e.target.value; 
+            renderObjectives(); 
+          }
+        }
+        
+        // status change on objective card
+        if (e.target.matches('[data-role="edit-status"]')){
+          const id = Number(e.target.closest('[data-id]').dataset.id);
+          const o = state.objectives.find(x=>x.id===id);
+          if (o && e.target.value === 'Completed'){
+            // Move to past objectives
+            const index = state.objectives.findIndex(obj => obj.id === id);
+            if (index > -1) {
+              const completedObj = state.objectives.splice(index, 1)[0];
+              state.pastObjectives.unshift(completedObj);
+              showNotification('Objective completed! Moved to Past Objectives.', 'success');
+              renderObjectives();
+            }
+          }
         }
 
         // mission goal inline edits
@@ -524,19 +580,369 @@
 
       // Stakeholder add select
       $('#add-stakeholder-select').addEventListener('change', (e)=>{
-        const id = Number(e.target.value);
-        if (id){
-          const pick = mockContacts.find(c=>c.id===id);
-          if (pick && !state.stakeholders.find(s=>s.id===id)) state.stakeholders.push(pick);
+        const id = e.target.value;
+        if (id === 'new') {
+          // Show modal for new stakeholder
+          showNewStakeholderModal();
+          e.target.value = '';
+        } else if (id) {
+          const pick = mockContacts.find(c=>c.id===Number(id));
+          if (pick && !state.stakeholders.find(s=>s.id===pick.id)) state.stakeholders.push(pick);
           renderStakeholders();
           e.target.value = '';
         }
       });
+      
+      // Product filter change - show suggested KPIs
+      $('#filter-products').addEventListener('change', (e) => {
+        const selectedProduct = e.target.value;
+        const container = $('#suggested-objectives-container');
+        const list = $('#suggested-objectives-list');
+        
+        if (selectedProduct && productKPIs[selectedProduct]) {
+          list.innerHTML = productKPIs[selectedProduct].map(kpi => 
+            `<span class="chip bg-emerald-100 text-emerald-800 border-emerald-200">${kpi}</span>`
+          ).join('');
+          container.classList.remove('hidden');
+        } else {
+          container.classList.add('hidden');
+        }
+      });
+      
+      // PDF Export button
+      $('#export-pdf-btn').addEventListener('click', exportToPDF);
     }
 
+    // ---------- PDF Export ----------
+    async function exportToPDF() {
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('l', 'mm', 'a4');
+        
+        // Show loading state
+        const btn = $('#export-pdf-btn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Generating...';
+        btn.disabled = true;
+        
+        // Capture the main content
+        const element = $('#app');
+        const canvas = await html2canvas(element, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#f1f5f9'
+        });
+        
+        const imgData = canvas.toDataURL('image/png');
+        const imgWidth = 297; // A4 landscape width in mm
+        const pageHeight = 210; // A4 landscape height in mm
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let heightLeft = imgHeight;
+        let position = 0;
+        
+        // Add first page
+        doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+        
+        // Add additional pages if content is longer than one page
+        while (heightLeft >= 0) {
+          position = heightLeft - imgHeight;
+          doc.addPage();
+          doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+        }
+        
+        // Save the PDF
+        doc.save('customer-success-plan.pdf');
+        
+        // Reset button
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        
+        // Show success message
+        showNotification('PDF generated successfully!', 'success');
+      } catch (error) {
+        console.error('PDF generation failed:', error);
+        showNotification('PDF generation failed. Please try again.', 'error');
+        
+        // Reset button
+        const btn = $('#export-pdf-btn');
+        btn.innerHTML = 'Generate PDF';
+        btn.disabled = false;
+      }
+    }
+    
+    // View Objective Details Modal
+    function showObjectiveDetailsModal(objective) {
+      const modal = document.createElement('div');
+      modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+      modal.innerHTML = `
+        <div class="bg-white rounded-lg p-6 w-[700px] max-w-[90vw] max-h-[90vh] overflow-y-auto">
+          <div class="flex justify-between items-start mb-4">
+            <h3 class="text-lg font-semibold">Objective Details</h3>
+            <button id="close-details-modal" class="text-slate-400 hover:text-slate-600">&times;</button>
+          </div>
+          
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium mb-1 text-slate-600">Objective Name</label>
+              <p class="text-lg font-semibold">${objective.name}</p>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium mb-1 text-slate-600">Status</label>
+                <span class="status-pill ${pillClass(objective.status)}">${objective.status}</span>
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1 text-slate-600">Target Date</label>
+                <p>${objective.targetDate || 'Not set'}</p>
+              </div>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium mb-1 text-slate-600">KPI Goal</label>
+              <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
+                <p>${objective.kpiGoal || 'Not specified'}</p>
+              </div>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium mb-1 text-slate-600">Challenges</label>
+              <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
+                <p>${objective.challenges || 'None identified'}</p>
+              </div>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium mb-1 text-slate-600">Next Steps</label>
+              <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
+                <p>${objective.nextSteps || 'Not specified'}</p>
+              </div>
+            </div>
+            
+            ${objective.s4Link ? `
+              <div>
+                <label class="block text-sm font-medium mb-1 text-slate-600">External Links</label>
+                <a href="${objective.s4Link}" target="_blank" class="linkish">${objective.s4Link}</a>
+              </div>
+            ` : ''}
+          </div>
+          
+          <div class="flex justify-end mt-6">
+            <button id="close-details-modal-2" class="px-4 py-2 bg-slate-200 text-slate-800 rounded-lg hover:bg-slate-300">Close</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      
+      // Event handlers
+      modal.querySelector('#close-details-modal').addEventListener('click', () => modal.remove());
+      modal.querySelector('#close-details-modal-2').addEventListener('click', () => modal.remove());
+    }
+    
+    // Add Objective Modal
+    function showAddObjectiveModal() {
+      const modal = document.createElement('div');
+      modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+      modal.innerHTML = `
+        <div class="bg-white rounded-lg p-6 w-[600px] max-w-[90vw] max-h-[90vh] overflow-y-auto">
+          <h3 class="text-lg font-semibold mb-4">Add New Objective</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">Objective Name</label>
+              <select id="new-objective-name" class="text-zone p-2 w-full">
+                <option value="">Select an objective...</option>
+                ${objectiveOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                <option value="custom">Create a new objective...</option>
+              </select>
+            </div>
+            <div id="custom-objective-input" class="hidden">
+              <label class="block text-sm font-medium mb-1">Custom Objective Name</label>
+              <input type="text" id="custom-objective-text" class="text-zone p-2 w-full" placeholder="Enter custom objective name">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Target Date</label>
+              <input type="date" id="new-objective-date" class="text-zone p-2 w-full">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Objective Goal</label>
+              <textarea id="new-objective-goal" class="text-zone text-area p-3 w-full" rows="4" placeholder="Describe the objective goal..."></textarea>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Challenges</label>
+              <textarea id="new-objective-challenges" class="text-zone text-area p-3 w-full" rows="3" placeholder="Describe any challenges..."></textarea>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Next Steps</label>
+              <textarea id="new-objective-steps" class="text-zone text-area p-3 w-full" rows="3" placeholder="Describe next steps..."></textarea>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">S4 / External Link</label>
+              <input type="text" id="new-objective-link" class="text-zone p-2 w-full" placeholder="https://">
+            </div>
+          </div>
+          <div class="flex justify-end gap-3 mt-6">
+            <button id="cancel-new-objective" class="px-4 py-2 text-slate-600 hover:text-slate-800">Cancel</button>
+            <button id="save-new-objective" class="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700">Save Objective</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      
+      // Show/hide custom objective input
+      const nameSelect = modal.querySelector('#new-objective-name');
+      const customInput = modal.querySelector('#custom-objective-input');
+      
+      nameSelect.addEventListener('change', () => {
+        if (nameSelect.value === 'custom') {
+          customInput.classList.remove('hidden');
+        } else {
+          customInput.classList.add('hidden');
+        }
+      });
+      
+      // Event handlers
+      modal.querySelector('#cancel-new-objective').addEventListener('click', () => modal.remove());
+      modal.querySelector('#save-new-objective').addEventListener('click', () => {
+        const nameSelect = modal.querySelector('#new-objective-name');
+        const customText = modal.querySelector('#custom-objective-text');
+        const date = modal.querySelector('#new-objective-date').value;
+        const goal = modal.querySelector('#new-objective-goal').value.trim();
+        
+        let objectiveName = nameSelect.value;
+        if (objectiveName === 'custom') {
+          objectiveName = customText.value.trim();
+        }
+        
+        if (objectiveName && goal) {
+          const newObjective = {
+            id: Date.now(),
+            name: objectiveName,
+            targetDate: date,
+            status: 'Not Started',
+            kpiGoal: goal,
+            challenges: modal.querySelector('#new-objective-challenges').value.trim(),
+            nextSteps: modal.querySelector('#new-objective-steps').value.trim(),
+            s4Link: modal.querySelector('#new-objective-link').value.trim(),
+            editing: false,
+            expanded: false
+          };
+          
+          state.objectives.unshift(newObjective);
+          renderObjectives();
+          modal.remove();
+          showNotification('New objective added successfully!', 'success');
+        } else {
+          showNotification('Please fill in the required fields.', 'error');
+        }
+      });
+    }
+    
+    // New Stakeholder Modal
+    function showNewStakeholderModal() {
+      const modal = document.createElement('div');
+      modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+      modal.innerHTML = `
+        <div class="bg-white rounded-lg p-6 w-96 max-w-md mx-4">
+          <h3 class="text-lg font-semibold mb-4">Add New Stakeholder</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">Name</label>
+              <input type="text" id="new-stakeholder-name" class="text-zone p-2 w-full" placeholder="Enter name">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Title</label>
+              <input type="text" id="new-stakeholder-title" class="text-zone p-2 w-full" placeholder="Enter title">
+            </div>
+          </div>
+          <div class="flex justify-end gap-3 mt-6">
+            <button id="cancel-new-stakeholder" class="px-4 py-2 text-slate-600 hover:text-slate-800">Cancel</button>
+            <button id="save-new-stakeholder" class="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700">Save</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      
+      // Event handlers
+      modal.querySelector('#cancel-new-stakeholder').addEventListener('click', () => modal.remove());
+      modal.querySelector('#save-new-stakeholder').addEventListener('click', () => {
+        const name = modal.querySelector('#new-stakeholder-name').value.trim();
+        const title = modal.querySelector('#new-stakeholder-title').value.trim();
+        
+        if (name && title) {
+          const newStakeholder = {
+            id: Date.now() + Math.random(),
+            name: name,
+            title: title,
+            email: ''
+          };
+          state.stakeholders.push(newStakeholder);
+          renderStakeholders();
+          modal.remove();
+          showNotification('New stakeholder added successfully!', 'success');
+        }
+      });
+    }
+    
+    // Notification system
+    function showNotification(message, type = 'info') {
+      const notification = document.createElement('div');
+      notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+        type === 'success' ? 'bg-green-500 text-white' : 
+        type === 'error' ? 'bg-red-500 text-white' : 
+        'bg-blue-500 text-white'
+      }`;
+      notification.textContent = message;
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    }
+    
+    // ---------- Data Persistence ----------
+    function saveToLocalStorage() {
+      try {
+        localStorage.setItem('customerSuccessPlan', JSON.stringify(state));
+      } catch (error) {
+        console.warn('Could not save to localStorage:', error);
+      }
+    }
+    
+    function loadFromLocalStorage() {
+      try {
+        const saved = localStorage.getItem('customerSuccessPlan');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          Object.assign(state, parsed);
+        }
+      } catch (error) {
+        console.warn('Could not load from localStorage:', error);
+      }
+    }
+    
+    // Auto-save on any state change
+    function autoSave() {
+      saveToLocalStorage();
+    }
+    
     // ---------- Init ----------
+    loadFromLocalStorage();
     renderAll();
     setupEvents();
+    
+    // Set up auto-save for all state changes
+    const originalRenderAll = renderAll;
+    renderAll = function() {
+      originalRenderAll();
+      autoSave();
+    };
   </script>
 </body>
 </html>
