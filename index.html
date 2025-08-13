@@ -47,7 +47,7 @@
 
     /* Typography System */
     h1 { 
-      font-size: 5rem; 
+      font-size: 72px; 
       font-weight: 800; 
       line-height: 1; 
       letter-spacing: -0.04em;
@@ -55,17 +55,17 @@
     }
     @media (min-width: 768px) {
       h1 {
-        font-size: 7rem;
+        font-size: 96px;
       }
     }
     @media (min-width: 1024px) {
       h1 {
-        font-size: 8rem;
+        font-size: 120px;
       }
     }
     @media (min-width: 1280px) {
       h1 {
-        font-size: 9rem;
+        font-size: 144px;
       }
     }
     h2 { 
@@ -521,7 +521,7 @@
     <header class="mb-10 p-8 md:p-12 lg:p-16 bg-gradient-to-r from-teal-950 via-teal-800 to-emerald-600 text-white shadow-xl">
       <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6">
         <div class="flex-1">
-          <h1 class="font-extrabold text-white drop-shadow-lg flex flex-wrap items-baseline gap-4 md:gap-6">
+          <h1 id="main-title" class="font-extrabold text-white drop-shadow-lg flex flex-wrap items-baseline gap-4 md:gap-6" style="font-size: 72px;">
             <span id="customer-name-display" class="cursor-pointer hover:opacity-80 border-b-2 border-transparent hover:border-white/50 transition-all" title="Click to edit customer name">TechCorp</span>
             <span>Success Plan</span>
           </h1>
@@ -2058,31 +2058,51 @@
       }
     }
 
-    // ---------- Initialize ----------
-    function init() {
-      // Set date
-      const dateEl = $('#last-updated-date');
-      if (dateEl) {
-        dateEl.textContent = new Date().toLocaleDateString('en-US', { 
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric' 
+          // ---------- Initialize ----------
+      function init() {
+        // Set date
+        const dateEl = $('#last-updated-date');
+        if (dateEl) {
+          dateEl.textContent = new Date().toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+          });
+        }
+        
+        // Set responsive font size for title
+        function updateTitleSize() {
+          const title = $('#main-title');
+          if (title) {
+            const width = window.innerWidth;
+            if (width >= 1280) {
+              title.style.fontSize = '144px';
+            } else if (width >= 1024) {
+              title.style.fontSize = '120px';
+            } else if (width >= 768) {
+              title.style.fontSize = '96px';
+            } else {
+              title.style.fontSize = '72px';
+            }
+          }
+        }
+        
+        updateTitleSize();
+        window.addEventListener('resize', updateTitleSize);
+        
+        loadFromLocalStorage();
+        renderAll();
+        setupSectionEditing();
+        setupEventHandlers();
+        
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            const modal = $('.modal-overlay');
+            if (modal) closeModal();
+          }
         });
       }
-      
-      loadFromLocalStorage();
-      renderAll();
-      setupSectionEditing();
-      setupEventHandlers();
-      
-      // Add keyboard shortcuts
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          const modal = $('.modal-overlay');
-          if (modal) closeModal();
-        }
-      });
-    }
 
     // Start the app
     init();
