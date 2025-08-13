@@ -510,8 +510,11 @@
     <!-- Header -->
     <header class="mb-10 p-8 bg-gradient-to-r from-teal-950 via-teal-800 to-emerald-600 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl">
       <div>
-        <h1 class="font-extrabold text-white drop-shadow-lg">Customer Success Plan</h1>
-        <p class="text-teal-50/90 mt-3 text-lg font-light">Responsive Platform Implementation • Last updated: <span id="last-updated-date"></span></p>
+        <h1 class="font-extrabold text-white drop-shadow-lg flex items-baseline gap-3">
+          <span id="customer-name-display" class="cursor-pointer hover:opacity-80 border-b-2 border-transparent hover:border-white/50 transition-all" title="Click to edit customer name">TechCorp</span>
+          <span>Success Plan</span>
+        </h1>
+        <p class="text-teal-50/90 mt-3 text-lg font-light">Last updated: <span id="last-updated-date"></span></p>
       </div>
       <div class="flex items-center gap-3">
                   <button id="export-excel-btn" class="btn btn-outline bg-white/10 text-white border-white/30 hover:bg-white/20" aria-label="Export to Excel">
@@ -702,6 +705,7 @@
 
     // Application State
     const state = {
+      customerName: 'TechCorp',
       products: ['Content Library', 'AI'],
       missionSummary: 'Transform TechCorp\'s sales organization with Responsive\'s AI-powered platform, enabling 200+ sales reps to access the right content instantly, personalize customer interactions, and close deals 40% faster while maintaining compliance and brand consistency.',
       missionGoals: [
@@ -1658,6 +1662,47 @@
 
     // ---------- Event Handlers ----------
     function setupEventHandlers() {
+      // Customer name editing
+      $('#customer-name-display')?.addEventListener('click', () => {
+        const modal = createModal('Edit Customer Name', `
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">Customer Name</label>
+              <input type="text" id="edit-customer-name" class="text-zone p-3 w-full text-lg" value="${state.customerName}" placeholder="Enter customer name">
+            </div>
+          </div>
+        `, [
+          { label: 'Cancel', class: 'btn-ghost', action: () => closeModal() },
+          { label: 'Save', class: 'btn-primary', action: () => {
+            const newName = $('#edit-customer-name').value.trim();
+            if (newName) {
+              state.customerName = newName;
+              $('#customer-name-display').textContent = newName;
+              saveToLocalStorage();
+              closeModal();
+              showNotification('Customer name updated', 'success');
+            } else {
+              showNotification('Please enter a customer name', 'error');
+            }
+          }}
+        ]);
+        
+        // Focus the input and handle Enter key
+        setTimeout(() => {
+          const input = $('#edit-customer-name');
+          input?.focus();
+          input?.select();
+          
+          // Handle Enter key
+          input?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+              const saveBtn = modal.querySelector('.btn-primary');
+              saveBtn?.click();
+            }
+          });
+        }, 100);
+      });
+      
       // Add objective button
       $('#add-objective-btn')?.addEventListener('click', showAddObjectiveModal);
       
@@ -1948,12 +1993,20 @@
 
     // ---------- Render All ----------
     function renderAll() {
+      renderCustomerName();
       renderMissionSummary();
       renderMissionGoalsDisplay();
       renderValueDisplay();
       renderObjectives();
       renderStakeholders();
       renderProducts();
+    }
+    
+    function renderCustomerName() {
+      const display = $('#customer-name-display');
+      if (display) {
+        display.textContent = state.customerName || 'Customer';
+      }
     }
 
     // ---------- Initialize ----------
