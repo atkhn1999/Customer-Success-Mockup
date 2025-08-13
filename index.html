@@ -46,19 +46,20 @@
       position: relative;
     }
     
-    /* Subtle watermark */
+    /* Watermark */
     body::after {
       content: 'Atiq Azel Khan';
       position: fixed;
-      bottom: 20px;
-      right: 20px;
-      font-size: 11px;
-      color: rgba(148, 163, 184, 0.3);
-      font-weight: 500;
-      letter-spacing: 0.5px;
+      bottom: 25px;
+      right: 25px;
+      font-size: 14px;
+      color: rgba(20, 184, 166, 0.5);
+      font-weight: 600;
+      letter-spacing: 1px;
       pointer-events: none;
       z-index: 9999;
-      transform: rotate(-2deg);
+      transform: rotate(-3deg);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     }
 
     /* Typography System */
@@ -2255,11 +2256,11 @@
         doc.text('Responsive Platform - Customer Success', margin, pageHeight - 8);
         doc.text(`Products: ${state.products.join(', ')}`, pageWidth - margin - 60, pageHeight - 8);
         
-        // Subtle watermark
-        doc.setTextColor(200, 200, 200);
-        doc.setFontSize(9);
-        doc.setFont(undefined, 'normal');
-        doc.text('Atiq Azel Khan', pageWidth - margin - 35, pageHeight - 20, { angle: -2 });
+        // Watermark
+        doc.setTextColor(20, 184, 166);
+        doc.setFontSize(11);
+        doc.setFont(undefined, 'bold');
+        doc.text('Atiq Azel Khan', pageWidth - margin - 40, pageHeight - 22, { angle: -3 });
         
         // Save
         const filename = `${state.customerName.replace(/\s+/g, '-').toLowerCase()}-success-plan-${new Date().toISOString().split('T')[0]}.pdf`;
