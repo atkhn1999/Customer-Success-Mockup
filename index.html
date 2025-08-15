@@ -1947,33 +1947,277 @@
       btn.innerHTML = '<span class="animate-spin">⟳</span> Generating...';
       
       try {
+        console.log('Starting PDF generation...');
+        
+        // Test if jsPDF is available
+        if (!window.jspdf) {
+          throw new Error('jsPDF library not loaded');
+        }
+        
         const { jsPDF } = window.jspdf;
+        console.log('jsPDF loaded:', jsPDF);
+        
+        // Create new document
         const doc = new jsPDF('p', 'mm', 'a4');
+        console.log('PDF document created');
         
-        // Add content
-        doc.setFontSize(20);
-        doc.text('Customer Success Plan - Responsive Platform', 20, 20);
+        // Define colors
+        const teal = [20, 184, 166]; // #14b8a6
+        const darkTeal = [13, 148, 136]; // #0d9488
+        const gray = [107, 114, 128]; // #6b7280
+        const darkGray = [31, 41, 55]; // #1f2937
+        const lightGray = [243, 244, 246]; // #f3f4f6
+        const white = [255, 255, 255];
+        const green = [16, 185, 129]; // #10b981
+        const red = [239, 68, 68]; // #ef4444
         
-        doc.setFontSize(12);
-        doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 30);
+        console.log('Colors defined');
         
-        // Add sections
-        let y = 50;
+        // Page dimensions
+        const pageWidth = 210;
+        const pageHeight = 297;
+        const margin = 20;
+        const contentWidth = pageWidth - (margin * 2);
+        let currentY = margin;
         
-        // Mission Summary
-        doc.setFontSize(14);
-        doc.text('Mission Summary', 20, y);
-        y += 10;
+        // Helper function to add bullet point
+        const addBullet = (x, y, color) => {
+          doc.setFillColor(color[0], color[1], color[2]);
+          doc.rect(x - 3, y - 3, 6, 6, 'F');
+        };
+        
+        // Header
+        doc.setFillColor(teal[0], teal[1], teal[2]);
+        doc.rect(0, 0, pageWidth, 35, 'F');
+        
+        // White box for logo placeholder
+        doc.setFillColor(white[0], white[1], white[2]);
+        doc.rect(margin + 2, 9.5, 16, 16, 'F');
+        
+        // Title
+        doc.setTextColor(white[0], white[1], white[2]);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(18);
+        doc.text('Customer Success Plan', margin + 25, 15);
+        
+        doc.setFont('helvetica', 'normal');
         doc.setFontSize(10);
-        const summaryLines = doc.splitTextToSize(state.missionSummary || 'Not defined', 170);
-        doc.text(summaryLines, 20, y);
-        y += summaryLines.length * 5 + 10;
+        doc.text(state.customerName || 'TechCorp', margin + 25, 22);
+        
+        // Date
+        doc.setFontSize(9);
+        const dateText = `Generated: ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
+        const dateWidth = doc.getTextWidth(dateText);
+        doc.text(dateText, pageWidth - margin - dateWidth, 20);
+        
+        currentY = 50;
+        
+        // Mission Summary Section
+        doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(16);
+        doc.text('Mission Summary', margin, currentY);
+        currentY += 10;
+        
+        doc.setTextColor(gray[0], gray[1], gray[2]);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        const summaryLines = doc.splitTextToSize(state.missionSummary || 'Not defined', contentWidth);
+        doc.text(summaryLines, margin, currentY);
+        currentY += summaryLines.length * 4 + 15;
+        
+        // Mission Goals and Value Realized (Two columns)
+        const columnWidth = (contentWidth - 10) / 2;
+        let leftY = currentY;
+        let rightY = currentY;
+        
+        // Mission Goals Column
+        doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.text('Mission Goals', margin, leftY);
+        leftY += 10;
+        
+        // Draw mission goals
+        state.missionGoals.forEach((goal, index) => {
+          // Goal box
+          doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
+          doc.rect(margin, leftY, columnWidth, 25, 'F');
+          
+          // Goal bullet
+          addBullet(margin + 7, leftY + 12.5, teal);
+          
+          // Goal title
+          doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(10);
+          const goalTitleLines = doc.splitTextToSize(goal.title, columnWidth - 20);
+          doc.text(goalTitleLines, margin + 15, leftY + 8);
+          
+          // Goal description
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8);
+          doc.setTextColor(gray[0], gray[1], gray[2]);
+          const goalDescLines = doc.splitTextToSize(goal.description, columnWidth - 20);
+          doc.text(goalDescLines, margin + 15, leftY + 13 + (goalTitleLines.length - 1) * 4);
+          
+          leftY += 30;
+        });
+        
+        // Value Realized Column
+        doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.text('Value Realized', margin + columnWidth + 10, rightY);
+        rightY += 10;
+        
+        // Draw value realized items
+        state.valueRealized.forEach((value, index) => {
+          // Value box
+          doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
+          doc.rect(margin + columnWidth + 10, rightY, columnWidth, 25, 'F');
+          
+          // Check mark bullet
+          addBullet(margin + columnWidth + 17, rightY + 12.5, green);
+          doc.setTextColor(white[0], white[1], white[2]);
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(8);
+          doc.text('✓', margin + columnWidth + 14.5, rightY + 14.5);
+          
+          // Value type
+          doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(10);
+          doc.text(value.type, margin + columnWidth + 25, rightY + 8);
+          
+          // Value description
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8);
+          doc.setTextColor(gray[0], gray[1], gray[2]);
+          const valueDescLines = doc.splitTextToSize(value.description, columnWidth - 20);
+          doc.text(valueDescLines, margin + columnWidth + 25, rightY + 13);
+          
+          // Date
+          doc.setFontSize(7);
+          const dateText = new Date(value.date).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
+          doc.text(dateText, margin + columnWidth + 10 + columnWidth - 15, rightY + 21);
+          
+          rightY += 30;
+        });
+        
+        currentY = Math.max(leftY, rightY) + 10;
+        
+        // Check if we need a new page
+        if (currentY > pageHeight - 100) {
+          doc.addPage();
+          currentY = margin;
+        }
+        
+        // Current Objectives Section
+        doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.text('Current Objectives', margin, currentY);
+        currentY += 10;
+        
+        // Draw objectives
+        state.objectives.forEach((objective, index) => {
+          const objectiveHeight = 60; // Base height
+          
+          // Check if we need a new page
+          if (currentY + objectiveHeight > pageHeight - margin - 15) {
+            doc.addPage();
+            currentY = margin;
+          }
+          
+          // Objective container
+          doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
+          doc.setLineWidth(0.5);
+          doc.rect(margin, currentY, contentWidth, objectiveHeight);
+          
+          // Status indicator
+          const statusColor = objective.status === 'Completed' ? green : 
+                            objective.status === 'In Progress' ? teal : 
+                            objective.status === 'At Risk' ? red : gray;
+          addBullet(margin + 8, currentY + 10, statusColor);
+          
+          // Objective name
+          doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(11);
+          doc.text(objective.name, margin + 15, currentY + 11);
+          
+          // Target date
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(9);
+          doc.setTextColor(gray[0], gray[1], gray[2]);
+          const targetDateText = `Target: ${new Date(objective.targetDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+          const targetDateWidth = doc.getTextWidth(targetDateText);
+          doc.text(targetDateText, pageWidth - margin - targetDateWidth, currentY + 11);
+          
+          // Description
+          doc.setFontSize(9);
+          const descLines = doc.splitTextToSize(objective.description, contentWidth - 20);
+          doc.text(descLines, margin + 10, currentY + 20);
+          
+          // KPIs
+          if (objective.kpis && objective.kpis.length > 0) {
+            let kpiY = currentY + 28 + (descLines.length - 1) * 3;
+            const kpiWidth = (contentWidth - 20) / 3;
+            
+            objective.kpis.forEach((kpi, kpiIndex) => {
+              if (kpiIndex < 3) { // Show max 3 KPIs per row
+                const kpiX = margin + 10 + (kpiIndex * kpiWidth);
+                const type = getKPIType(kpi.typeKey);
+                
+                // KPI label
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(8);
+                doc.setTextColor(gray[0], gray[1], gray[2]);
+                doc.text(type.label, kpiX, kpiY);
+                
+                // KPI value
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(10);
+                doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+                doc.text(`${kpi.currentValue}${type.unit}`, kpiX, kpiY + 5);
+                
+                // Delta
+                const delta = calculateDelta(kpi.currentValue, kpi.previousValue);
+                const deltaColor = delta > 0 ? green : red;
+                doc.setTextColor(deltaColor[0], deltaColor[1], deltaColor[2]);
+                doc.setFontSize(8);
+                doc.text(`${delta > 0 ? '+' : ''}${delta}%`, kpiX, kpiY + 10);
+              }
+            });
+          }
+          
+          currentY += objectiveHeight + 5;
+        });
+        
+        // Footer on last page
+        doc.setFillColor(darkTeal[0], darkTeal[1], darkTeal[2]);
+        doc.rect(0, pageHeight - 15, pageWidth, 15, 'F');
+        
+        doc.setTextColor(white[0], white[1], white[2]);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.text('Responsive Platform - Customer Success', margin, pageHeight - 8);
+        
+        // Products
+        if (state.products && state.products.length > 0) {
+          const productsText = `Products: ${state.products.join(', ')}`;
+          const productsWidth = doc.getTextWidth(productsText);
+          doc.text(productsText, pageWidth - margin - productsWidth, pageHeight - 8);
+        }
         
         // Save
-        doc.save('customer-success-plan-responsive.pdf');
+        doc.save(`customer-success-plan-${state.customerName || 'responsive'}.pdf`);
         showNotification('PDF exported successfully', 'success');
       } catch (error) {
-        showNotification('PDF export failed. Please try again.', 'error');
+        console.error('PDF generation error:', error);
+        console.error('Error details:', error.message, error.stack);
+        showNotification(`PDF export failed: ${error.message}`, 'error');
       }
       
       btn.disabled = false;
