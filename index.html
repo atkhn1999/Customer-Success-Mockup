@@ -1953,170 +1953,258 @@
       const safe = (v) => (v == null ? '' : String(v));
       const fmtDate = (v) => {
         if (!v) return '';
-        try { return new Date(v).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }); } catch { return String(v); }
+        try {
+          return new Date(v).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        } catch (e) {
+          return String(v);
+        }
+      };
+      const periodLabel = (p) => ({ Month: 'MoM', Quarter: 'QoQ', Year: 'YoY' }[p] || 'QoQ');
+
+      const palette = {
+        header: [13, 148, 136],
+        primary: [20, 184, 166],
+        headerText: [255, 255, 255],
+        sectionBg: [236, 253, 245],
+        border: [229, 231, 235],
+        text: [17, 24, 39],
+        textMuted: [55, 65, 81],
+        emerald: [16, 185, 129],
+        cyan: [6, 182, 212],
+        amber: [245, 158, 11],
+        red: [239, 68, 68],
+        gray: [107, 114, 128]
       };
 
-      const addHeader = (doc, title, customer, products) => {
-        const pageWidth = doc.internal.pageSize.getWidth();
-        doc.setFillColor(6, 78, 59);
-        doc.rect(0, 0, pageWidth, 22, 'F');
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(14);
-        doc.text(safe(title), 14, 14);
-        doc.setFontSize(10);
-        const subtitle = `${safe(customer)} • ${new Date().toLocaleDateString()}`;
-        doc.text(subtitle, 14, 19);
-        doc.setTextColor(255);
+      const planHealthMap = {
+        green: { label: 'On Track', color: palette.emerald },
+        yellow: { label: 'Needs Attention', color: palette.amber },
+        red: { label: 'At Risk', color: palette.red }
       };
 
       const addSectionTitle = (doc, title, y) => {
-        doc.setFillColor(243, 244, 246);
-        doc.setDrawColor(229, 231, 235);
-        doc.rect(14, y, doc.internal.pageSize.getWidth() - 28, 8, 'FD');
-        doc.setTextColor(17, 24, 39);
+        const width = doc.internal.pageSize.getWidth() - 28;
+        doc.setFillColor(...palette.sectionBg);
+        doc.setDrawColor(...palette.border);
+        doc.rect(14, y, width, 9, 'FD');
+        // Accent bar
+        doc.setFillColor(...palette.primary);
+        doc.rect(14, y, 3, 9, 'F');
+        // Title
+        doc.setTextColor(...palette.text);
         doc.setFontSize(12);
-        doc.text(safe(title), 18, y + 5.5);
+        doc.text(safe(title), 20, y + 6);
       };
 
-      const addBodyText = (doc, text, y) => {
-        doc.setTextColor(55, 65, 81);
-        doc.setFontSize(10);
-        const lines = doc.splitTextToSize(safe(text) || '—', doc.internal.pageSize.getWidth() - 28);
-        doc.text(lines, 18, y);
-        return 4 + lines.length * 5;
+      const kpiLine = (kpi) => {
+        const type = getKPIType(kpi.typeKey);
+        const deltaStr = (() => {
+          if (!kpi.comparePrevious || kpi.previousValue == null) return '';
+          const d = parseFloat(calculateDelta(kpi.currentValue, kpi.previousValue));
+          if (isNaN(d)) return '';
+          return ` (${Math.abs(d)}% ${periodLabel(kpi.period)})`;
+        })();
+        const unit = type.unit ? ` ${safe(type.unit)}` : '';
+        return `${safe(type.label)}: ${kpi.currentValue}${unit}${deltaStr}`;
       };
 
-      const table = (doc, head, body, startY) => {
+      const kpisToMultiline = (kpis) => (kpis && kpis.length ? kpis.map(kpiLine).join('\n') : '—');
+
+      const objectivesRowsWithKPIs = (objs) => (objs || []).map((o) => [
+        safe(o.name || 'Objective'),
+        safe(o.status || '—'),
+        safe(o.targetDate || '—'),
+        safe(o.description || ''),
+        kpisToMultiline(o.kpis || [])
+      ]);
+
+      const table = (doc, head, body, startY, options = {}) => {
+        const headFill = options.headFillColor || [243, 244, 246];
+        const headText = options.headTextColor || [4, 120, 87]; // emerald-700
         doc.autoTable({
           head: [head],
           body,
           startY,
           theme: 'grid',
-          styles: { fontSize: 9, cellPadding: 2, lineColor: [229,231,235], lineWidth: 0.2, textColor: [31,41,55] },
-          headStyles: { fillColor: [243,244,246], textColor: [17,24,39], lineColor: [229,231,235], lineWidth: 0.4, fontStyle: 'bold' },
-          alternateRowStyles: { fillColor: [249,250,251] },
-          margin: { left: 14, right: 14 },
-          didDrawPage: (data) => {
-            const pageCount = doc.getNumberOfPages();
-            const pageSize = doc.internal.pageSize;
-            doc.setFontSize(8);
-            doc.setTextColor(120);
-            doc.text(`Page ${data.pageNumber} of ${pageCount}`, pageSize.getWidth() - 30, pageSize.getHeight() - 8);
+          tableWidth: 'auto',
+          styles: {
+            fontSize: 9,
+            cellPadding: 3,
+            lineColor: palette.border,
+            lineWidth: 0.2,
+            textColor: [31, 41, 55]
+          },
+          headStyles: {
+            fillColor: headFill,
+            textColor: headText,
+            lineColor: palette.border,
+            lineWidth: 0.4,
+            fontStyle: 'bold'
+          },
+          alternateRowStyles: { fillColor: [249, 250, 251] },
+          margin: { top: 28, left: 14, right: 14, bottom: 14 },
+          columnStyles: options.columnStyles || {},
+          didParseCell: (data) => {
+            if ((options.tableId === 'objectives' || options.tableId === 'pastObjectives') && data.section === 'body' && data.column.index === 1) {
+              const statusText = (Array.isArray(data.cell.text) ? data.cell.text.join(' ') : data.cell.text || '').toLowerCase();
+              let fill = null;
+              if (statusText.includes('completed')) fill = palette.emerald;
+              else if (statusText.includes('in progress')) fill = palette.cyan;
+              else if (statusText.includes('at risk')) fill = palette.amber;
+              else if (statusText.includes('not started')) fill = palette.gray;
+              if (fill) {
+                data.cell.styles.fillColor = fill;
+                data.cell.styles.textColor = [255, 255, 255];
+                data.cell.styles.fontStyle = 'bold';
+              }
+            }
           }
         });
         return doc.lastAutoTable.finalY || startY;
       };
 
+      const block = (doc, title, text, startY) => {
+        addSectionTitle(doc, title, startY);
+        doc.autoTable({
+          startY: startY + 12,
+          body: [[safe(text) || '—']],
+          theme: 'grid',
+          styles: { fontSize: 10, cellPadding: 4, textColor: palette.textMuted, lineColor: palette.border, lineWidth: 0.2 },
+          margin: { top: 28, left: 14, right: 14, bottom: 14 },
+          columnStyles: { 0: { cellWidth: doc.internal.pageSize.getWidth() - 28 } },
+          head: []
+        });
+        return doc.lastAutoTable.finalY || (startY + 12);
+      };
+
+      const decoratePages = (doc) => {
+        const pageCount = doc.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+          doc.setPage(i);
+          const pw = doc.internal.pageSize.getWidth();
+          const ph = doc.internal.pageSize.getHeight();
+          // Header bar
+          doc.setFillColor(...palette.header);
+          doc.rect(0, 0, pw, 20, 'F');
+          doc.setTextColor(...palette.headerText);
+          doc.setFontSize(12);
+          doc.text('Customer Success Plan', 14, 12);
+          doc.setFontSize(10);
+          const customer = safe(state.customerName || 'Customer');
+          doc.text(customer, 14, 17);
+          const health = planHealthMap[state.planHealth] || planHealthMap.green;
+          const healthText = `Health: ${health.label}`;
+          const tw = doc.getTextWidth(healthText);
+          doc.text(healthText, pw - 14 - tw, 12);
+          // Footer page numbers
+          doc.setFontSize(8);
+          doc.setTextColor(120);
+          doc.text(`Page ${i} of ${pageCount}`, pw - 30, ph - 8);
+        }
+      };
+
       try {
         const doc = new jsPDF('p', 'mm', 'a4');
-        addHeader(doc, 'Customer Success Plan Report', state.customerName || 'Customer', state.products || []);
-
-        let cursorY = 28;
+        let y = 30;
 
         // Mission Summary
-        addSectionTitle(doc, 'Mission Summary', cursorY);
-        cursorY += 12;
-        cursorY += addBodyText(doc, state.missionSummary || 'No mission summary defined.', cursorY);
-        cursorY += 6;
+        y = block(doc, 'Mission Summary', state.missionSummary || 'No mission summary defined.', y + 0) + 6;
 
         // Mission Goals
-        addSectionTitle(doc, 'Mission Goals', cursorY);
-        cursorY += 12;
+        addSectionTitle(doc, 'Mission Goals', y);
+        y += 12;
         if ((state.missionGoals || []).length) {
-          const goalsRows = state.missionGoals.map(g => [
+          const rows = state.missionGoals.map((g) => [
             safe(g.title || 'Untitled Goal'),
             safe(g.description || ''),
-            (g.customFields || []).map(f => `${safe(f.label)}: ${safe(f.value)}`).join('\n')
+            (g.customFields || []).map((f) => `${safe(f.label)}: ${safe(f.value)}`).join('\n') || '—'
           ]);
-          cursorY = table(doc, ['Title', 'Description', 'References'], goalsRows, cursorY + 2) + 6;
+          y = table(
+            doc,
+            ['Title', 'Description', 'References'],
+            rows,
+            y + 2,
+            {
+              tableId: 'goals',
+              headFillColor: [236, 253, 245],
+              headTextColor: [4, 120, 87],
+              columnStyles: { 0: { cellWidth: 52 }, 1: { cellWidth: 0 }, 2: { cellWidth: 0 } }
+            }
+          ) + 6;
         } else {
-          cursorY += addBodyText(doc, 'No mission goals defined.', cursorY) + 6;
+          y = block(doc, 'Mission Goals', 'No mission goals defined.', y - 12) + 6;
         }
 
         // Value Realized
-        addSectionTitle(doc, 'Value Realized', cursorY);
-        cursorY += 12;
+        addSectionTitle(doc, 'Value Realized', y);
+        y += 12;
         if ((state.valueRealized || []).length) {
-          const rows = state.valueRealized.map(v => [
+          const rows = state.valueRealized.map((v) => [
             safe(v.type || 'Value'),
             fmtDate(v.date) || '—',
             safe(v.description || ''),
             safe(v.link || '')
           ]);
-          cursorY = table(doc, ['Type', 'Date', 'Description', 'Link'], rows, cursorY + 2) + 6;
+          y = table(
+            doc,
+            ['Type', 'Date', 'Description', 'Link'],
+            rows,
+            y + 2,
+            {
+              tableId: 'value',
+              headFillColor: [236, 253, 245],
+              headTextColor: [4, 120, 87],
+              columnStyles: { 0: { cellWidth: 38 }, 1: { cellWidth: 26 } }
+            }
+          ) + 6;
         } else {
-          cursorY += addBodyText(doc, 'No value realized items.', cursorY) + 6;
+          y = block(doc, 'Value Realized', 'No value realized items.', y - 12) + 6;
         }
 
-        // Current Objectives
-        addSectionTitle(doc, 'Current Objectives', cursorY);
-        cursorY += 12;
+        // Current Objectives (with KPIs integrated)
+        addSectionTitle(doc, 'Current Objectives', y);
+        y += 12;
         if ((state.objectives || []).length) {
-          const rows = state.objectives.map(o => [
-            safe(o.name || 'Objective'),
-            safe(o.status || '—'),
-            safe(o.targetDate || '—'),
-            safe(o.description || '')
-          ]);
-          cursorY = table(doc, ['Objective', 'Status', 'Target', 'Description'], rows, cursorY + 2) + 4;
-
-          // KPIs per Objective
-          (state.objectives || []).forEach((o, idx) => {
-            if (!o.kpis || !o.kpis.length) return;
-            addSectionTitle(doc, `KPIs — ${o.name}`, cursorY);
-            cursorY += 12;
-            const kpiRows = o.kpis.map(k => {
-              const type = getKPIType(k.typeKey);
-              const delta = calculateDelta(k.currentValue, k.previousValue);
-              const period = { 'Month': 'MoM', 'Quarter': 'QoQ', 'Year': 'YoY' }[k.period] || 'QoQ';
-              const cmp = k.comparePrevious && k.previousValue != null ? `${Math.abs(parseFloat(delta))}% ${period}` : '—';
-              return [safe(type.label), `${k.currentValue} ${safe(type.unit || '')}`.trim(), cmp];
-            });
-            cursorY = table(doc, ['KPI', 'Current', 'Delta'], kpiRows, cursorY + 2) + 6;
-          });
+          const rows = objectivesRowsWithKPIs(state.objectives);
+          y = table(
+            doc,
+            ['Objective', 'Status', 'Target', 'Summary', 'KPIs'],
+            rows,
+            y + 2,
+            {
+              tableId: 'objectives',
+              headFillColor: [236, 253, 245],
+              headTextColor: [4, 120, 87],
+              columnStyles: { 0: { cellWidth: 46 }, 1: { cellWidth: 26 }, 2: { cellWidth: 22 }, 3: { cellWidth: 0 }, 4: { cellWidth: 0 } }
+            }
+          ) + 6;
         } else {
-          cursorY += addBodyText(doc, 'No current objectives.', cursorY) + 6;
+          y = block(doc, 'Current Objectives', 'No current objectives.', y - 12) + 6;
         }
 
-        // Past Objectives Achieved
-        addSectionTitle(doc, 'Past Objectives Achieved', cursorY);
-        cursorY += 12;
+        // Past Objectives (with KPIs integrated)
+        addSectionTitle(doc, 'Past Objectives Achieved', y);
+        y += 12;
         if ((state.pastObjectives || []).length) {
-          const rows = state.pastObjectives.map(o => [
-            safe(o.name || 'Objective'),
-            safe(o.status || 'Completed'),
-            safe(o.targetDate || '—'),
-            safe(o.description || '')
-          ]);
-          cursorY = table(doc, ['Objective', 'Status', 'Target', 'Description'], rows, cursorY + 2) + 4;
-
-          (state.pastObjectives || []).forEach(o => {
-            if (!o.kpis || !o.kpis.length) return;
-            addSectionTitle(doc, `KPIs — ${o.name}`, cursorY);
-            cursorY += 12;
-            const kpiRows = o.kpis.map(k => {
-              const type = getKPIType(k.typeKey);
-              const delta = calculateDelta(k.currentValue, k.previousValue);
-              const period = { 'Month': 'MoM', 'Quarter': 'QoQ', 'Year': 'YoY' }[k.period] || 'QoQ';
-              const cmp = k.comparePrevious && k.previousValue != null ? `${Math.abs(parseFloat(delta))}% ${period}` : '—';
-              return [safe(type.label), `${k.currentValue} ${safe(type.unit || '')}`.trim(), cmp];
-            });
-            cursorY = table(doc, ['KPI', 'Current', 'Delta'], kpiRows, cursorY + 2) + 6;
-          });
+          const rows = objectivesRowsWithKPIs(state.pastObjectives);
+          y = table(
+            doc,
+            ['Objective', 'Status', 'Target', 'Summary', 'KPIs'],
+            rows,
+            y + 2,
+            {
+              tableId: 'pastObjectives',
+              headFillColor: [236, 253, 245],
+              headTextColor: [4, 120, 87],
+              columnStyles: { 0: { cellWidth: 46 }, 1: { cellWidth: 26 }, 2: { cellWidth: 22 }, 3: { cellWidth: 0 }, 4: { cellWidth: 0 } }
+            }
+          ) + 6;
         } else {
-          cursorY += addBodyText(doc, 'No past objectives.', cursorY) + 6;
+          y = block(doc, 'Past Objectives Achieved', 'No past objectives.', y - 12) + 6;
         }
 
-        // Footer page numbers for first page (subsequent handled by autoTable)
-        const pageCount = doc.getNumberOfPages();
-        for (let i = 1; i <= pageCount; i++) {
-          doc.setPage(i);
-          doc.setFontSize(8);
-          doc.setTextColor(120);
-          const pw = doc.internal.pageSize.getWidth();
-          const ph = doc.internal.pageSize.getHeight();
-          doc.text(`Page ${i} of ${pageCount}`, pw - 30, ph - 8);
-        }
+        // Add consistent headers/footers after content
+        decoratePages(doc);
 
         const safeName = safe(state.customerName || 'Customer').replace(/[^a-z0-9-_]+/gi, '_');
         doc.save(`${safeName}_success_plan_report.pdf`);
@@ -2129,7 +2217,7 @@
         btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>Export PDF';
       }
     }
-
+    
     function exportToExcel() {
       try {
         const wb = XLSX.utils.book_new();
