@@ -1947,8 +1947,19 @@
       btn.innerHTML = '<span class="animate-spin">⟳</span> Generating...';
       
       try {
+        console.log('Starting PDF generation...');
+        
+        // Test if jsPDF is available
+        if (!window.jspdf) {
+          throw new Error('jsPDF library not loaded');
+        }
+        
         const { jsPDF } = window.jspdf;
+        console.log('jsPDF loaded:', jsPDF);
+        
+        // Create new document
         const doc = new jsPDF('p', 'mm', 'a4');
+        console.log('PDF document created');
         
         // Define colors
         const teal = [20, 184, 166]; // #14b8a6
@@ -1960,6 +1971,8 @@
         const green = [16, 185, 129]; // #10b981
         const red = [239, 68, 68]; // #ef4444
         
+        console.log('Colors defined');
+        
         // Page dimensions
         const pageWidth = 210;
         const pageHeight = 297;
@@ -1967,48 +1980,36 @@
         const contentWidth = pageWidth - (margin * 2);
         let currentY = margin;
         
-        // Helper function to check if we need a new page
-        const checkNewPage = (requiredSpace) => {
-          if (currentY + requiredSpace > pageHeight - margin - 15) {
-            doc.addPage();
-            currentY = margin;
-            // Add header to new page
-            addPageHeader();
-            currentY += 10;
-            return true;
-          }
-          return false;
+        // Helper function to add bullet point
+        const addBullet = (x, y, color) => {
+          doc.setFillColor(color[0], color[1], color[2]);
+          doc.rect(x - 3, y - 3, 6, 6, 'F');
         };
         
-        // Add page header function
-        const addPageHeader = () => {
-          // Teal header background
-          doc.setFillColor(teal[0], teal[1], teal[2]);
-          doc.rect(0, 0, pageWidth, 35, 'F');
-          
-          // White circle for logo
-          doc.setFillColor(white[0], white[1], white[2]);
-          doc.circle(margin + 10, 17.5, 8, 'F');
-          
-          // Title
-          doc.setTextColor(white[0], white[1], white[2]);
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(18);
-          doc.text('Customer Success Plan', margin + 25, 15);
-          
-          doc.setFont('helvetica', 'normal');
-          doc.setFontSize(10);
-          doc.text(state.customerName || 'TechCorp', margin + 25, 22);
-          
-          // Date
-          doc.setFontSize(9);
-          const dateText = `Generated: ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
-          const dateWidth = doc.getTextWidth(dateText);
-          doc.text(dateText, pageWidth - margin - dateWidth, 20);
-        };
+        // Header
+        doc.setFillColor(teal[0], teal[1], teal[2]);
+        doc.rect(0, 0, pageWidth, 35, 'F');
         
-        // Add first page header
-        addPageHeader();
+        // White box for logo placeholder
+        doc.setFillColor(white[0], white[1], white[2]);
+        doc.rect(margin + 2, 9.5, 16, 16, 'F');
+        
+        // Title
+        doc.setTextColor(white[0], white[1], white[2]);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(18);
+        doc.text('Customer Success Plan', margin + 25, 15);
+        
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.text(state.customerName || 'TechCorp', margin + 25, 22);
+        
+        // Date
+        doc.setFontSize(9);
+        const dateText = `Generated: ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
+        const dateWidth = doc.getTextWidth(dateText);
+        doc.text(dateText, pageWidth - margin - dateWidth, 20);
+        
         currentY = 50;
         
         // Mission Summary Section
@@ -2026,13 +2027,11 @@
         currentY += summaryLines.length * 4 + 15;
         
         // Mission Goals and Value Realized (Two columns)
-        checkNewPage(80);
-        
-        // Mission Goals Column
         const columnWidth = (contentWidth - 10) / 2;
         let leftY = currentY;
         let rightY = currentY;
         
+        // Mission Goals Column
         doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(14);
@@ -2041,15 +2040,12 @@
         
         // Draw mission goals
         state.missionGoals.forEach((goal, index) => {
-          checkNewPage(30);
-          
           // Goal box
           doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
           doc.rect(margin, leftY, columnWidth, 25, 'F');
           
-          // Goal icon (circle)
-          doc.setFillColor(teal[0], teal[1], teal[2]);
-          doc.circle(margin + 7, leftY + 12.5, 3, 'F');
+          // Goal bullet
+          addBullet(margin + 7, leftY + 12.5, teal);
           
           // Goal title
           doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
@@ -2081,13 +2077,12 @@
           doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
           doc.rect(margin + columnWidth + 10, rightY, columnWidth, 25, 'F');
           
-          // Check icon
-          doc.setFillColor(green[0], green[1], green[2]);
-          doc.circle(margin + columnWidth + 17, rightY + 12.5, 3, 'F');
+          // Check mark bullet
+          addBullet(margin + columnWidth + 17, rightY + 12.5, green);
           doc.setTextColor(white[0], white[1], white[2]);
           doc.setFont('helvetica', 'bold');
           doc.setFontSize(8);
-          doc.text('✓', margin + columnWidth + 15.5, rightY + 14);
+          doc.text('✓', margin + columnWidth + 14.5, rightY + 14.5);
           
           // Value type
           doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
@@ -2112,8 +2107,13 @@
         
         currentY = Math.max(leftY, rightY) + 10;
         
+        // Check if we need a new page
+        if (currentY > pageHeight - 100) {
+          doc.addPage();
+          currentY = margin;
+        }
+        
         // Current Objectives Section
-        checkNewPage(40);
         doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(14);
@@ -2123,7 +2123,12 @@
         // Draw objectives
         state.objectives.forEach((objective, index) => {
           const objectiveHeight = 60; // Base height
-          checkNewPage(objectiveHeight);
+          
+          // Check if we need a new page
+          if (currentY + objectiveHeight > pageHeight - margin - 15) {
+            doc.addPage();
+            currentY = margin;
+          }
           
           // Objective container
           doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
@@ -2134,8 +2139,7 @@
           const statusColor = objective.status === 'Completed' ? green : 
                             objective.status === 'In Progress' ? teal : 
                             objective.status === 'At Risk' ? red : gray;
-          doc.setFillColor(statusColor[0], statusColor[1], statusColor[2]);
-          doc.circle(margin + 8, currentY + 10, 3, 'F');
+          addBullet(margin + 8, currentY + 10, statusColor);
           
           // Objective name
           doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
@@ -2191,56 +2195,6 @@
           currentY += objectiveHeight + 5;
         });
         
-        // Stakeholders Section (if space permits)
-        if (state.stakeholders && state.stakeholders.length > 0) {
-          checkNewPage(50);
-          currentY += 10;
-          
-          doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(14);
-          doc.text('Key Stakeholders', margin, currentY);
-          currentY += 10;
-          
-          // Draw stakeholder cards
-          const cardWidth = (contentWidth - 20) / 3;
-          state.stakeholders.slice(0, 3).forEach((stakeholder, index) => {
-            const cardX = margin + (index * (cardWidth + 10));
-            
-            // Card background
-            doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
-            doc.rect(cardX, currentY, cardWidth, 35, 'F');
-            
-            // Avatar circle
-            doc.setFillColor(teal[0], teal[1], teal[2]);
-            doc.circle(cardX + 8, currentY + 10, 5, 'F');
-            doc.setTextColor(white[0], white[1], white[2]);
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(10);
-            const initials = stakeholder.name.split(' ').map(n => n[0]).join('');
-            doc.text(initials, cardX + 5, currentY + 12);
-            
-            // Name
-            doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(9);
-            doc.text(stakeholder.name, cardX + 17, currentY + 8);
-            
-            // Role
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(8);
-            doc.setTextColor(gray[0], gray[1], gray[2]);
-            doc.text(stakeholder.role, cardX + 17, currentY + 13);
-            
-            // Email
-            doc.setFontSize(7);
-            const emailLines = doc.splitTextToSize(stakeholder.email, cardWidth - 20);
-            doc.text(emailLines, cardX + 5, currentY + 22);
-          });
-          
-          currentY += 40;
-        }
-        
         // Footer on last page
         doc.setFillColor(darkTeal[0], darkTeal[1], darkTeal[2]);
         doc.rect(0, pageHeight - 15, pageWidth, 15, 'F');
@@ -2257,22 +2211,13 @@
           doc.text(productsText, pageWidth - margin - productsWidth, pageHeight - 8);
         }
         
-        // Add executive name if available
-        if (state.stakeholders && state.stakeholders.length > 0) {
-          const executive = state.stakeholders.find(s => s.role && s.role.toLowerCase().includes('executive'));
-          if (executive) {
-            doc.setFont('helvetica', 'italic');
-            doc.setFontSize(7);
-            doc.text(executive.name, pageWidth / 2 - 20, pageHeight - 8);
-          }
-        }
-        
         // Save
         doc.save(`customer-success-plan-${state.customerName || 'responsive'}.pdf`);
         showNotification('PDF exported successfully', 'success');
       } catch (error) {
         console.error('PDF generation error:', error);
-        showNotification('PDF export failed. Please try again.', 'error');
+        console.error('Error details:', error.message, error.stack);
+        showNotification(`PDF export failed: ${error.message}`, 'error');
       }
       
       btn.disabled = false;

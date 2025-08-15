@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test PDF Generation</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <h1>Test PDF Generation</h1>
+  <button onclick="generateSimplePDF()">Generate Simple PDF</button>
+  <button onclick="generateComplexPDF()">Generate Complex PDF</button>
+  
+  <script>
+    function generateSimplePDF() {
+      try {
+        console.log('Testing simple PDF...');
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        doc.text('Hello World!', 10, 10);
+        doc.save('simple-test.pdf');
+        
+        console.log('Simple PDF generated successfully!');
+      } catch (error) {
+        console.error('Simple PDF error:', error);
+      }
+    }
+    
+    function generateComplexPDF() {
+      try {
+        console.log('Testing complex PDF...');
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+        
+        // Test colors
+        doc.setFillColor(20, 184, 166);
+        doc.rect(0, 0, 210, 35, 'F');
+        
+        // Test circle
+        doc.setFillColor(255, 255, 255);
+        doc.circle(30, 17.5, 8, 'F');
+        
+        // Test text
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(18);
+        doc.text('Customer Success Plan', 45, 15);
+        
+        // Test content
+        doc.setTextColor(31, 41, 55);
+        doc.setFontSize(12);
+        doc.text('This is a test document', 20, 50);
+        
+        // Test multiline
+        const longText = 'This is a very long text that needs to be wrapped to multiple lines to test the splitTextToSize functionality of jsPDF library.';
+        const lines = doc.splitTextToSize(longText, 170);
+        doc.text(lines, 20, 60);
+        
+        doc.save('complex-test.pdf');
+        console.log('Complex PDF generated successfully!');
+      } catch (error) {
+        console.error('Complex PDF error:', error);
+      }
+    }
+  </script>
+</body>
+</html>
