@@ -1141,9 +1141,7 @@
               <button class="btn btn-ghost btn-sm" onclick="editObjective(${obj.id}, ${isPast})">Edit</button>
               ${!isPast ? `
                 <button class="btn btn-primary btn-sm" onclick="showAddKPIModal(${obj.id})">+ Add KPI</button>
-              ` : `
-                <button class="btn btn-danger btn-sm" onclick="removePastObjective(${obj.id})">Remove</button>
-              `}
+              ` : ''}
             </div>
           </div>
           
@@ -1621,6 +1619,19 @@
           </div>
         </div>
       `, [
+        ...(isPast ? [{ 
+          label: 'Remove', 
+          class: 'btn-danger', 
+          action: () => {
+            if (confirm('Are you sure you want to permanently remove this past objective?')) {
+              state.pastObjectives = state.pastObjectives.filter(o => o.id !== id);
+              renderAll();
+              saveToLocalStorage();
+              closeModal();
+              showNotification('Past objective removed', 'success');
+            }
+          }
+        }] : []),
         { label: 'Cancel', class: 'btn-ghost', action: () => closeModal() },
         { label: 'Save Changes', class: 'btn-primary', action: () => {
           const oldStatus = obj.status;
@@ -1659,14 +1670,7 @@
       saveToLocalStorage();
     };
 
-    window.removePastObjective = function(id) {
-      if (confirm('Are you sure you want to permanently remove this past objective?')) {
-        state.pastObjectives = state.pastObjectives.filter(o => o.id !== id);
-        renderAll();
-        saveToLocalStorage();
-        showNotification('Past objective removed', 'success');
-      }
-    };
+    // Removed removePastObjective function - now handled in edit modal
 
     window.updateKPIPeriod = function(objectiveId, kpiId, period) {
       const obj = state.objectives.find(o => o.id === objectiveId);
