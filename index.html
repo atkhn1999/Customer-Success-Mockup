@@ -1950,29 +1950,328 @@
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
         
-        // Add content
-        doc.setFontSize(20);
-        doc.text('Customer Success Plan - Responsive Platform', 20, 20);
+        // Define colors
+        const teal = [20, 184, 166]; // #14b8a6
+        const darkTeal = [13, 148, 136]; // #0d9488
+        const gray = [107, 114, 128]; // #6b7280
+        const darkGray = [31, 41, 55]; // #1f2937
+        const lightGray = [243, 244, 246]; // #f3f4f6
+        const white = [255, 255, 255];
+        const green = [16, 185, 129]; // #10b981
+        const red = [239, 68, 68]; // #ef4444
         
-        doc.setFontSize(12);
-        doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 30);
+        // Page dimensions
+        const pageWidth = 210;
+        const pageHeight = 297;
+        const margin = 20;
+        const contentWidth = pageWidth - (margin * 2);
+        let currentY = margin;
         
-        // Add sections
-        let y = 50;
+        // Helper function to check if we need a new page
+        const checkNewPage = (requiredSpace) => {
+          if (currentY + requiredSpace > pageHeight - margin - 15) {
+            doc.addPage();
+            currentY = margin;
+            // Add header to new page
+            addPageHeader();
+            currentY += 10;
+            return true;
+          }
+          return false;
+        };
         
-        // Mission Summary
-        doc.setFontSize(14);
-        doc.text('Mission Summary', 20, y);
-        y += 10;
+        // Add page header function
+        const addPageHeader = () => {
+          // Teal header background
+          doc.setFillColor(...teal);
+          doc.rect(0, 0, pageWidth, 35, 'F');
+          
+          // White circle for logo
+          doc.setFillColor(...white);
+          doc.circle(margin + 10, 17.5, 8, 'F');
+          
+          // Title
+          doc.setTextColor(...white);
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(18);
+          doc.text('Customer Success Plan', margin + 25, 15);
+          
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(10);
+          doc.text(state.customerName || 'TechCorp', margin + 25, 22);
+          
+          // Date
+          doc.setFontSize(9);
+          const dateText = `Generated: ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
+          const dateWidth = doc.getTextWidth(dateText);
+          doc.text(dateText, pageWidth - margin - dateWidth, 20);
+        };
+        
+        // Add first page header
+        addPageHeader();
+        currentY = 50;
+        
+        // Mission Summary Section
+        doc.setTextColor(...darkGray);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(16);
+        doc.text('Mission Summary', margin, currentY);
+        currentY += 10;
+        
+        doc.setTextColor(...gray);
+        doc.setFont('helvetica', 'normal');
         doc.setFontSize(10);
-        const summaryLines = doc.splitTextToSize(state.missionSummary || 'Not defined', 170);
-        doc.text(summaryLines, 20, y);
-        y += summaryLines.length * 5 + 10;
+        const summaryLines = doc.splitTextToSize(state.missionSummary || 'Not defined', contentWidth);
+        doc.text(summaryLines, margin, currentY);
+        currentY += summaryLines.length * 4 + 15;
+        
+        // Mission Goals and Value Realized (Two columns)
+        checkNewPage(80);
+        
+        // Mission Goals Column
+        const columnWidth = (contentWidth - 10) / 2;
+        let leftY = currentY;
+        let rightY = currentY;
+        
+        doc.setTextColor(...darkGray);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.text('Mission Goals', margin, leftY);
+        leftY += 10;
+        
+        // Draw mission goals
+        state.missionGoals.forEach((goal, index) => {
+          checkNewPage(30);
+          
+          // Goal box
+          doc.setFillColor(...lightGray);
+          doc.roundedRect(margin, leftY, columnWidth, 25, 3, 3, 'F');
+          
+          // Goal icon (circle)
+          doc.setFillColor(...teal);
+          doc.circle(margin + 7, leftY + 12.5, 3, 'F');
+          
+          // Goal title
+          doc.setTextColor(...darkGray);
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(10);
+          const goalTitleLines = doc.splitTextToSize(goal.title, columnWidth - 20);
+          doc.text(goalTitleLines, margin + 15, leftY + 8);
+          
+          // Goal description
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8);
+          doc.setTextColor(...gray);
+          const goalDescLines = doc.splitTextToSize(goal.description, columnWidth - 20);
+          doc.text(goalDescLines, margin + 15, leftY + 13 + (goalTitleLines.length - 1) * 4);
+          
+          leftY += 30;
+        });
+        
+        // Value Realized Column
+        doc.setTextColor(...darkGray);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.text('Value Realized', margin + columnWidth + 10, rightY);
+        rightY += 10;
+        
+        // Draw value realized items
+        state.valueRealized.forEach((value, index) => {
+          // Value box
+          doc.setFillColor(...lightGray);
+          doc.roundedRect(margin + columnWidth + 10, rightY, columnWidth, 25, 3, 3, 'F');
+          
+          // Check icon
+          doc.setFillColor(...green);
+          doc.circle(margin + columnWidth + 17, rightY + 12.5, 3, 'F');
+          doc.setTextColor(...white);
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(8);
+          doc.text('✓', margin + columnWidth + 15.5, rightY + 14);
+          
+          // Value type
+          doc.setTextColor(...darkGray);
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(10);
+          doc.text(value.type, margin + columnWidth + 25, rightY + 8);
+          
+          // Value description
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8);
+          doc.setTextColor(...gray);
+          const valueDescLines = doc.splitTextToSize(value.description, columnWidth - 20);
+          doc.text(valueDescLines, margin + columnWidth + 25, rightY + 13);
+          
+          // Date
+          doc.setFontSize(7);
+          const dateText = new Date(value.date).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
+          doc.text(dateText, margin + columnWidth + 10 + columnWidth - 15, rightY + 21);
+          
+          rightY += 30;
+        });
+        
+        currentY = Math.max(leftY, rightY) + 10;
+        
+        // Current Objectives Section
+        checkNewPage(40);
+        doc.setTextColor(...darkGray);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.text('Current Objectives', margin, currentY);
+        currentY += 10;
+        
+        // Draw objectives
+        state.objectives.forEach((objective, index) => {
+          const objectiveHeight = 60; // Base height
+          checkNewPage(objectiveHeight);
+          
+          // Objective container
+          doc.setDrawColor(...lightGray);
+          doc.setLineWidth(0.5);
+          doc.roundedRect(margin, currentY, contentWidth, objectiveHeight, 3, 3);
+          
+          // Status indicator
+          const statusColor = objective.status === 'Completed' ? green : 
+                            objective.status === 'In Progress' ? teal : 
+                            objective.status === 'At Risk' ? red : gray;
+          doc.setFillColor(...statusColor);
+          doc.circle(margin + 8, currentY + 10, 3, 'F');
+          
+          // Objective name
+          doc.setTextColor(...darkGray);
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(11);
+          doc.text(objective.name, margin + 15, currentY + 11);
+          
+          // Target date
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(9);
+          doc.setTextColor(...gray);
+          const targetDateText = `Target: ${new Date(objective.targetDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+          const targetDateWidth = doc.getTextWidth(targetDateText);
+          doc.text(targetDateText, pageWidth - margin - targetDateWidth, currentY + 11);
+          
+          // Description
+          doc.setFontSize(9);
+          const descLines = doc.splitTextToSize(objective.description, contentWidth - 20);
+          doc.text(descLines, margin + 10, currentY + 20);
+          
+          // KPIs
+          if (objective.kpis && objective.kpis.length > 0) {
+            let kpiY = currentY + 28 + (descLines.length - 1) * 3;
+            const kpiWidth = (contentWidth - 20) / 3;
+            
+            objective.kpis.forEach((kpi, kpiIndex) => {
+              if (kpiIndex < 3) { // Show max 3 KPIs per row
+                const kpiX = margin + 10 + (kpiIndex * kpiWidth);
+                const type = getKPIType(kpi.typeKey);
+                
+                // KPI label
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(8);
+                doc.setTextColor(...gray);
+                doc.text(type.label, kpiX, kpiY);
+                
+                // KPI value
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(10);
+                doc.setTextColor(...darkGray);
+                doc.text(`${kpi.currentValue}${type.unit}`, kpiX, kpiY + 5);
+                
+                // Delta
+                const delta = calculateDelta(kpi.currentValue, kpi.previousValue);
+                const deltaColor = delta > 0 ? green : red;
+                doc.setTextColor(...deltaColor);
+                doc.setFontSize(8);
+                doc.text(`${delta > 0 ? '+' : ''}${delta}%`, kpiX, kpiY + 10);
+              }
+            });
+          }
+          
+          currentY += objectiveHeight + 5;
+        });
+        
+        // Stakeholders Section (if space permits)
+        if (state.stakeholders && state.stakeholders.length > 0) {
+          checkNewPage(50);
+          currentY += 10;
+          
+          doc.setTextColor(...darkGray);
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(14);
+          doc.text('Key Stakeholders', margin, currentY);
+          currentY += 10;
+          
+          // Draw stakeholder cards
+          const cardWidth = (contentWidth - 20) / 3;
+          state.stakeholders.slice(0, 3).forEach((stakeholder, index) => {
+            const cardX = margin + (index * (cardWidth + 10));
+            
+            // Card background
+            doc.setFillColor(...lightGray);
+            doc.roundedRect(cardX, currentY, cardWidth, 35, 3, 3, 'F');
+            
+            // Avatar circle
+            doc.setFillColor(...teal);
+            doc.circle(cardX + 8, currentY + 10, 5, 'F');
+            doc.setTextColor(...white);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(10);
+            const initials = stakeholder.name.split(' ').map(n => n[0]).join('');
+            doc.text(initials, cardX + 5, currentY + 12);
+            
+            // Name
+            doc.setTextColor(...darkGray);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(9);
+            doc.text(stakeholder.name, cardX + 17, currentY + 8);
+            
+            // Role
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8);
+            doc.setTextColor(...gray);
+            doc.text(stakeholder.role, cardX + 17, currentY + 13);
+            
+            // Email
+            doc.setFontSize(7);
+            const emailLines = doc.splitTextToSize(stakeholder.email, cardWidth - 20);
+            doc.text(emailLines, cardX + 5, currentY + 22);
+          });
+          
+          currentY += 40;
+        }
+        
+        // Footer on last page
+        doc.setFillColor(...darkTeal);
+        doc.rect(0, pageHeight - 15, pageWidth, 15, 'F');
+        
+        doc.setTextColor(...white);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.text('Responsive Platform - Customer Success', margin, pageHeight - 8);
+        
+        // Products
+        if (state.products && state.products.length > 0) {
+          const productsText = `Products: ${state.products.join(', ')}`;
+          const productsWidth = doc.getTextWidth(productsText);
+          doc.text(productsText, pageWidth - margin - productsWidth, pageHeight - 8);
+        }
+        
+        // Add executive name if available
+        if (state.stakeholders && state.stakeholders.length > 0) {
+          const executive = state.stakeholders.find(s => s.role && s.role.toLowerCase().includes('executive'));
+          if (executive) {
+            doc.setFont('helvetica', 'italic');
+            doc.setFontSize(7);
+            doc.text(executive.name, pageWidth / 2 - 20, pageHeight - 8);
+          }
+        }
         
         // Save
-        doc.save('customer-success-plan-responsive.pdf');
+        doc.save(`customer-success-plan-${state.customerName || 'responsive'}.pdf`);
         showNotification('PDF exported successfully', 'success');
       } catch (error) {
+        console.error('PDF generation error:', error);
         showNotification('PDF export failed. Please try again.', 'error');
       }
       
