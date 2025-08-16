@@ -1,0 +1,291 @@
+/* PDF Print Styles - Scoped to #pdf-root */
+@page {
+  size: letter;
+  margin: 0.5in;
+}
+
+/* Hide PDF root by default */
+#pdf-root {
+  display: none;
+}
+
+/* When generating PDF */
+#pdf-root * {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Base typography */
+#pdf-root {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #111827;
+}
+
+/* Header */
+#pdf-root .pdf-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  page-break-inside: avoid;
+}
+
+#pdf-root .pdf-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.2;
+}
+
+#pdf-root .pdf-header-info {
+  text-align: right;
+}
+
+#pdf-root .pdf-customer,
+#pdf-root .pdf-generated {
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.4;
+}
+
+/* Section titles */
+#pdf-root .pdf-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 16px;
+  page-break-after: avoid;
+}
+
+/* Cards */
+#pdf-root .pdf-card {
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  padding: 16px;
+  background: white;
+  page-break-inside: avoid;
+}
+
+#pdf-root .pdf-mission-summary {
+  margin-bottom: 24px;
+}
+
+/* Card titles */
+#pdf-root .pdf-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+/* Text */
+#pdf-root .pdf-text {
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.6;
+}
+
+/* Sections */
+#pdf-root .pdf-section {
+  margin-bottom: 32px;
+  page-break-inside: avoid;
+}
+
+/* Grids */
+#pdf-root .pdf-grid {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+#pdf-root .pdf-grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+#pdf-root .pdf-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* Value realized cards */
+#pdf-root .pdf-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+#pdf-root .pdf-date-chip {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: #6B7280;
+  background: #F3F4F6;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+#pdf-root .pdf-value-desc {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* Objectives */
+#pdf-root .pdf-objectives {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+#pdf-root .pdf-objective-card {
+  page-break-inside: avoid;
+}
+
+#pdf-root .pdf-objective-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#pdf-root .pdf-objective-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+#pdf-root .pdf-target-date {
+  font-size: 13px;
+  color: #6B7280;
+}
+
+/* Achieved badge */
+#pdf-root .pdf-achieved-badge {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: #059669;
+  background: #D1FAE5;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* Completed chip */
+#pdf-root .pdf-completed-chip {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: #6B7280;
+  background: #F3F4F6;
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+/* KPI Grid */
+#pdf-root .pdf-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #E5E7EB;
+}
+
+#pdf-root .pdf-kpi-item {
+  page-break-inside: avoid;
+}
+
+#pdf-root .pdf-kpi-label {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: #6B7280;
+  margin-bottom: 4px;
+}
+
+#pdf-root .pdf-kpi-value-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#pdf-root .pdf-kpi-value {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Delta pills */
+#pdf-root .pdf-delta-pill {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+#pdf-root .pdf-delta-positive {
+  color: #059669;
+  background: #D1FAE5;
+}
+
+#pdf-root .pdf-delta-negative {
+  color: #DC2626;
+  background: #FEE2E2;
+}
+
+/* Footer */
+#pdf-root .pdf-footer {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid #E5E7EB;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #6B7280;
+  page-break-inside: avoid;
+}
+
+#pdf-root .pdf-footer-left {
+  flex: 1;
+}
+
+#pdf-root .pdf-footer-right {
+  text-align: right;
+}
+
+/* Print media adjustments */
+@media print {
+  #pdf-root {
+    display: block;
+  }
+  
+  /* Ensure no page breaks in critical areas */
+  #pdf-root .pdf-header,
+  #pdf-root .pdf-card,
+  #pdf-root .pdf-kpi-item,
+  #pdf-root .pdf-objective-header {
+    page-break-inside: avoid;
+  }
+  
+  /* Avoid orphan headers */
+  #pdf-root h1,
+  #pdf-root h2,
+  #pdf-root h3 {
+    page-break-after: avoid;
+  }
+  
+  /* Keep KPI grids together */
+  #pdf-root .pdf-kpi-grid {
+    page-break-inside: avoid;
+  }
+}
+
+/* Inject styles directly when not loading CSS file */
+window.pdfPrintStyles = true;

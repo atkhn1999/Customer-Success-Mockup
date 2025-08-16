@@ -1,0 +1,1018 @@
+UNIFIED DIFF - HTML→PDF Export Implementation for Customer Success Plan
+========================================================================
+
+## File 1: ADD public/js/export-pdf.js
+```javascript
+// Export PDF functionality for Customer Success Plan
+(function() {
+  'use strict';
+
+  // Load html2pdf.js library dynamically if not already loaded
+  function loadHtml2Pdf() {
+    return new Promise((resolve) => {
+      if (typeof html2pdf !== 'undefined') {
+        resolve();
+        return;
+      }
+      
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+      script.onload = resolve;
+      document.head.appendChild(script);
+    });
+  }
+
+  // Extract data from DOM/state
+  function extractData() {
+    // Try to access state directly if available
+    const appState = window.state || {};
+    
+    const data = {
+      customer: appState.customerName || document.querySelector('h1')?.textContent?.replace('Customer Success Plan', '').trim() || 'TechCorp',
+      generatedOn: new Date().toLocaleDateString('en-US', { 
+        month: 'long', 
+        day: 'numeric', 
+        year: 'numeric' 
+      }),
+      missionSummary: '',
+      missionGoals: [],
+      valueRealized: [],
+      currentObjectives: [],
+      pastObjectivesAchieved: [],
+      footer: {
+        products: '',
+        owner: ''
+      }
+    };
+
+    // Extract mission summary
+    if (appState.missionSummary) {
+      data.missionSummary = appState.missionSummary;
+    } else {
+      const summaryEl = document.querySelector('#mission-summary-section .content-text');
+      if (summaryEl) {
+        data.missionSummary = summaryEl.textContent.trim();
+      }
+    }
+
+    // Extract mission goals
+    if (appState.missionGoals && appState.missionGoals.length) {
+      data.missionGoals = appState.missionGoals.map(goal => ({
+        title: goal.title,
+        description: goal.description
+      }));
+    } else {
+      document.querySelectorAll('#mission-goals-container .card').forEach(card => {
+        const title = card.querySelector('h4')?.textContent.trim();
+        const desc = card.querySelector('.text-sm')?.textContent.trim();
+        if (title) {
+          data.missionGoals.push({ title, description: desc || '' });
+        }
+      });
+    }
+
+    // Extract value realized
+    if (appState.valueRealized && appState.valueRealized.length) {
+      data.valueRealized = appState.valueRealized.map(value => ({
+        type: value.type,
+        date: value.date,
+        description: value.description
+      }));
+    } else {
+      document.querySelectorAll('#value-container .card').forEach(card => {
+        const typeEl = card.querySelector('.font-semibold');
+        const dateEl = card.querySelector('.chip-date');
+        const descEl = card.querySelector('.text-sm');
+        if (typeEl) {
+          data.valueRealized.push({
+            type: typeEl.textContent.trim(),
+            date: dateEl?.textContent.trim() || '',
+            description: descEl?.textContent.trim() || ''
+          });
+        }
+      });
+    }
+
+    // Extract current objectives
+    if (appState.objectives && appState.objectives.length) {
+      data.currentObjectives = appState.objectives.map(obj => ({
+        name: obj.name,
+        targetDate: obj.targetDate,
+        description: obj.description,
+        kpis: (obj.kpis || []).map(kpi => {
+          const kpiType = window.kpiTypes?.find(k => k.key === kpi.typeKey) || {};
+          const current = kpi.currentValue;
+          const previous = kpi.previousValue;
+          const delta = kpi.comparePrevious && previous ? current - previous : null;
+          
+          return {
+            label: kpiType.label || kpi.typeKey,
+            value: `${current}${kpiType.suffix || ''}`,
+            delta: delta !== null ? (delta >= 0 ? `+${delta}` : `${delta}`) : null,
+            isPositive: delta !== null ? (kpiType.higherIsBetter ? delta >= 0 : delta <= 0) : null
+          };
+        })
+      }));
+    } else {
+      document.querySelectorAll('#objectives-container .card').forEach(card => {
+        const obj = {
+          name: card.querySelector('h4')?.textContent.trim() || '',
+          targetDate: '',
+          description: card.querySelector('.text-gray-600')?.textContent.trim() || '',
+          kpis: []
+        };
+        
+        // Extract target date
+        const targetText = card.querySelector('.text-sm.text-gray-500')?.textContent || '';
+        const dateMatch = targetText.match(/Target:\s*(\d{1,2}\/\d{1,2}\/\d{4})/);
+        if (dateMatch) {
+          obj.targetDate = dateMatch[1];
+        }
+        
+        // Extract KPIs
+        card.querySelectorAll('.kpi-card').forEach(kpiCard => {
+          const kpi = {
+            label: kpiCard.querySelector('.text-xs.font-medium')?.textContent.trim() || '',
+            value: kpiCard.querySelector('.text-2xl.font-bold')?.textContent.trim() || '',
+            delta: null,
+            isPositive: null
+          };
+          
+          const deltaEl = kpiCard.querySelector('.delta-pill');
+          if (deltaEl) {
+            kpi.delta = deltaEl.textContent.trim();
+            kpi.isPositive = deltaEl.classList.contains('delta-positive');
+          }
+          
+          if (kpi.label) {
+            obj.kpis.push(kpi);
+          }
+        });
+        
+        if (obj.name) {
+          data.currentObjectives.push(obj);
+        }
+      });
+    }
+
+    // Extract past objectives achieved
+    if (appState.pastObjectives && appState.pastObjectives.length) {
+      data.pastObjectivesAchieved = appState.pastObjectives.map(obj => ({
+        name: obj.name,
+        targetDate: obj.targetDate,
+        completedDate: obj.targetDate, // Use target date as completed date
+        description: obj.description,
+        kpis: (obj.kpis || []).map(kpi => {
+          const kpiType = window.kpiTypes?.find(k => k.key === kpi.typeKey) || {};
+          const current = kpi.currentValue;
+          const previous = kpi.previousValue;
+          const delta = kpi.comparePrevious && previous ? current - previous : null;
+          
+          return {
+            label: kpiType.label || kpi.typeKey,
+            value: `${current}${kpiType.suffix || ''}`,
+            delta: delta !== null ? (delta >= 0 ? `+${delta}` : `${delta}`) : null,
+            isPositive: delta !== null ? (kpiType.higherIsBetter ? delta >= 0 : delta <= 0) : null
+          };
+        })
+      }));
+    } else {
+      document.querySelectorAll('#past-objectives-container .card').forEach(card => {
+        const obj = {
+          name: card.querySelector('h4')?.textContent.trim() || '',
+          targetDate: '',
+          completedDate: '',
+          description: card.querySelector('.text-gray-600')?.textContent.trim() || '',
+          kpis: []
+        };
+        
+        // Extract dates
+        const targetText = card.querySelector('.text-sm.text-gray-500')?.textContent || '';
+        const dateMatch = targetText.match(/Target:\s*(\d{1,2}\/\d{1,2}\/\d{4})/);
+        if (dateMatch) {
+          obj.targetDate = dateMatch[1];
+          obj.completedDate = dateMatch[1]; // Use same date for completed
+        }
+        
+        // Extract KPIs
+        card.querySelectorAll('.kpi-card').forEach(kpiCard => {
+          const kpi = {
+            label: kpiCard.querySelector('.text-xs.font-medium')?.textContent.trim() || '',
+            value: kpiCard.querySelector('.text-2xl.font-bold')?.textContent.trim() || '',
+            delta: null,
+            isPositive: null
+          };
+          
+          const deltaEl = kpiCard.querySelector('.delta-pill');
+          if (deltaEl) {
+            kpi.delta = deltaEl.textContent.trim();
+            kpi.isPositive = deltaEl.classList.contains('delta-positive');
+          }
+          
+          if (kpi.label) {
+            obj.kpis.push(kpi);
+          }
+        });
+        
+        if (obj.name) {
+          data.pastObjectivesAchieved.push(obj);
+        }
+      });
+    }
+
+    // Extract footer info
+    if (appState.products && appState.products.length) {
+      data.footer.products = `Responsive Platform Products: ${appState.products.join(', ')}`;
+    } else {
+      const productsText = document.querySelector('#products-section h3')?.parentElement?.textContent || '';
+      if (productsText.includes('Responsive Platform Products')) {
+        data.footer.products = productsText.replace(/Edit/g, '').trim();
+      }
+    }
+
+    // Set owner
+    data.footer.owner = `Success Manager: ${data.customer} Success Team`;
+
+    return data;
+  }
+
+  // Format date to MM/DD/YYYY
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return dateStr;
+      
+      return `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}/${date.getFullYear()}`;
+    } catch (e) {
+      return dateStr;
+    }
+  }
+
+  // Render PDF HTML
+  function renderPdfReport(data) {
+    return `
+      <div id="pdf-root">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <style>
+          /* PDF Print Styles - Scoped to #pdf-root */
+          @page {
+            size: letter;
+            margin: 0.5in;
+          }
+
+          #pdf-root * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+          }
+
+          #pdf-root {
+            font-size: 13px;
+            line-height: 1.5;
+            color: #111827;
+          }
+
+          /* Header */
+          #pdf-root .pdf-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+            page-break-inside: avoid;
+          }
+
+          #pdf-root .pdf-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #111827;
+            line-height: 1.2;
+          }
+
+          #pdf-root .pdf-header-info {
+            text-align: right;
+          }
+
+          #pdf-root .pdf-customer,
+          #pdf-root .pdf-generated {
+            font-size: 13px;
+            color: #374151;
+            line-height: 1.4;
+          }
+
+          /* Section titles */
+          #pdf-root .pdf-section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 16px;
+            page-break-after: avoid;
+          }
+
+          /* Cards */
+          #pdf-root .pdf-card {
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
+            padding: 16px;
+            background: white;
+            page-break-inside: avoid;
+          }
+
+          #pdf-root .pdf-mission-summary {
+            margin-bottom: 24px;
+          }
+
+          /* Card titles */
+          #pdf-root .pdf-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 8px;
+          }
+
+          /* Text */
+          #pdf-root .pdf-text {
+            font-size: 13px;
+            color: #374151;
+            line-height: 1.6;
+          }
+
+          /* Sections */
+          #pdf-root .pdf-section {
+            margin-bottom: 32px;
+            page-break-inside: avoid;
+          }
+
+          /* Grids */
+          #pdf-root .pdf-grid {
+            display: grid;
+            gap: 16px;
+            margin-bottom: 24px;
+          }
+
+          #pdf-root .pdf-grid-2 {
+            grid-template-columns: repeat(2, 1fr);
+          }
+
+          #pdf-root .pdf-grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+          }
+
+          /* Value realized cards */
+          #pdf-root .pdf-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+          }
+
+          #pdf-root .pdf-date-chip {
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            color: #6B7280;
+            background: #F3F4F6;
+            padding: 2px 8px;
+            border-radius: 4px;
+          }
+
+          #pdf-root .pdf-value-desc {
+            font-size: 13px;
+            line-height: 1.4;
+          }
+
+          /* Objectives */
+          #pdf-root .pdf-objectives {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+          }
+
+          #pdf-root .pdf-objective-card {
+            page-break-inside: avoid;
+          }
+
+          #pdf-root .pdf-objective-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+          }
+
+          #pdf-root .pdf-objective-title-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+          }
+
+          #pdf-root .pdf-target-date {
+            font-size: 13px;
+            color: #6B7280;
+          }
+
+          /* Achieved badge */
+          #pdf-root .pdf-achieved-badge {
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            color: #059669;
+            background: #D1FAE5;
+            padding: 2px 8px;
+            border-radius: 4px;
+          }
+
+          /* Completed chip */
+          #pdf-root .pdf-completed-chip {
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            color: #6B7280;
+            background: #F3F4F6;
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+          }
+
+          /* KPI Grid */
+          #pdf-root .pdf-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #E5E7EB;
+          }
+
+          #pdf-root .pdf-kpi-item {
+            page-break-inside: avoid;
+          }
+
+          #pdf-root .pdf-kpi-label {
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            color: #6B7280;
+            margin-bottom: 4px;
+          }
+
+          #pdf-root .pdf-kpi-value-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+
+          #pdf-root .pdf-kpi-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #111827;
+          }
+
+          /* Delta pills */
+          #pdf-root .pdf-delta-pill {
+            font-size: 11px;
+            font-weight: 500;
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+          }
+
+          #pdf-root .pdf-delta-positive {
+            color: #059669;
+            background: #D1FAE5;
+          }
+
+          #pdf-root .pdf-delta-negative {
+            color: #DC2626;
+            background: #FEE2E2;
+          }
+
+          /* Footer */
+          #pdf-root .pdf-footer {
+            margin-top: 40px;
+            padding-top: 16px;
+            border-top: 1px solid #E5E7EB;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #6B7280;
+            page-break-inside: avoid;
+          }
+
+          #pdf-root .pdf-footer-left {
+            flex: 1;
+          }
+
+          #pdf-root .pdf-footer-right {
+            text-align: right;
+          }
+        </style>
+        
+        <!-- Header -->
+        <div class="pdf-header">
+          <h1 class="pdf-title">Customer Success Plan</h1>
+          <div class="pdf-header-info">
+            <div class="pdf-customer">Customer: ${data.customer}</div>
+            <div class="pdf-generated">Generated: ${data.generatedOn}</div>
+          </div>
+        </div>
+
+        <!-- Mission Summary -->
+        <div class="pdf-card pdf-mission-summary">
+          <h2 class="pdf-section-title">Mission Summary</h2>
+          <p class="pdf-text">${data.missionSummary}</p>
+        </div>
+
+        <!-- Mission Goals -->
+        <div class="pdf-section">
+          <h2 class="pdf-section-title">Mission Goals</h2>
+          <div class="pdf-grid pdf-grid-2">
+            ${data.missionGoals.map(goal => `
+              <div class="pdf-card">
+                <h3 class="pdf-card-title">${goal.title}</h3>
+                <p class="pdf-text">${goal.description}</p>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Value Realized -->
+        <div class="pdf-section">
+          <h2 class="pdf-section-title">Value Realized</h2>
+          <div class="pdf-grid pdf-grid-3">
+            ${data.valueRealized.map(value => `
+              <div class="pdf-card">
+                <div class="pdf-card-header">
+                  <h3 class="pdf-card-title">${value.type}</h3>
+                  ${value.date ? `<span class="pdf-date-chip">${formatDate(value.date)}</span>` : ''}
+                </div>
+                <p class="pdf-text pdf-value-desc">${value.description}</p>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Current Objectives -->
+        <div class="pdf-section">
+          <h2 class="pdf-section-title">Current Objectives</h2>
+          <div class="pdf-objectives">
+            ${data.currentObjectives.map(obj => `
+              <div class="pdf-card pdf-objective-card">
+                <div class="pdf-objective-header">
+                  <h3 class="pdf-card-title">${obj.name}</h3>
+                  ${obj.targetDate ? `<span class="pdf-target-date">• Target: ${formatDate(obj.targetDate)}</span>` : ''}
+                </div>
+                <p class="pdf-text">${obj.description}</p>
+                ${obj.kpis.length > 0 ? `
+                  <div class="pdf-kpi-grid">
+                    ${obj.kpis.map(kpi => `
+                      <div class="pdf-kpi-item">
+                        <div class="pdf-kpi-label">${kpi.label}</div>
+                        <div class="pdf-kpi-value-row">
+                          <span class="pdf-kpi-value">${kpi.value}</span>
+                          ${kpi.delta ? `<span class="pdf-delta-pill ${kpi.isPositive ? 'pdf-delta-positive' : 'pdf-delta-negative'}">${kpi.delta}</span>` : ''}
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+                ` : ''}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Past Objectives Achieved -->
+        ${data.pastObjectivesAchieved.length > 0 ? `
+          <div class="pdf-section">
+            <h2 class="pdf-section-title">Past Objectives Achieved</h2>
+            <div class="pdf-objectives">
+              ${data.pastObjectivesAchieved.map(obj => `
+                <div class="pdf-card pdf-objective-card">
+                  <div class="pdf-objective-header">
+                    <div class="pdf-objective-title-row">
+                      <span class="pdf-achieved-badge">Achieved</span>
+                      <h3 class="pdf-card-title">${obj.name}</h3>
+                    </div>
+                    ${obj.completedDate ? `<span class="pdf-completed-chip">Completed: ${formatDate(obj.completedDate)}</span>` : ''}
+                  </div>
+                  <p class="pdf-text">${obj.description}</p>
+                  ${obj.kpis.length > 0 ? `
+                    <div class="pdf-kpi-grid">
+                      ${obj.kpis.map(kpi => `
+                        <div class="pdf-kpi-item">
+                          <div class="pdf-kpi-label">${kpi.label}</div>
+                          <div class="pdf-kpi-value-row">
+                            <span class="pdf-kpi-value">${kpi.value}</span>
+                            ${kpi.delta ? `<span class="pdf-delta-pill ${kpi.isPositive ? 'pdf-delta-positive' : 'pdf-delta-negative'}">${kpi.delta}</span>` : ''}
+                          </div>
+                        </div>
+                      `).join('')}
+                    </div>
+                  ` : ''}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- Footer -->
+        <div class="pdf-footer">
+          <div class="pdf-footer-left">${data.footer.products}</div>
+          <div class="pdf-footer-right">${data.footer.owner}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Main export function
+  async function exportPdf() {
+    // Load html2pdf if needed
+    await loadHtml2Pdf();
+    
+    // Extract data
+    const data = extractData();
+    
+    // Create PDF root element
+    const pdfContainer = document.createElement('div');
+    pdfContainer.innerHTML = renderPdfReport(data);
+    pdfContainer.style.position = 'absolute';
+    pdfContainer.style.left = '-9999px';
+    pdfContainer.style.top = '0';
+    document.body.appendChild(pdfContainer);
+    
+    // Generate PDF
+    const element = pdfContainer.querySelector('#pdf-root');
+    
+    try {
+      await html2pdf()
+        .from(element)
+        .set({
+          margin: 0.5,
+          filename: `${data.customer.replace(/\s+/g, '-').toLowerCase()}-success-plan.pdf`,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true },
+          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        })
+        .save();
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      // Clean up
+      document.body.removeChild(pdfContainer);
+    }
+  }
+
+  // Attach event listener
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-export-pdf]');
+    if (!btn) return;
+    
+    e.preventDefault();
+    exportPdf();
+  });
+
+  // Also attach to existing button if it has the ID
+  document.addEventListener('DOMContentLoaded', () => {
+    const exportBtn = document.getElementById('export-pdf-btn');
+    if (exportBtn && !exportBtn.hasAttribute('data-export-pdf')) {
+      exportBtn.setAttribute('data-export-pdf', '');
+    }
+  });
+
+})();
+```
+
+## File 2: ADD public/css/print-pdf.css (OPTIONAL - styles are embedded in JS)
+```css
+/* PDF Print Styles - Scoped to #pdf-root */
+@page {
+  size: letter;
+  margin: 0.5in;
+}
+
+/* Hide PDF root by default */
+#pdf-root {
+  display: none;
+}
+
+/* When generating PDF */
+#pdf-root * {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Base typography */
+#pdf-root {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #111827;
+}
+
+/* Header */
+#pdf-root .pdf-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  page-break-inside: avoid;
+}
+
+#pdf-root .pdf-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.2;
+}
+
+#pdf-root .pdf-header-info {
+  text-align: right;
+}
+
+#pdf-root .pdf-customer,
+#pdf-root .pdf-generated {
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.4;
+}
+
+/* Section titles */
+#pdf-root .pdf-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 16px;
+  page-break-after: avoid;
+}
+
+/* Cards */
+#pdf-root .pdf-card {
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  padding: 16px;
+  background: white;
+  page-break-inside: avoid;
+}
+
+#pdf-root .pdf-mission-summary {
+  margin-bottom: 24px;
+}
+
+/* Card titles */
+#pdf-root .pdf-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+/* Text */
+#pdf-root .pdf-text {
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.6;
+}
+
+/* Sections */
+#pdf-root .pdf-section {
+  margin-bottom: 32px;
+  page-break-inside: avoid;
+}
+
+/* Grids */
+#pdf-root .pdf-grid {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+#pdf-root .pdf-grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+#pdf-root .pdf-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* Value realized cards */
+#pdf-root .pdf-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+#pdf-root .pdf-date-chip {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: #6B7280;
+  background: #F3F4F6;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+#pdf-root .pdf-value-desc {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* Objectives */
+#pdf-root .pdf-objectives {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+#pdf-root .pdf-objective-card {
+  page-break-inside: avoid;
+}
+
+#pdf-root .pdf-objective-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#pdf-root .pdf-objective-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+#pdf-root .pdf-target-date {
+  font-size: 13px;
+  color: #6B7280;
+}
+
+/* Achieved badge */
+#pdf-root .pdf-achieved-badge {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: #059669;
+  background: #D1FAE5;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* Completed chip */
+#pdf-root .pdf-completed-chip {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: #6B7280;
+  background: #F3F4F6;
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+/* KPI Grid */
+#pdf-root .pdf-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #E5E7EB;
+}
+
+#pdf-root .pdf-kpi-item {
+  page-break-inside: avoid;
+}
+
+#pdf-root .pdf-kpi-label {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: #6B7280;
+  margin-bottom: 4px;
+}
+
+#pdf-root .pdf-kpi-value-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#pdf-root .pdf-kpi-value {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Delta pills */
+#pdf-root .pdf-delta-pill {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+#pdf-root .pdf-delta-positive {
+  color: #059669;
+  background: #D1FAE5;
+}
+
+#pdf-root .pdf-delta-negative {
+  color: #DC2626;
+  background: #FEE2E2;
+}
+
+/* Footer */
+#pdf-root .pdf-footer {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid #E5E7EB;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #6B7280;
+  page-break-inside: avoid;
+}
+
+#pdf-root .pdf-footer-left {
+  flex: 1;
+}
+
+#pdf-root .pdf-footer-right {
+  text-align: right;
+}
+
+/* Print media adjustments */
+@media print {
+  #pdf-root {
+    display: block;
+  }
+  
+  /* Ensure no page breaks in critical areas */
+  #pdf-root .pdf-header,
+  #pdf-root .pdf-card,
+  #pdf-root .pdf-kpi-item,
+  #pdf-root .pdf-objective-header {
+    page-break-inside: avoid;
+  }
+  
+  /* Avoid orphan headers */
+  #pdf-root h1,
+  #pdf-root h2,
+  #pdf-root h3 {
+    page-break-after: avoid;
+  }
+  
+  /* Keep KPI grids together */
+  #pdf-root .pdf-kpi-grid {
+    page-break-inside: avoid;
+  }
+}
+
+/* Inject styles directly when not loading CSS file */
+window.pdfPrintStyles = true;
+```
+
+## File 3: MODIFY index.html (or wherever the Export PDF button is located)
+
+### Option A: Add data-export-pdf attribute to existing button
+```diff
+-<button id="export-pdf-btn" class="btn btn-primary flex items-center" aria-label="Export to PDF">
++<button id="export-pdf-btn" class="btn btn-primary flex items-center" aria-label="Export to PDF" data-export-pdf>
+   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+     <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" />
+   </svg>
+   Export PDF
+ </button>
+```
+
+### Option B: The script will automatically add the attribute to any button with id="export-pdf-btn"
+
+## File 4: ADD script tag before closing </body> tag
+```html
+<script src="public/js/export-pdf.js"></script>
+```
+
+## Summary of Changes:
+1. **Added:** public/js/export-pdf.js - Complete PDF export functionality with embedded styles
+2. **Added:** public/css/print-pdf.css - PDF-specific styles (optional, as styles are embedded in JS)
+3. **Modified:** Add `data-export-pdf` attribute to the Export PDF button (1 line change)
+4. **Added:** Script tag to load the export-pdf.js file
+
+## Key Features:
+- Non-destructive implementation
+- No changes to existing UI, layout, classes, or copy
+- All PDF styles scoped to #pdf-root
+- Includes "Past Objectives Achieved" section
+- Automatic html2pdf.js library loading
+- Clean DOM after PDF generation
+- Exact PDF spec compliance
