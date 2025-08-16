@@ -1949,30 +1949,292 @@
       try {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
+        const pageHeight = doc.internal.pageSize.height;
+        const pageWidth = doc.internal.pageSize.width;
+        const margins = { top: 20, right: 20, bottom: 20, left: 20 };
+        const contentWidth = pageWidth - margins.left - margins.right;
         
-        // Add content
-        doc.setFontSize(20);
-        doc.text('Customer Success Plan - Responsive Platform', 20, 20);
+        let y = margins.top;
+        const date = new Date();
+        const dateStr = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        
+        // Helper function to check if we need a new page
+        function checkNewPage(requiredSpace) {
+          if (y + requiredSpace > pageHeight - margins.bottom) {
+            doc.addPage();
+            y = margins.top;
+            return true;
+          }
+          return false;
+        }
+        
+        // Helper function to add section header
+        function addSectionHeader(title, fontSize = 16) {
+          checkNewPage(20);
+          doc.setFontSize(fontSize);
+          doc.setFont(undefined, 'bold');
+          doc.text(title, margins.left, y);
+          doc.setFont(undefined, 'normal');
+          y += fontSize * 0.5;
+          
+          // Add underline
+          doc.setDrawColor(200, 200, 200);
+          doc.line(margins.left, y, pageWidth - margins.right, y);
+          y += 5;
+        }
+        
+        // Title Page
+        doc.setFontSize(24);
+        doc.setFont(undefined, 'bold');
+        doc.text('Customer Success Plan', pageWidth / 2, y, { align: 'center' });
+        y += 15;
+        
+        doc.setFontSize(18);
+        doc.setFont(undefined, 'normal');
+        doc.text(state.customerName || 'Customer', pageWidth / 2, y, { align: 'center' });
+        y += 10;
         
         doc.setFontSize(12);
-        doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 30);
+        doc.text(dateStr, pageWidth / 2, y, { align: 'center' });
+        y += 20;
         
-        // Add sections
-        let y = 50;
+        // Executive Summary
+        addSectionHeader('Executive Summary');
+        doc.setFontSize(10);
+        
+        // Summary info
+        const summaryInfo = [
+          `Active Products: ${state.products.join(', ')}`,
+          `Plan Health: ${state.planHealth || 'Good'}`,
+          `Total Objectives: ${state.objectives.length}`,
+          `In Progress: ${state.objectives.filter(o => o.status === 'In Progress').length}`,
+          `Not Started: ${state.objectives.filter(o => o.status === 'Not Started').length}`,
+          `Completed: ${state.pastObjectives.length}`,
+          `Total Value Realized: ${state.valueRealized.length} items`,
+          `Key Stakeholders: ${state.stakeholders.length} contacts`
+        ];
+        
+        summaryInfo.forEach(info => {
+          checkNewPage(10);
+          doc.text(info, margins.left, y);
+          y += 7;
+        });
+        y += 5;
         
         // Mission Summary
-        doc.setFontSize(14);
-        doc.text('Mission Summary', 20, y);
-        y += 10;
-        doc.setFontSize(10);
-        const summaryLines = doc.splitTextToSize(state.missionSummary || 'Not defined', 170);
-        doc.text(summaryLines, 20, y);
-        y += summaryLines.length * 5 + 10;
+        if (state.missionSummary) {
+          checkNewPage(15);
+          doc.setFont(undefined, 'bold');
+          doc.text('Mission Summary:', margins.left, y);
+          doc.setFont(undefined, 'normal');
+          y += 7;
+          
+          const summaryLines = doc.splitTextToSize(state.missionSummary, contentWidth);
+          summaryLines.forEach(line => {
+            checkNewPage(7);
+            doc.text(line, margins.left, y);
+            y += 5;
+          });
+          y += 10;
+        }
         
-        // Save
-        doc.save('customer-success-plan-responsive.pdf');
-        showNotification('PDF exported successfully', 'success');
+        // Current Objectives
+        if (state.objectives.length > 0) {
+          addSectionHeader('Current Objectives');
+          
+          state.objectives.forEach((obj, idx) => {
+            checkNewPage(40);
+            
+            // Objective header
+            doc.setFont(undefined, 'bold');
+            doc.setFontSize(11);
+            doc.text(`${idx + 1}. ${obj.name}`, margins.left, y);
+            doc.setFont(undefined, 'normal');
+            doc.setFontSize(10);
+            y += 7;
+            
+            // Status and date
+            doc.text(`Status: ${obj.status} | Target Date: ${new Date(obj.targetDate).toLocaleDateString()}`, margins.left + 5, y);
+            y += 6;
+            
+            // Description
+            if (obj.description) {
+              const descLines = doc.splitTextToSize(`Description: ${obj.description}`, contentWidth - 5);
+              descLines.forEach(line => {
+                checkNewPage(6);
+                doc.text(line, margins.left + 5, y);
+                y += 5;
+              });
+              y += 2;
+            }
+            
+            // Challenges
+            if (obj.challenges) {
+              const challengeLines = doc.splitTextToSize(`Challenges: ${obj.challenges}`, contentWidth - 5);
+              challengeLines.forEach(line => {
+                checkNewPage(6);
+                doc.text(line, margins.left + 5, y);
+                y += 5;
+              });
+              y += 2;
+            }
+            
+            // Next Steps
+            if (obj.nextSteps) {
+              const nextStepLines = doc.splitTextToSize(`Next Steps: ${obj.nextSteps}`, contentWidth - 5);
+              nextStepLines.forEach(line => {
+                checkNewPage(6);
+                doc.text(line, margins.left + 5, y);
+                y += 5;
+              });
+              y += 2;
+            }
+            
+            // KPIs
+            if (obj.kpis && obj.kpis.length > 0) {
+              checkNewPage(10);
+              doc.setFont(undefined, 'italic');
+              doc.text('Key Performance Indicators:', margins.left + 5, y);
+              doc.setFont(undefined, 'normal');
+              y += 6;
+              
+              obj.kpis.forEach(kpi => {
+                checkNewPage(8);
+                const type = getKPIType(kpi.typeKey);
+                const delta = calculateDelta(kpi.currentValue, kpi.previousValue);
+                const trend = type.higherIsBetter ? (delta >= 0 ? '↑' : '↓') : (delta <= 0 ? '↑' : '↓');
+                
+                doc.text(`• ${type.label}: ${kpi.currentValue}${type.unit} ${trend} (${delta > 0 ? '+' : ''}${delta}%)`, margins.left + 10, y);
+                y += 5;
+                
+                if (kpi.previousValue !== undefined) {
+                  doc.setFontSize(9);
+                  doc.text(`Previous: ${kpi.previousValue}${type.unit} | Period: ${kpi.period}`, margins.left + 15, y);
+                  doc.setFontSize(10);
+                  y += 5;
+                }
+              });
+            }
+            
+            y += 8;
+          });
+        }
+        
+        // Mission Goals
+        if (state.missionGoals.length > 0) {
+          addSectionHeader('Mission Goals');
+          
+          state.missionGoals.forEach((goal, idx) => {
+            checkNewPage(20);
+            
+            doc.setFont(undefined, 'bold');
+            doc.text(`${idx + 1}. ${goal.title}`, margins.left, y);
+            doc.setFont(undefined, 'normal');
+            y += 7;
+            
+            if (goal.description) {
+              const descLines = doc.splitTextToSize(goal.description, contentWidth - 5);
+              descLines.forEach(line => {
+                checkNewPage(6);
+                doc.text(line, margins.left + 5, y);
+                y += 5;
+              });
+            }
+            
+            // Custom fields
+            if (goal.customFields && goal.customFields.length > 0) {
+              goal.customFields.forEach(field => {
+                checkNewPage(8);
+                doc.text(`${field.label}: ${field.value}`, margins.left + 5, y);
+                y += 6;
+              });
+            }
+            
+            y += 5;
+          });
+        }
+        
+        // Value Realized
+        if (state.valueRealized.length > 0) {
+          addSectionHeader('Value Realized');
+          
+          state.valueRealized.forEach((value, idx) => {
+            checkNewPage(15);
+            
+            doc.setFont(undefined, 'bold');
+            doc.text(`${idx + 1}. ${value.type}`, margins.left, y);
+            doc.setFont(undefined, 'normal');
+            y += 6;
+            
+            const descLines = doc.splitTextToSize(value.description, contentWidth - 5);
+            descLines.forEach(line => {
+              checkNewPage(6);
+              doc.text(line, margins.left + 5, y);
+              y += 5;
+            });
+            
+            doc.setFontSize(9);
+            doc.text(`Date: ${new Date(value.date).toLocaleDateString()}`, margins.left + 5, y);
+            doc.setFontSize(10);
+            y += 8;
+          });
+        }
+        
+        // Stakeholders
+        if (state.stakeholders.length > 0) {
+          addSectionHeader('Key Stakeholders');
+          
+          state.stakeholders.forEach((stakeholder, idx) => {
+            checkNewPage(12);
+            
+            doc.text(`${idx + 1}. ${stakeholder.name} - ${stakeholder.title}`, margins.left, y);
+            y += 6;
+            doc.setFontSize(9);
+            doc.text(`Email: ${stakeholder.email}`, margins.left + 5, y);
+            doc.setFontSize(10);
+            y += 8;
+          });
+        }
+        
+        // Past Objectives
+        if (state.pastObjectives.length > 0) {
+          addSectionHeader('Completed Objectives');
+          
+          state.pastObjectives.forEach((obj, idx) => {
+            checkNewPage(15);
+            
+            doc.text(`${idx + 1}. ${obj.name} - Completed ${new Date(obj.targetDate).toLocaleDateString()}`, margins.left, y);
+            y += 6;
+            
+            if (obj.description) {
+              const descLines = doc.splitTextToSize(obj.description, contentWidth - 5);
+              descLines.forEach(line => {
+                checkNewPage(6);
+                doc.text(line, margins.left + 5, y);
+                y += 5;
+              });
+            }
+            y += 5;
+          });
+        }
+        
+        // Footer on each page
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+          doc.setPage(i);
+          doc.setFontSize(8);
+          doc.setTextColor(128);
+          doc.text(`Page ${i} of ${pageCount}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+          doc.text('Customer Success Plan - Responsive Platform', margins.left, pageHeight - 10);
+          doc.setTextColor(0);
+        }
+        
+        // Generate filename with customer name and date
+        const filename = `${state.customerName.replace(/\s+/g, '-').toLowerCase()}-success-plan-${date.toISOString().split('T')[0]}.pdf`;
+        doc.save(filename);
+        showNotification('PDF exported successfully with comprehensive data', 'success');
       } catch (error) {
+        console.error('PDF export error:', error);
         showNotification('PDF export failed. Please try again.', 'error');
       }
       
