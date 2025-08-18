@@ -818,20 +818,6 @@
   </div>
 
   <script>
-    // Alert to confirm script is running (remove after debugging)
-    // alert('Script is executing!');
-    
-    // Debug: Script loaded
-    console.log('=== Customer Success Plan Script Loaded ===');
-    console.log('Document readyState:', document.readyState);
-    console.log('Script execution started at:', new Date().toISOString());
-    
-    // Immediate DOM test
-    console.log('Immediate DOM test:');
-    console.log('- document.body exists:', !!document.body);
-    console.log('- Can find app div:', !!document.getElementById('app'));
-    console.log('- Can find customer-name-display:', !!document.getElementById('customer-name-display'));
-    
     // ---------- Data Models ----------
     const PRODUCT_KPIS = {
       'Content Library': [
@@ -1027,29 +1013,10 @@
       valueRealizedBackup: [], // For cancel functionality
       planHealth: 'green'
     };
-    
-    // Immediate test - try to update customer name directly
-    setTimeout(() => {
-      console.log('=== Direct DOM update test after 100ms ===');
-      const customerDisplay = document.getElementById('customer-name-display');
-      if (customerDisplay) {
-        console.log('Found customer display, current text:', customerDisplay.textContent);
-        console.log('State customer name:', state.customerName);
-        customerDisplay.textContent = state.customerName;
-        console.log('Updated to:', customerDisplay.textContent);
-      } else {
-        console.error('Could not find customer-name-display element!');
-      }
-    }, 100);
 
     // ---------- Utility Functions ----------
     const $ = (q, root = document) => root.querySelector(q);
     const $$ = (q, root = document) => [...root.querySelectorAll(q)];
-    
-    // Test $ function immediately
-    console.log('Testing $ function:');
-    console.log('- $ function defined:', typeof $ === 'function');
-    console.log('- $("#customer-name-display"):', $('#customer-name-display'));
     
     function calculateDelta(current, previous) {
       if (!previous || previous === 0) return 0;
@@ -2508,34 +2475,20 @@
               </div>
             </label>
           </div>
-          
-          <div class="border-t pt-4">
-            <label class="block text-sm font-medium mb-2">Report Format</label>
-            <select id="export-format" class="text-zone p-2 w-full">
-              <option value="full">Full Report - Comprehensive multi-page document</option>
-              <option value="onepager">Executive One-Pager - High-impact summary presentation</option>
-            </select>
-          </div>
         </div>
       `, [
         { label: 'Cancel', class: 'btn-ghost', action: () => closeModal() },
         { label: 'Export PDF', class: 'btn-primary', action: () => {
-          const format = $('#export-format').value;
-          if (format === 'onepager') {
-            closeModal();
-            generateSimpleOnePager();
-          } else {
-            const options = {
-              includeSummary: $('#export-summary').checked,
-              includeGoals: $('#export-goals').checked,
-              includeObjectives: $('#export-objectives').checked,
-              includeValue: $('#export-value').checked,
-              includePast: $('#export-past').checked,
-              includeStakeholders: $('#export-stakeholders').checked
-            };
-            closeModal();
-            generateCleanPDF(options);
-          }
+          const options = {
+            includeSummary: $('#export-summary').checked,
+            includeGoals: $('#export-goals').checked,
+            includeObjectives: $('#export-objectives').checked,
+            includeValue: $('#export-value').checked,
+            includePast: $('#export-past').checked,
+            includeStakeholders: $('#export-stakeholders').checked
+          };
+          closeModal();
+          generateCleanPDF(options);
         }}
       ]);
     };
@@ -2980,192 +2933,6 @@
       btn.disabled = false;
       btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>Export PDF';
     }
-    
-    async function generateSimpleOnePager() {
-      const btn = $('#export-pdf-btn');
-      btn.disabled = true;
-      btn.innerHTML = '<span class="animate-spin">⟳</span> Generating...';
-      
-      try {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('l', 'mm', 'a4'); // Landscape
-        
-        // Define all colors upfront
-        const navy = [45, 55, 72];
-        const teal = [56, 178, 172];
-        const gray = [113, 128, 150];
-        const lightGray = [243, 244, 246];
-        const white = [255, 255, 255];
-        const green = [72, 187, 120];
-        const purple = [139, 92, 246];
-        const blue = [59, 130, 246];
-        const red = [239, 68, 68];
-        const yellow = [245, 158, 11];
-        
-        // Background
-        doc.setFillColor(...white);
-        doc.rect(0, 0, 297, 210, 'F');
-        
-        // Header
-        doc.setFillColor(...navy);
-        doc.rect(0, 0, 297, 30, 'F');
-        doc.setTextColor(...white);
-        doc.setFontSize(20);
-        doc.setFont(undefined, 'bold');
-        doc.text('Executive Summary - ' + state.customerName, 20, 18);
-        doc.setFontSize(10);
-        doc.setFont(undefined, 'normal');
-        doc.text(new Date().toLocaleDateString(), 260, 18);
-        
-        // Health Status
-        const healthColor = state.planHealth === 'green' ? green : 
-                          state.planHealth === 'yellow' ? yellow : red;
-        doc.setFillColor(...healthColor);
-        doc.roundedRect(240, 22, 30, 6, 2, 2, 'F');
-        doc.setFontSize(8);
-        doc.text(state.planHealth.toUpperCase(), 255, 26, { align: 'center' });
-        
-        // Three columns
-        let col1X = 15, col2X = 105, col3X = 195;
-        let startY = 40;
-        
-        // Column 1: Mission Goals
-        doc.setFillColor(...purple);
-        doc.roundedRect(col1X, startY, 85, 8, 2, 2, 'F');
-        doc.setTextColor(...white);
-        doc.setFontSize(12);
-        doc.setFont(undefined, 'bold');
-        doc.text('MISSION GOALS', col1X + 42.5, startY + 6, { align: 'center' });
-        
-        doc.setTextColor(...navy);
-        let y1 = startY + 15;
-        doc.setFontSize(10);
-        doc.setFont(undefined, 'normal');
-        state.missionGoals.slice(0, 3).forEach((goal, i) => {
-          doc.setFont(undefined, 'bold');
-          doc.text(`${i + 1}. ${goal.title}`, col1X, y1);
-          y1 += 6;
-          doc.setFont(undefined, 'normal');
-          doc.setTextColor(...gray);
-          const lines = doc.splitTextToSize(goal.description, 80);
-          doc.text(lines.slice(0, 2), col1X + 5, y1);
-          doc.setTextColor(...navy);
-          y1 += lines.length * 4 + 8;
-        });
-        
-        // Column 2: Current Objectives
-        doc.setFillColor(...blue);
-        doc.roundedRect(col2X, startY, 85, 8, 2, 2, 'F');
-        doc.setTextColor(...white);
-        doc.setFontSize(12);
-        doc.setFont(undefined, 'bold');
-        doc.text('CURRENT OBJECTIVES', col2X + 42.5, startY + 6, { align: 'center' });
-        
-        doc.setTextColor(...navy);
-        let y2 = startY + 15;
-        doc.setFontSize(10);
-        doc.setFont(undefined, 'normal');
-        state.objectives.slice(0, 2).forEach(obj => {
-          // Status dot
-          const statusColor = obj.status === 'On Track' ? green : 
-                            obj.status === 'At Risk' ? yellow : red;
-          doc.setFillColor(...statusColor);
-          doc.circle(col2X + 2, y2 - 2, 2, 'F');
-          
-          doc.setFont(undefined, 'bold');
-          doc.text(obj.name, col2X + 7, y2);
-          y2 += 6;
-          doc.setFont(undefined, 'normal');
-          doc.setTextColor(...gray);
-          doc.text(`Target: ${obj.targetDate || 'Not set'}`, col2X + 7, y2);
-          doc.setTextColor(...navy);
-          y2 += 8;
-          
-          // Show first 2 KPIs
-          if (obj.kpis && obj.kpis.length > 0) {
-            obj.kpis.slice(0, 2).forEach(kpi => {
-              const type = getKPIType(kpi.typeKey);
-              doc.setFillColor(...lightGray);
-              doc.roundedRect(col2X + 7, y2, 70, 8, 1, 1, 'F');
-              doc.setTextColor(...gray);
-              doc.setFontSize(8);
-              doc.text(type.label, col2X + 9, y2 + 5);
-              doc.setTextColor(...navy);
-              doc.setFont(undefined, 'bold');
-              doc.text(`${kpi.currentValue}${type.unit}`, col2X + 75, y2 + 5, { align: 'right' });
-              doc.setFont(undefined, 'normal');
-              
-              if (kpi.comparePrevious && kpi.previousValue) {
-                const delta = calculateDelta(kpi.currentValue, kpi.previousValue);
-                const deltaColor = delta >= 0 ? green : red;
-                doc.setTextColor(...deltaColor);
-                doc.setFontSize(7);
-                doc.text(`${delta >= 0 ? '+' : ''}${delta}%`, col2X + 75, y2 + 10, { align: 'right' });
-              }
-              y2 += 10;
-            });
-          }
-          y2 += 8;
-        });
-        
-        // Column 3: Value Realized
-        doc.setFillColor(...green);
-        doc.roundedRect(col3X, startY, 85, 8, 2, 2, 'F');
-        doc.setTextColor(...white);
-        doc.setFontSize(12);
-        doc.setFont(undefined, 'bold');
-        doc.text('VALUE REALIZED', col3X + 42.5, startY + 6, { align: 'center' });
-        
-        doc.setTextColor(...navy);
-        let y3 = startY + 15;
-        doc.setFontSize(10);
-        doc.setFont(undefined, 'normal');
-        state.valueRealized.slice(0, 3).forEach(value => {
-          doc.setFillColor(...lightGray);
-          doc.roundedRect(col3X, y3 - 3, 85, 30, 2, 2, 'F');
-          
-          doc.setTextColor(...green);
-          doc.text('✓', col3X + 3, y3 + 2);
-          doc.setTextColor(...navy);
-          doc.setFont(undefined, 'bold');
-          doc.text(value.type, col3X + 10, y3 + 2);
-          doc.setFont(undefined, 'normal');
-          
-          y3 += 7;
-          const lines = doc.splitTextToSize(value.description, 75);
-          doc.setTextColor(...gray);
-          doc.setFontSize(8);
-          doc.text(lines.slice(0, 2), col3X + 5, y3);
-          
-          doc.setFontSize(7);
-          doc.text(value.date || 'Not specified', col3X + 80, y3 + 15, { align: 'right' });
-          doc.setTextColor(...navy);
-          doc.setFontSize(10);
-          y3 += 25;
-        });
-        
-        // Footer
-        doc.setFillColor(...navy);
-        doc.rect(0, 195, 297, 15, 'F');
-        doc.setTextColor(...white);
-        doc.setFontSize(9);
-        doc.text('Confidential - Executive Summary', 20, 203);
-        doc.text('Generated: ' + new Date().toISOString().split('T')[0], 255, 203);
-        
-        // Save
-        const customerNameClean = state.customerName.replace(/\[|\]/g, '').toLowerCase().replace(/\s+/g, '-');
-        const fileName = `${customerNameClean}-executive-summary-${new Date().toISOString().split('T')[0]}.pdf`;
-        doc.save(fileName);
-        showNotification('Executive one-pager generated successfully!', 'success');
-        
-      } catch (error) {
-        showNotification('Failed to generate one-pager. Please try again.', 'error');
-        console.error('One-pager PDF export error:', error);
-      }
-      
-      btn.disabled = false;
-      btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>Export PDF';
-    }
 
     function exportToExcel() {
       try {
@@ -3297,36 +3064,23 @@
     }
     
     function renderCustomerName() {
-      try {
-        console.log('renderCustomerName called, state.customerName:', state.customerName);
-        const display = $('#customer-name-display');
-        console.log('Found display element:', !!display);
-        if (display) {
-          console.log('Current text:', display.textContent);
-          display.textContent = state.customerName || 'Customer';
-          console.log('Updated to:', display.textContent);
-        } else {
-          console.error('Customer name display element not found!');
-        }
-      } catch (error) {
-        console.error('Error in renderCustomerName:', error);
+      const display = $('#customer-name-display');
+      if (display) {
+        display.textContent = state.customerName || 'Customer';
       }
     }
 
-          // ---------- Initialize ----------
-      function init() {
-        console.log('=== INIT FUNCTION CALLED ===');
-        try {
-          // Set date
-          const dateEl = $('#last-updated-date');
-          console.log('Date element found:', !!dateEl);
-          if (dateEl) {
-            dateEl.textContent = new Date().toLocaleDateString('en-US', { 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            });
-          }
+    // ---------- Initialize ----------
+    function init() {
+        // Set date
+        const dateEl = $('#last-updated-date');
+        if (dateEl) {
+          dateEl.textContent = new Date().toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+          });
+        }
         
         // Set responsive font size for title
         function updateTitleSize() {
@@ -3377,77 +3131,8 @@
       console.log('Stakeholders:', state.stakeholders.length);
     };
 
-    // Expose critical functions to window for debugging
-    window.debugState = function() {
-      console.log('Current state:', state);
-      console.log('DOM elements check:');
-      console.log('- Customer name display:', $('#customer-name-display'));
-      console.log('- Main title:', $('#main-title'));
-      console.log('- App container:', $('#app'));
-      return state;
-    };
-    
-    window.manualInit = init;
-    window.appState = state;
-    
-    // Start the app when DOM is ready
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function() {
-        try {
-          console.log('DOM loaded, starting application...');
-          init();
-          window.appInitialized = true;
-          console.log('Application started successfully');
-        } catch (error) {
-          console.error('Failed to initialize application:', error);
-          console.error('Stack trace:', error.stack);
-          
-          // Show error to user
-          const errorDiv = document.createElement('div');
-          errorDiv.className = 'fixed top-4 right-4 max-w-md p-4 bg-red-100 border border-red-400 text-red-700 rounded shadow-lg z-50';
-          errorDiv.innerHTML = `
-            <h3 class="font-bold mb-2">Application Error</h3>
-            <p class="text-sm">${error.message}</p>
-            <p class="text-xs mt-2">Check browser console for details</p>
-          `;
-          document.body.appendChild(errorDiv);
-        }
-      });
-    } else {
-      // DOM already loaded
-      try {
-        console.log('DOM already loaded, starting application...');
-        init();
-        window.appInitialized = true;
-        console.log('Application started successfully');
-      } catch (error) {
-        console.error('Failed to initialize application:', error);
-        console.error('Stack trace:', error.stack);
-        
-        // Show error to user
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'fixed top-4 right-4 max-w-md p-4 bg-red-100 border border-red-400 text-red-700 rounded shadow-lg z-50';
-        errorDiv.innerHTML = `
-          <h3 class="font-bold mb-2">Application Error</h3>
-          <p class="text-sm">${error.message}</p>
-          <p class="text-xs mt-2">Check browser console for details</p>
-        `;
-        document.body.appendChild(errorDiv);
-      }
-    }
-    
-    // Fallback: Initialize after a delay if nothing else works
-    setTimeout(function() {
-      if (!window.appInitialized) {
-        console.warn('App not initialized after 2 seconds, forcing initialization...');
-        try {
-          init();
-          window.appInitialized = true;
-        } catch (error) {
-          console.error('Fallback initialization failed:', error);
-        }
-      }
-    }, 2000);
+    // Start the app
+    init();
   </script>
 </body>
 </html>
