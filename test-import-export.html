@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import/Export Test Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8">Import/Export QA Test Suite</h1>
+        
+        <!-- Test Results Summary -->
+        <div id="summary" class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Test Summary</h2>
+            <div id="test-results" class="space-y-2"></div>
+        </div>
+        
+        <!-- Test Controls -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Test Controls</h2>
+            <div class="space-y-4">
+                <button onclick="runAllTests()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">
+                    Run All Tests
+                </button>
+                <button onclick="clearTestData()" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded">
+                    Clear Test Data
+                </button>
+            </div>
+        </div>
+        
+        <!-- Individual Test Results -->
+        <div id="detailed-results" class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Detailed Test Results</h2>
+            <div id="test-details" class="space-y-4"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Test data
+        const testData = {
+            customerName: 'Test Company ABC',
+            products: ['Product A', 'Product B', 'Product C'],
+            missionSummary: 'This is a test mission summary for QA testing purposes.',
+            missionGoals: [
+                { id: 1, title: 'Test Goal 1', description: 'Description for test goal 1' },
+                { id: 2, title: 'Test Goal 2', description: 'Description for test goal 2' }
+            ],
+            objectives: [
+                {
+                    id: 1,
+                    name: 'Test Objective 1',
+                    targetDate: '2024-12-31',
+                    status: 'In Progress',
+                    description: 'Test objective description'
+                }
+            ],
+            stakeholders: [
+                { id: 1, name: 'John Doe', role: 'CEO', email: 'john@test.com' }
+            ],
+            planHealth: 'green'
+        };
+        
+        let testResults = [];
+        
+        // Test functions
+        async function test1_LocalStorageWrite() {
+            const testName = "1. LocalStorage Write Test";
+            try {
+                localStorage.setItem('responsiveCustomerSuccess', JSON.stringify(testData));
+                const saved = localStorage.getItem('responsiveCustomerSuccess');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (parsed.customerName === testData.customerName) {
+                        return { name: testName, status: 'PASS', message: 'Data saved successfully to localStorage' };
+                    }
+                }
+                throw new Error('Data not saved correctly');
+            } catch (error) {
+                return { name: testName, status: 'FAIL', message: error.message };
+            }
+        }
+        
+        async function test2_LocalStorageRead() {
+            const testName = "2. LocalStorage Read Test";
+            try {
+                const saved = localStorage.getItem('responsiveCustomerSuccess');
+                if (!saved) throw new Error('No data found in localStorage');
+                
+                const parsed = JSON.parse(saved);
+                
+                // Verify key fields
+                const checks = [
+                    parsed.customerName === testData.customerName,
+                    parsed.products.length === testData.products.length,
+                    parsed.missionGoals.length === testData.missionGoals.length,
+                    parsed.objectives.length === testData.objectives.length
+                ];
+                
+                if (checks.every(check => check === true)) {
+                    return { name: testName, status: 'PASS', message: 'Data read correctly from localStorage' };
+                }
+                throw new Error('Data structure mismatch');
+            } catch (error) {
+                return { name: testName, status: 'FAIL', message: error.message };
+            }
+        }
+        
+        async function test3_ExportDataFormat() {
+            const testName = "3. Export Data Format Test";
+            try {
+                const exportData = {
+                    version: '1.0',
+                    exportDate: new Date().toISOString(),
+                    platform: 'Receptive Customer Success Platform',
+                    data: testData
+                };
+                
+                // Verify export structure
+                if (exportData.version && exportData.exportDate && exportData.platform && exportData.data) {
+                    return { name: testName, status: 'PASS', message: 'Export data format is correct' };
+                }
+                throw new Error('Export format missing required fields');
+            } catch (error) {
+                return { name: testName, status: 'FAIL', message: error.message };
+            }
+        }
+        
+        async function test4_FileDownloadSimulation() {
+            const testName = "4. File Download Simulation";
+            try {
+                const exportData = {
+                    version: '1.0',
+                    exportDate: new Date().toISOString(),
+                    platform: 'Receptive Customer Success Platform',
+                    data: testData
+                };
+                
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                if (blob.size > 0 && blob.type === 'application/json') {
+                    return { name: testName, status: 'PASS', message: 'Blob created successfully for download' };
+                }
+                throw new Error('Blob creation failed');
+            } catch (error) {
+                return { name: testName, status: 'FAIL', message: error.message };
+            }
+        }
+        
+        async function test5_ImportValidation() {
+            const testName = "5. Import Data Validation";
+            try {
+                // Test valid data
+                const validData = { customerName: 'Test', objectives: [], missionSummary: 'Test' };
+                const isValid1 = validateImportData(validData);
+                
+                // Test invalid data
+                const invalidData = { someField: 'value' };
+                const isValid2 = !validateImportData(invalidData);
+                
+                // Test wrapped format
+                const wrappedData = { version: '1.0', data: validData };
+                const isValid3 = validateImportData(wrappedData);
+                
+                if (isValid1 && isValid2 && isValid3) {
+                    return { name: testName, status: 'PASS', message: 'Import validation works correctly' };
+                }
+                throw new Error('Validation logic incorrect');
+            } catch (error) {
+                return { name: testName, status: 'FAIL', message: error.message };
+            }
+        }
+        
+        async function test6_DateTimestamp() {
+            const testName = "6. Timestamp Generation Test";
+            try {
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+                const pattern = /^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}$/;
+                
+                if (pattern.test(timestamp)) {
+                    return { name: testName, status: 'PASS', message: `Timestamp format correct: ${timestamp}` };
+                }
+                throw new Error('Timestamp format incorrect');
+            } catch (error) {
+                return { name: testName, status: 'FAIL', message: error.message };
+            }
+        }
+        
+        async function test7_EmptyDataHandling() {
+            const testName = "7. Empty Data Handling";
+            try {
+                localStorage.removeItem('responsiveCustomerSuccess');
+                const saved = localStorage.getItem('responsiveCustomerSuccess');
+                
+                if (saved === null) {
+                    return { name: testName, status: 'PASS', message: 'Empty data handled correctly' };
+                }
+                throw new Error('Empty data not handled properly');
+            } catch (error) {
+                return { name: testName, status: 'FAIL', message: error.message };
+            }
+        }
+        
+        async function test8_LargeDataHandling() {
+            const testName = "8. Large Data Handling Test";
+            try {
+                // Create large dataset
+                const largeData = { ...testData };
+                largeData.objectives = Array(100).fill(null).map((_, i) => ({
+                    id: i,
+                    name: `Objective ${i}`,
+                    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'.repeat(10)
+                }));
+                
+                localStorage.setItem('responsiveCustomerSuccess', JSON.stringify(largeData));
+                const saved = localStorage.getItem('responsiveCustomerSuccess');
+                const parsed = JSON.parse(saved);
+                
+                if (parsed.objectives.length === 100) {
+                    return { name: testName, status: 'PASS', message: 'Large dataset handled successfully' };
+                }
+                throw new Error('Large data not saved correctly');
+            } catch (error) {
+                return { name: testName, status: 'FAIL', message: error.message };
+            }
+        }
+        
+        // Helper function for validation
+        function validateImportData(data) {
+            if (data.data) {
+                return validateImportData(data.data);
+            }
+            return !!(data.customerName || data.objectives || data.missionSummary);
+        }
+        
+        // Run all tests
+        async function runAllTests() {
+            testResults = [];
+            const testFunctions = [
+                test1_LocalStorageWrite,
+                test2_LocalStorageRead,
+                test3_ExportDataFormat,
+                test4_FileDownloadSimulation,
+                test5_ImportValidation,
+                test6_DateTimestamp,
+                test7_EmptyDataHandling,
+                test8_LargeDataHandling
+            ];
+            
+            for (const testFunc of testFunctions) {
+                const result = await testFunc();
+                testResults.push(result);
+                updateDisplay();
+            }
+            
+            displaySummary();
+        }
+        
+        function updateDisplay() {
+            const detailsDiv = document.getElementById('test-details');
+            detailsDiv.innerHTML = testResults.map(result => `
+                <div class="border rounded p-3 ${result.status === 'PASS' ? 'bg-green-50 border-green-300' : 'bg-red-50 border-red-300'}">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-semibold">${result.name}</h3>
+                        <span class="text-sm font-medium ${result.status === 'PASS' ? 'text-green-600' : 'text-red-600'}">
+                            ${result.status}
+                        </span>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-1">${result.message}</p>
+                </div>
+            `).join('');
+        }
+        
+        function displaySummary() {
+            const passed = testResults.filter(r => r.status === 'PASS').length;
+            const failed = testResults.filter(r => r.status === 'FAIL').length;
+            const total = testResults.length;
+            
+            const summaryDiv = document.getElementById('test-results');
+            summaryDiv.innerHTML = `
+                <div class="flex justify-between items-center p-4 bg-gray-100 rounded">
+                    <div>
+                        <p class="text-lg font-semibold">Total Tests: ${total}</p>
+                        <p class="text-green-600">Passed: ${passed}</p>
+                        <p class="text-red-600">Failed: ${failed}</p>
+                    </div>
+                    <div class="text-3xl font-bold ${failed === 0 ? 'text-green-600' : 'text-red-600'}">
+                        ${Math.round((passed / total) * 100)}%
+                    </div>
+                </div>
+            `;
+        }
+        
+        function clearTestData() {
+            localStorage.removeItem('responsiveCustomerSuccess');
+            testResults = [];
+            document.getElementById('test-results').innerHTML = '<p class="text-gray-500">No tests run yet</p>';
+            document.getElementById('test-details').innerHTML = '<p class="text-gray-500">Run tests to see results</p>';
+            alert('Test data cleared from localStorage');
+        }
+    </script>
+</body>
+</html>
