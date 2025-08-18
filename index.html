@@ -2555,33 +2555,41 @@
         
         const drawKPICard = (kpi, x, y) => {
           const w = 60;
-          const h = 30;
+          const h = 32;
           
-          // Card background
+          // Card background with subtle shadow
+          doc.setFillColor(240, 240, 240);
+          doc.roundedRect(x + 1, y + 1, w, h, 2, 2, 'F');
+          
           doc.setFillColor(...colors.white);
           doc.setDrawColor(...colors.border);
+          doc.setLineWidth(0.5);
           doc.roundedRect(x, y, w, h, 2, 2, 'FD');
           
           // KPI name
           doc.setTextColor(...colors.textLight);
-          doc.setFontSize(9);
+          doc.setFontSize(8);
           doc.setFont(undefined, 'normal');
           const type = getKPIType(kpi.typeKey);
-          doc.text(type.label, x + w/2, y + 8, { align: 'center' });
+          const labelX = x + (w / 2);
+          doc.text(type.label, labelX, y + 7, { align: 'center' });
           
           // KPI value
           doc.setTextColor(...colors.text);
-          doc.setFontSize(16);
+          doc.setFontSize(18);
           doc.setFont(undefined, 'bold');
-          doc.text(`${kpi.currentValue}${type.unit}`, x + w/2, y + 18, { align: 'center' });
+          const valueX = x + (w / 2);
+          doc.text(`${kpi.currentValue}${type.unit}`, valueX, y + 19, { align: 'center' });
           
           // Change indicator
           if (kpi.comparePrevious && kpi.previousValue) {
             const delta = calculateDelta(kpi.currentValue, kpi.previousValue);
             const color = delta >= 0 ? colors.success : colors.danger;
             doc.setTextColor(...color);
-            doc.setFontSize(10);
-            doc.text(`${delta >= 0 ? '+' : ''}${delta}%`, x + w/2, y + 26, { align: 'center' });
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'normal');
+            const deltaX = x + (w / 2);
+            doc.text(`${delta >= 0 ? '+' : ''}${delta}%`, deltaX, y + 27, { align: 'center' });
           }
         };
         
@@ -2657,7 +2665,8 @@
             doc.setTextColor(...colors.white);
             doc.setFontSize(12);
             doc.setFont(undefined, 'bold');
-            doc.text((index + 1).toString(), 20, y + 12, { align: 'center' });
+            // Fix vertical alignment for circle text
+            doc.text((index + 1).toString(), 20, y + 11, { align: 'center' });
             
             // Goal title
             doc.setTextColor(...colors.text);
