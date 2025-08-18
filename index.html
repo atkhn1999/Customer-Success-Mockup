@@ -818,6 +818,11 @@
   </div>
 
   <script>
+    // Debug: Script loaded
+    console.log('=== Customer Success Plan Script Loaded ===');
+    console.log('Document readyState:', document.readyState);
+    console.log('Script execution started at:', new Date().toISOString());
+    
     // ---------- Data Models ----------
     const PRODUCT_KPIS = {
       'Content Library': [
@@ -3331,25 +3336,77 @@
       console.log('Stakeholders:', state.stakeholders.length);
     };
 
-    // Start the app
-    try {
-      console.log('Starting application...');
-      init();
-      console.log('Application started successfully');
-    } catch (error) {
-      console.error('Failed to initialize application:', error);
-      console.error('Stack trace:', error.stack);
-      
-      // Show error to user
-      const errorDiv = document.createElement('div');
-      errorDiv.className = 'fixed top-4 right-4 max-w-md p-4 bg-red-100 border border-red-400 text-red-700 rounded shadow-lg z-50';
-      errorDiv.innerHTML = `
-        <h3 class="font-bold mb-2">Application Error</h3>
-        <p class="text-sm">${error.message}</p>
-        <p class="text-xs mt-2">Check browser console for details</p>
-      `;
-      document.body.appendChild(errorDiv);
+    // Expose critical functions to window for debugging
+    window.debugState = function() {
+      console.log('Current state:', state);
+      console.log('DOM elements check:');
+      console.log('- Customer name display:', $('#customer-name-display'));
+      console.log('- Main title:', $('#main-title'));
+      console.log('- App container:', $('#app'));
+      return state;
+    };
+    
+    window.manualInit = init;
+    window.appState = state;
+    
+    // Start the app when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        try {
+          console.log('DOM loaded, starting application...');
+          init();
+          window.appInitialized = true;
+          console.log('Application started successfully');
+        } catch (error) {
+          console.error('Failed to initialize application:', error);
+          console.error('Stack trace:', error.stack);
+          
+          // Show error to user
+          const errorDiv = document.createElement('div');
+          errorDiv.className = 'fixed top-4 right-4 max-w-md p-4 bg-red-100 border border-red-400 text-red-700 rounded shadow-lg z-50';
+          errorDiv.innerHTML = `
+            <h3 class="font-bold mb-2">Application Error</h3>
+            <p class="text-sm">${error.message}</p>
+            <p class="text-xs mt-2">Check browser console for details</p>
+          `;
+          document.body.appendChild(errorDiv);
+        }
+      });
+    } else {
+      // DOM already loaded
+      try {
+        console.log('DOM already loaded, starting application...');
+        init();
+        window.appInitialized = true;
+        console.log('Application started successfully');
+      } catch (error) {
+        console.error('Failed to initialize application:', error);
+        console.error('Stack trace:', error.stack);
+        
+        // Show error to user
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'fixed top-4 right-4 max-w-md p-4 bg-red-100 border border-red-400 text-red-700 rounded shadow-lg z-50';
+        errorDiv.innerHTML = `
+          <h3 class="font-bold mb-2">Application Error</h3>
+          <p class="text-sm">${error.message}</p>
+          <p class="text-xs mt-2">Check browser console for details</p>
+        `;
+        document.body.appendChild(errorDiv);
+      }
     }
+    
+    // Fallback: Initialize after a delay if nothing else works
+    setTimeout(function() {
+      if (!window.appInitialized) {
+        console.warn('App not initialized after 2 seconds, forcing initialization...');
+        try {
+          init();
+          window.appInitialized = true;
+        } catch (error) {
+          console.error('Fallback initialization failed:', error);
+        }
+      }
+    }, 2000);
   </script>
 </body>
 </html>
