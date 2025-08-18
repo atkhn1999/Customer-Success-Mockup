@@ -500,6 +500,109 @@
       pointer-events: none;
     }
     
+    /* Edit mode styles */
+    .edit-mode-banner {
+      background: #f3f4f6;
+      border: 1px solid var(--border-color);
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .checkbox-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .checkbox-wrapper input[type="checkbox"] {
+      width: 1.25rem;
+      height: 1.25rem;
+      cursor: pointer;
+      accent-color: var(--responsive-teal);
+    }
+    
+    .checkbox-wrapper label {
+      cursor: pointer;
+      user-select: none;
+    }
+    
+    .item-checkbox {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.5rem;
+      margin: -0.5rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    
+    .item-checkbox:hover {
+      background: rgba(20, 184, 166, 0.05);
+    }
+    
+    .item-checkbox input[type="checkbox"] {
+      margin-top: 0.125rem;
+      flex-shrink: 0;
+    }
+    
+    .item-checkbox-content {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    /* Toast notification styles */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--text-primary);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 0;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      z-index: 60;
+      animation: slideUp 0.3s ease;
+    }
+    
+    .toast-undo {
+      background: transparent;
+      color: var(--responsive-teal-light);
+      border: 1px solid var(--responsive-teal-light);
+      padding: 0.25rem 0.75rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+    
+    .toast-undo:hover {
+      background: var(--responsive-teal-light);
+      color: var(--text-primary);
+    }
+    
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(1rem);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+    
+    /* Edit button in section headers */
+    .section-header-edit {
+      margin-left: auto;
+    }
+    
     /* Utility classes */
     .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
     .shadow { box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
@@ -590,29 +693,41 @@
       <!-- Left Column -->
       <div class="lg:col-span-3 space-y-8">
         <!-- Value Realized -->
-        <section id="value-realized-section" class="card p-6 section-readonly">
-          <div class="edit-overlay">
-            <button class="btn btn-ghost btn-sm" data-edit="value-realized">Edit</button>
-          </div>
+        <section id="value-realized-section" class="card p-6">
           <div class="flex justify-between items-center mb-4">
             <h2 class="text-2xl font-bold">Value Realized</h2>
-          </div>
-          <div id="value-display" class="space-y-4"></div>
-          <div id="value-edit" class="hidden">
-            <div id="value-container" class="space-y-4"></div>
-            <div class="mt-4 flex gap-2">
-              <button class="btn btn-success btn-sm" id="add-value-btn">+ Add Value</button>
-              <button class="btn btn-primary btn-sm" data-save="value-realized">Save All</button>
-              <button class="btn btn-ghost btn-sm" data-cancel="value-realized">Cancel</button>
+            <div class="flex items-center gap-2">
+              <button id="edit-value-realized-btn" class="btn btn-ghost" onclick="toggleEditMode('valueRealized')">Edit</button>
+              <button class="btn btn-success btn-sm" id="add-value-btn" onclick="showAddValueModal()">+ Add Value</button>
             </div>
           </div>
+          <div id="value-realized-edit-banner" class="edit-mode-banner hidden">
+            <div class="checkbox-wrapper">
+              <input type="checkbox" id="value-realized-select-all" onchange="toggleSelectAll('valueRealized')">
+              <label for="value-realized-select-all" class="text-sm font-medium">Select all</label>
+            </div>
+            <button id="value-realized-delete-btn" class="btn btn-danger btn-sm" disabled onclick="deleteSelectedItems('valueRealized')">Delete selected</button>
+            <button class="linkish text-sm" onclick="cancelEditMode('valueRealized')">Cancel</button>
+          </div>
+          <div id="value-display" class="space-y-4"></div>
         </section>
 
         <!-- Current Objectives -->
         <section id="current-objectives" class="card p-6">
           <div class="flex justify-between items-center mb-4">
             <h2 class="text-2xl font-bold">Current Objectives</h2>
-            <button id="add-objective-btn" class="btn btn-primary">+ Add Objective</button>
+            <div class="flex items-center gap-2">
+              <button id="edit-objectives-btn" class="btn btn-ghost" onclick="toggleEditMode('objectives')">Edit</button>
+              <button id="add-objective-btn" class="btn btn-primary">+ Add Objective</button>
+            </div>
+          </div>
+          <div id="objectives-edit-banner" class="edit-mode-banner hidden">
+            <div class="checkbox-wrapper">
+              <input type="checkbox" id="objectives-select-all" onchange="toggleSelectAll('objectives')">
+              <label for="objectives-select-all" class="text-sm font-medium">Select all</label>
+            </div>
+            <button id="objectives-delete-btn" class="btn btn-danger btn-sm" disabled onclick="deleteSelectedItems('objectives')">Delete selected</button>
+            <button class="linkish text-sm" onclick="cancelEditMode('objectives')">Cancel</button>
           </div>
           <div id="objectives-container" class="space-y-6"></div>
           <div id="no-objectives" class="hidden text-center py-10 px-4 text-gray-500">
@@ -624,7 +739,18 @@
         <section id="past-objectives" class="card p-6">
           <div class="flex justify-between items-center mb-4">
             <h2 class="text-2xl font-bold">Past Objectives Achieved</h2>
-            <button id="add-past-objective-btn" class="btn btn-success btn-sm">+ Add Past Objective</button>
+            <div class="flex items-center gap-2">
+              <button id="edit-past-objectives-btn" class="btn btn-ghost" onclick="toggleEditMode('pastObjectives')">Edit</button>
+              <button id="add-past-objective-btn" class="btn btn-success btn-sm">+ Add Past Objective</button>
+            </div>
+          </div>
+          <div id="past-objectives-edit-banner" class="edit-mode-banner hidden">
+            <div class="checkbox-wrapper">
+              <input type="checkbox" id="past-objectives-select-all" onchange="toggleSelectAll('pastObjectives')">
+              <label for="past-objectives-select-all" class="text-sm font-medium">Select all</label>
+            </div>
+            <button id="past-objectives-delete-btn" class="btn btn-danger btn-sm" disabled onclick="deleteSelectedItems('pastObjectives')">Delete selected</button>
+            <button class="linkish text-sm" onclick="cancelEditMode('pastObjectives')">Cancel</button>
           </div>
           <div id="past-objectives-container" class="space-y-6"></div>
           <div id="no-past-objectives" class="hidden text-center py-10 px-4 text-gray-500">
@@ -753,6 +879,22 @@
         }
       ],
       stakeholders: [mockContacts[0], mockContacts[1], mockContacts[2]],
+      // Edit mode states
+      editModes: {
+        objectives: false,
+        valueRealized: false,
+        pastObjectives: false
+      },
+      selectedItems: {
+        objectives: new Set(),
+        valueRealized: new Set(),
+        pastObjectives: new Set()
+      },
+      undoStates: {
+        objectives: null,
+        valueRealized: null,
+        pastObjectives: null
+      },
       objectives: [
         {
           id: 1,
@@ -928,12 +1070,6 @@
         $('#mission-goals-display').classList.add('hidden');
         $('#mission-goals-edit').classList.remove('hidden');
         renderMissionGoalsEdit();
-      } else if (section === 'value-realized') {
-        // Create backup for cancel functionality
-        state.valueRealizedBackup = JSON.parse(JSON.stringify(state.valueRealized));
-        $('#value-display').classList.add('hidden');
-        $('#value-edit').classList.remove('hidden');
-        renderValueEdit();
       } else if (section === 'products') {
         $('#products-display').classList.add('hidden');
         $('#products-edit').classList.remove('hidden');
@@ -948,9 +1084,6 @@
     function saveSection(section) {
       if (section === 'mission-summary') {
         state.missionSummary = $('#mission-summary-input').value;
-      } else if (section === 'value-realized') {
-        // Clear backup since we're saving
-        state.valueRealizedBackup = [];
       } else if (section === 'products') {
         const newProducts = [];
         $$('#products-edit input[type="checkbox"]:checked').forEach(cb => {
@@ -966,11 +1099,6 @@
     }
 
     function cancelEdit(section) {
-      if (section === 'value-realized') {
-        // Restore from backup
-        state.valueRealized = JSON.parse(JSON.stringify(state.valueRealizedBackup));
-        state.valueRealizedBackup = [];
-      }
       exitEditMode(section);
       renderAll();
     }
@@ -985,9 +1113,6 @@
       } else if (section === 'mission-goals') {
         $('#mission-goals-display').classList.remove('hidden');
         $('#mission-goals-edit').classList.add('hidden');
-      } else if (section === 'value-realized') {
-        $('#value-display').classList.remove('hidden');
-        $('#value-edit').classList.add('hidden');
       } else if (section === 'products') {
         $('#products-display').classList.remove('hidden');
         $('#products-edit').classList.add('hidden');
@@ -1057,46 +1182,55 @@
       const container = $('#value-display');
       if (!container) return;
       
-      container.innerHTML = state.valueRealized.map(v => `
-        <div class="card p-4">
-          <div class="flex justify-between items-start">
-            <div class="flex-1">
-              <h4 class="font-semibold text-emerald-700">${v.type}</h4>
-              <p class="text-sm text-gray-700 mt-1">${v.description}</p>
-              <div class="flex gap-4 mt-2 text-xs text-gray-500">
-                <span>Realized: ${v.date || 'Not specified'}</span>
-                ${v.link ? `<a href="${v.link}" target="_blank" class="linkish">View Details</a>` : ''}
+      const isEditMode = state.editModes.valueRealized;
+      
+      if (state.valueRealized.length === 0) {
+        container.innerHTML = '<p class="text-gray-500">No value realized items yet.</p>';
+        return;
+      }
+      
+      container.innerHTML = state.valueRealized.map(v => {
+        const isSelected = state.selectedItems.valueRealized.has(v.id);
+        
+        if (isEditMode) {
+          return `
+            <div class="card p-4">
+              <label class="item-checkbox" for="value-checkbox-${v.id}">
+                <input type="checkbox" id="value-checkbox-${v.id}" 
+                  ${isSelected ? 'checked' : ''} 
+                  onchange="toggleItemSelection('valueRealized', ${v.id})"
+                  aria-label="Select ${v.type}: ${v.description}">
+                <div class="item-checkbox-content">
+                  <h4 class="font-semibold text-emerald-700">${v.type}</h4>
+                  <p class="text-sm text-gray-700 mt-1">${v.description}</p>
+                  <div class="flex gap-4 mt-2 text-xs text-gray-500">
+                    <span>Realized: ${v.date || 'Not specified'}</span>
+                    ${v.link ? `<a href="${v.link}" target="_blank" class="linkish" onclick="event.stopPropagation()">View Details</a>` : ''}
+                  </div>
+                </div>
+              </label>
+            </div>
+          `;
+        } else {
+          return `
+            <div class="card p-4">
+              <div class="flex justify-between items-start">
+                <div class="flex-1">
+                  <h4 class="font-semibold text-emerald-700">${v.type}</h4>
+                  <p class="text-sm text-gray-700 mt-1">${v.description}</p>
+                  <div class="flex gap-4 mt-2 text-xs text-gray-500">
+                    <span>Realized: ${v.date || 'Not specified'}</span>
+                    ${v.link ? `<a href="${v.link}" target="_blank" class="linkish">View Details</a>` : ''}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      `).join('') || '<p class="text-gray-500">No value realized items yet.</p>';
+          `;
+        }
+      }).join('');
     }
 
-    function renderValueEdit() {
-      const container = $('#value-container');
-      if (!container) return;
-      
-      container.innerHTML = state.valueRealized.map(v => `
-        <div class="card p-4" data-id="${v.id}">
-          <button class="float-right text-red-500 hover:text-red-700 text-xl" data-role="remove-value">×</button>
-          <div class="grid grid-cols-2 gap-3 mb-3">
-            <select class="text-zone p-2 text-sm font-semibold" data-role="value-type">
-              <option ${v.type === 'Time Savings' ? 'selected' : ''}>Time Savings</option>
-              <option ${v.type === 'Win Rate Increase' ? 'selected' : ''}>Win Rate Increase</option>
-              <option ${v.type === 'Cost Reduction' ? 'selected' : ''}>Cost Reduction</option>
-              <option ${v.type === 'Revenue Growth' ? 'selected' : ''}>Revenue Growth</option>
-              <option ${v.type === 'Productivity Gain' ? 'selected' : ''}>Productivity Gain</option>
-              <option ${v.type === 'Risk Mitigation' ? 'selected' : ''}>Risk Mitigation</option>
-            </select>
-            <input type="date" value="${v.date || ''}" class="text-zone p-2" data-role="value-date" />
-          </div>
-          <textarea class="text-zone text-area p-3 text-sm mb-3" rows="2" data-role="value-desc">${v.description || ''}</textarea>
-          <input type="text" value="${v.link || ''}" placeholder="https://..." class="text-zone p-2 w-full" data-role="value-link" />
-        </div>
-      `).join('');
-      applyAutoResize(container);
-    }
+
 
     function renderObjectives() {
       const container = $('#objectives-container');
@@ -1127,47 +1261,93 @@
         'At Risk': 'status-yellow'
       }[obj.status] || 'status-gray';
       
-      return `
-        <div class="card p-6" data-id="${obj.id}">
-          <div class="flex justify-between items-start mb-4">
-            <div>
-              <h3 class="font-semibold text-lg">${obj.name}</h3>
-              <div class="flex items-center gap-3 mt-2">
-                <span class="status-pill ${statusClass}">${obj.status}</span>
-                <span class="text-sm text-gray-500">Target: ${obj.targetDate || 'Not set'}</span>
+      const sectionKey = isPast ? 'pastObjectives' : 'objectives';
+      const isEditMode = state.editModes[sectionKey];
+      const isSelected = state.selectedItems[sectionKey].has(obj.id);
+      
+      if (isEditMode) {
+        return `
+          <div class="card p-6" data-id="${obj.id}">
+            <label class="item-checkbox" for="${sectionKey}-checkbox-${obj.id}">
+              <input type="checkbox" id="${sectionKey}-checkbox-${obj.id}" 
+                ${isSelected ? 'checked' : ''} 
+                onchange="toggleItemSelection('${sectionKey}', ${obj.id})"
+                aria-label="Select objective: ${obj.name}">
+              <div class="item-checkbox-content w-full">
+                <div class="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 class="font-semibold text-lg">${obj.name}</h3>
+                    <div class="flex items-center gap-3 mt-2">
+                      <span class="status-pill ${statusClass}">${obj.status}</span>
+                      <span class="text-sm text-gray-500">Target: ${obj.targetDate || 'Not set'}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <p class="text-sm text-gray-600 mb-4">${obj.description}</p>
+                
+                ${obj.kpis && obj.kpis.length > 0 ? `
+                  <div class="space-y-3 mb-4">
+                    <h4 class="font-semibold text-sm text-gray-700">Key Performance Indicators</h4>
+                    ${obj.kpis.map(kpi => renderKPI(kpi, obj.id)).join('')}
+                  </div>
+                ` : ''}
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span class="font-medium text-gray-600">Challenges:</span>
+                    <p class="text-gray-700 mt-1">${obj.challenges || 'None identified'}</p>
+                  </div>
+                  <div>
+                    <span class="font-medium text-gray-600">Next Steps:</span>
+                    <p class="text-gray-700 mt-1">${obj.nextSteps || 'To be determined'}</p>
+                  </div>
+                </div>
+              </div>
+            </label>
+          </div>
+        `;
+      } else {
+        return `
+          <div class="card p-6" data-id="${obj.id}">
+            <div class="flex justify-between items-start mb-4">
+              <div>
+                <h3 class="font-semibold text-lg">${obj.name}</h3>
+                <div class="flex items-center gap-3 mt-2">
+                  <span class="status-pill ${statusClass}">${obj.status}</span>
+                  <span class="text-sm text-gray-500">Target: ${obj.targetDate || 'Not set'}</span>
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <button class="btn btn-ghost btn-sm" onclick="editObjective(${obj.id}, ${isPast})">Edit</button>
+                ${!isPast ? `
+                  <button class="btn btn-primary btn-sm" onclick="showAddKPIModal(${obj.id})">+ Add KPI</button>
+                ` : ''}
               </div>
             </div>
-            <div class="flex gap-2">
-              <button class="btn btn-ghost btn-sm" onclick="editObjective(${obj.id}, ${isPast})">Edit</button>
-              ${!isPast ? `
-                <button class="btn btn-primary btn-sm" onclick="showAddKPIModal(${obj.id})">+ Add KPI</button>
-              ` : `
-                <button class="btn btn-danger btn-sm" onclick="removePastObjective(${obj.id})">Remove</button>
-              `}
+            
+            <p class="text-sm text-gray-600 mb-4">${obj.description}</p>
+            
+            ${obj.kpis && obj.kpis.length > 0 ? `
+              <div class="space-y-3 mb-4">
+                <h4 class="font-semibold text-sm text-gray-700">Key Performance Indicators</h4>
+                ${obj.kpis.map(kpi => renderKPI(kpi, obj.id)).join('')}
+              </div>
+            ` : ''}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <span class="font-medium text-gray-600">Challenges:</span>
+                <p class="text-gray-700 mt-1">${obj.challenges || 'None identified'}</p>
+              </div>
+              <div>
+                <span class="font-medium text-gray-600">Next Steps:</span>
+                <p class="text-gray-700 mt-1">${obj.nextSteps || 'To be determined'}</p>
+              </div>
             </div>
           </div>
-          
-          <p class="text-sm text-gray-600 mb-4">${obj.description}</p>
-          
-          ${obj.kpis && obj.kpis.length > 0 ? `
-            <div class="space-y-3 mb-4">
-              <h4 class="font-semibold text-sm text-gray-700">Key Performance Indicators</h4>
-              ${obj.kpis.map(kpi => renderKPI(kpi, obj.id)).join('')}
-            </div>
-          ` : ''}
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div>
-              <span class="font-medium text-gray-600">Challenges:</span>
-              <p class="text-gray-700 mt-1">${obj.challenges || 'None identified'}</p>
-            </div>
-            <div>
-              <span class="font-medium text-gray-600">Next Steps:</span>
-              <p class="text-gray-700 mt-1">${obj.nextSteps || 'To be determined'}</p>
-            </div>
-          </div>
-        </div>
-      `;
+        `;
+      }
     }
 
     function renderKPI(kpi, objectiveId) {
@@ -1337,6 +1517,60 @@
       
       applyAutoResize(modal);
     }
+
+    window.showAddValueModal = function() {
+      const modal = createModal('Add Value Realized', `
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Value Type</label>
+            <select id="value-type" class="text-zone p-2 w-full">
+              <option>Time Savings</option>
+              <option>Win Rate Increase</option>
+              <option>Cost Reduction</option>
+              <option>Revenue Growth</option>
+              <option>Productivity Gain</option>
+              <option>Risk Mitigation</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Description</label>
+            <textarea id="value-desc" class="text-zone text-area p-3 w-full" rows="3" placeholder="Describe the value realized and its impact..."></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Date Realized</label>
+            <input type="date" id="value-date" class="text-zone p-2 w-full" value="${new Date().toISOString().split('T')[0]}">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Reference Link (optional)</label>
+            <input type="url" id="value-link" class="text-zone p-2 w-full" placeholder="https://...">
+          </div>
+        </div>
+      `, [
+        { label: 'Cancel', class: 'btn-ghost', action: () => closeModal() },
+        { label: 'Add Value', class: 'btn-primary', action: () => {
+          const value = {
+            id: Date.now(),
+            type: $('#value-type').value,
+            description: $('#value-desc').value.trim(),
+            date: $('#value-date').value,
+            link: $('#value-link').value.trim()
+          };
+          
+          if (!value.description) {
+            showNotification('Please enter a description', 'error');
+            return;
+          }
+          
+          state.valueRealized.unshift(value);
+          renderAll();
+          saveToLocalStorage();
+          closeModal();
+          showNotification('Value realized item added', 'success');
+        }}
+      ]);
+      
+      applyAutoResize(modal);
+    };
 
     window.showAddKPIModal = function(objectiveId) {
       const availableTypes = getAvailableKPITypes();
@@ -1540,11 +1774,15 @@
     function createModal(title, content, buttons = []) {
       const modal = document.createElement('div');
       modal.className = 'modal-overlay';
+      modal.setAttribute('role', 'dialog');
+      modal.setAttribute('aria-modal', 'true');
+      modal.setAttribute('aria-labelledby', 'modal-title');
+      
       modal.innerHTML = `
-        <div class="modal-panel w-[600px] max-w-[90vw]">
+        <div class="modal-panel w-[600px] max-w-[90vw]" role="document">
           <div class="modal-header">
-            <h3 class="text-lg font-semibold">${title}</h3>
-            <button class="modal-close" onclick="closeModal()">×</button>
+            <h3 class="text-lg font-semibold" id="modal-title">${title}</h3>
+            <button class="modal-close" onclick="closeModal()" aria-label="Close modal">×</button>
           </div>
           <div class="modal-body">
             ${content}
@@ -1572,12 +1810,53 @@
         if (e.target === modal) closeModal();
       });
       
+      // Focus management
+      const focusableElements = modal.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      const firstFocusable = focusableElements[0];
+      const lastFocusable = focusableElements[focusableElements.length - 1];
+      
+      // Save the current focused element
+      const previouslyFocused = document.activeElement;
+      
+      // Focus the first focusable element
+      setTimeout(() => {
+        if (firstFocusable) firstFocusable.focus();
+      }, 100);
+      
+      // Trap focus within modal
+      modal.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
+          if (e.shiftKey) {
+            if (document.activeElement === firstFocusable) {
+              e.preventDefault();
+              lastFocusable.focus();
+            }
+          } else {
+            if (document.activeElement === lastFocusable) {
+              e.preventDefault();
+              firstFocusable.focus();
+            }
+          }
+        }
+      });
+      
+      // Store reference to restore focus
+      modal._previouslyFocused = previouslyFocused;
+      
       return modal;
     }
 
     window.closeModal = function() {
       const modal = $('.modal-overlay');
-      if (modal) modal.remove();
+      if (modal) {
+        // Restore focus to previously focused element
+        if (modal._previouslyFocused) {
+          modal._previouslyFocused.focus();
+        }
+        modal.remove();
+      }
     };
 
     window.editObjective = function(id, isPast = false) {
@@ -1659,6 +1938,187 @@
       saveToLocalStorage();
     };
 
+    // ---------- Edit Mode Functions ----------
+    window.toggleEditMode = function(section) {
+      const editBtn = $(`#edit-${section.toLowerCase()}-btn`);
+      const isEditMode = !state.editModes[section];
+      
+      state.editModes[section] = isEditMode;
+      
+      if (isEditMode) {
+        editBtn.textContent = 'Done';
+        editBtn.classList.remove('btn-ghost');
+        editBtn.classList.add('btn-primary');
+        $(`#${section.toLowerCase()}-edit-banner`).classList.remove('hidden');
+      } else {
+        editBtn.textContent = 'Edit';
+        editBtn.classList.remove('btn-primary');
+        editBtn.classList.add('btn-ghost');
+        $(`#${section.toLowerCase()}-edit-banner`).classList.add('hidden');
+        // Clear selections when exiting edit mode
+        state.selectedItems[section].clear();
+        updateDeleteButtonState(section);
+      }
+      
+      renderAll();
+    };
+    
+    window.cancelEditMode = function(section) {
+      state.editModes[section] = false;
+      state.selectedItems[section].clear();
+      
+      const editBtn = $(`#edit-${section.toLowerCase()}-btn`);
+      editBtn.textContent = 'Edit';
+      editBtn.classList.remove('btn-primary');
+      editBtn.classList.add('btn-ghost');
+      
+      $(`#${section.toLowerCase()}-edit-banner`).classList.add('hidden');
+      updateDeleteButtonState(section);
+      renderAll();
+    };
+    
+    window.toggleItemSelection = function(section, itemId) {
+      if (state.selectedItems[section].has(itemId)) {
+        state.selectedItems[section].delete(itemId);
+      } else {
+        state.selectedItems[section].add(itemId);
+      }
+      
+      updateSelectAllCheckbox(section);
+      updateDeleteButtonState(section);
+    };
+    
+    window.toggleSelectAll = function(section) {
+      const checkbox = $(`#${section.toLowerCase()}-select-all`);
+      const items = section === 'objectives' ? state.objectives :
+                   section === 'valueRealized' ? state.valueRealized :
+                   state.pastObjectives;
+      
+      if (checkbox.checked) {
+        items.forEach(item => state.selectedItems[section].add(item.id));
+      } else {
+        state.selectedItems[section].clear();
+      }
+      
+      updateDeleteButtonState(section);
+      renderAll();
+    };
+    
+    function updateSelectAllCheckbox(section) {
+      const checkbox = $(`#${section.toLowerCase()}-select-all`);
+      if (!checkbox) return;
+      
+      const items = section === 'objectives' ? state.objectives :
+                   section === 'valueRealized' ? state.valueRealized :
+                   state.pastObjectives;
+      
+      const allSelected = items.length > 0 && 
+                         items.every(item => state.selectedItems[section].has(item.id));
+      
+      checkbox.checked = allSelected;
+      checkbox.indeterminate = !allSelected && state.selectedItems[section].size > 0;
+    }
+    
+    function updateDeleteButtonState(section) {
+      const deleteBtn = $(`#${section.toLowerCase()}-delete-btn`);
+      if (deleteBtn) {
+        deleteBtn.disabled = state.selectedItems[section].size === 0;
+      }
+    }
+    
+    window.deleteSelectedItems = function(section) {
+      const selectedCount = state.selectedItems[section].size;
+      if (selectedCount === 0) return;
+      
+      const itemType = section === 'objectives' ? 'objectives' :
+                      section === 'valueRealized' ? 'value realized items' :
+                      'past objectives';
+      
+      const modal = createModal('Remove selected items?', `
+        <div class="space-y-4">
+          <p class="text-gray-700">You are about to remove ${selectedCount} ${itemType}.</p>
+          <p class="text-sm text-gray-600">This action can't be undone.</p>
+        </div>
+      `, [
+        { label: 'Cancel', class: 'btn-ghost', action: () => closeModal() },
+        { label: 'Remove', class: 'btn-danger', action: () => {
+          performDeletion(section);
+          closeModal();
+        }}
+      ]);
+    };
+    
+    function performDeletion(section) {
+      const selectedIds = Array.from(state.selectedItems[section]);
+      
+      // Save current state for undo
+      if (section === 'objectives') {
+        state.undoStates[section] = [...state.objectives];
+        state.objectives = state.objectives.filter(o => !selectedIds.includes(o.id));
+      } else if (section === 'valueRealized') {
+        state.undoStates[section] = [...state.valueRealized];
+        state.valueRealized = state.valueRealized.filter(v => !selectedIds.includes(v.id));
+      } else if (section === 'pastObjectives') {
+        state.undoStates[section] = [...state.pastObjectives];
+        state.pastObjectives = state.pastObjectives.filter(o => !selectedIds.includes(o.id));
+      }
+      
+      // Clear selections
+      state.selectedItems[section].clear();
+      
+      // Exit edit mode
+      cancelEditMode(section);
+      
+      // Update UI
+      renderAll();
+      saveToLocalStorage();
+      
+      // Show toast with undo
+      showToastWithUndo('Items removed', () => undoDeletion(section));
+    }
+    
+    function undoDeletion(section) {
+      if (state.undoStates[section]) {
+        if (section === 'objectives') {
+          state.objectives = state.undoStates[section];
+        } else if (section === 'valueRealized') {
+          state.valueRealized = state.undoStates[section];
+        } else if (section === 'pastObjectives') {
+          state.pastObjectives = state.undoStates[section];
+        }
+        
+        state.undoStates[section] = null;
+        renderAll();
+        saveToLocalStorage();
+        showNotification('Deletion undone', 'success');
+      }
+    }
+    
+    function showToastWithUndo(message, undoCallback) {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.setAttribute('role', 'status');
+      toast.setAttribute('aria-live', 'polite');
+      toast.innerHTML = `
+        <span>${message}</span>
+        <button class="toast-undo" aria-label="Undo deletion">Undo</button>
+      `;
+      
+      document.body.appendChild(toast);
+      
+      const undoBtn = toast.querySelector('.toast-undo');
+      undoBtn.addEventListener('click', () => {
+        undoCallback();
+        toast.remove();
+      });
+      
+      // Auto-remove after 10 seconds
+      setTimeout(() => {
+        toast.style.animation = 'fadeOut 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 10000);
+    }
+    
     window.removePastObjective = function(id) {
       if (confirm('Are you sure you want to permanently remove this past objective?')) {
         state.pastObjectives = state.pastObjectives.filter(o => o.id !== id);
@@ -1784,18 +2244,13 @@
           const goalId = parseInt(card.dataset.id);
           const fieldId = parseInt(fieldEl.dataset.fieldId);
           const goal = state.missionGoals.find(g => g.id === goalId);
-          goal.customFields = goal.customFields.filter(f => f.id !== fieldId);
+                      goal.customFields = goal.customFields.filter(f => f.id !== fieldId);
           renderMissionGoalsEdit();
         } else if (target.dataset.role === 'remove-goal') {
           const card = target.closest('[data-id]');
           const goalId = parseInt(card.dataset.id);
           state.missionGoals = state.missionGoals.filter(g => g.id !== goalId);
           renderMissionGoalsEdit();
-        } else if (target.dataset.role === 'remove-value') {
-          const card = target.closest('[data-id]');
-          const valueId = parseInt(card.dataset.id);
-          state.valueRealized = state.valueRealized.filter(v => v.id !== valueId);
-          renderValueEdit();
         }
       });
       
@@ -1827,26 +2282,6 @@
             }
           }
         }
-        
-        // Value realized
-        if (target.closest('#value-container')) {
-          const card = target.closest('[data-id]');
-          if (!card) return;
-          
-          const valueId = parseInt(card.dataset.id);
-          const value = state.valueRealized.find(v => v.id === valueId);
-          
-          if (target.dataset.role === 'value-type') {
-            value.type = target.value;
-          } else if (target.dataset.role === 'value-desc') {
-            value.description = target.value;
-            autoResizeTextarea(target);
-          } else if (target.dataset.role === 'value-date') {
-            value.date = target.value;
-          } else if (target.dataset.role === 'value-link') {
-            value.link = target.value;
-          }
-        }
       });
       
       // Add buttons
@@ -1860,16 +2295,7 @@
         renderMissionGoalsEdit();
       });
       
-      $('#add-value-btn')?.addEventListener('click', () => {
-        state.valueRealized.push({
-          id: Date.now(),
-          type: 'Time Savings',
-          description: '',
-          date: new Date().toISOString().split('T')[0],
-          link: ''
-        });
-        renderValueEdit();
-      });
+      // Add value button is now handled by showAddValueModal
       
       // Stakeholder select
       $('#add-stakeholder-select')?.addEventListener('change', (e) => {
@@ -1982,6 +2408,13 @@
 
     function exportToExcel() {
       try {
+        // Exit any active edit modes before export
+        ['objectives', 'valueRealized', 'pastObjectives'].forEach(section => {
+          if (state.editModes[section]) {
+            cancelEditMode(section);
+          }
+        });
+        
         const wb = XLSX.utils.book_new();
         
         // Plan Overview
