@@ -2415,32 +2415,32 @@
     }
     
     window.showPDFExportModal = function() {
-      const modal = createModal('Export Success Report', `
+      const modal = createModal('Export Report', `
         <div class="space-y-6">
-          <p class="text-gray-600">Select the sections you'd like to include in your executive report:</p>
+          <p class="text-gray-600">Select the sections to include in your report:</p>
           
           <div class="space-y-3">
             <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
               <input type="checkbox" id="export-summary" checked class="w-5 h-5 text-teal-600">
               <div>
                 <div class="font-medium">Executive Summary</div>
-                <div class="text-sm text-gray-500">Mission statement and overall health status</div>
+                <div class="text-sm text-gray-500">Mission statement and account health</div>
               </div>
             </label>
             
             <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
               <input type="checkbox" id="export-goals" checked class="w-5 h-5 text-teal-600">
               <div>
-                <div class="font-medium">Strategic Goals</div>
-                <div class="text-sm text-gray-500">High-level mission goals and initiatives</div>
+                <div class="font-medium">Mission Goals</div>
+                <div class="text-sm text-gray-500">Strategic objectives and key initiatives</div>
               </div>
             </label>
             
             <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
               <input type="checkbox" id="export-objectives" checked class="w-5 h-5 text-teal-600">
               <div>
-                <div class="font-medium">Current Objectives & KPIs</div>
-                <div class="text-sm text-gray-500">Active objectives with performance metrics</div>
+                <div class="font-medium">Current Objectives</div>
+                <div class="text-sm text-gray-500">Active objectives with KPIs and metrics</div>
               </div>
             </label>
             
@@ -2448,46 +2448,45 @@
               <input type="checkbox" id="export-value" checked class="w-5 h-5 text-teal-600">
               <div>
                 <div class="font-medium">Value Realized</div>
-                <div class="text-sm text-gray-500">Documented business impact and ROI</div>
+                <div class="text-sm text-gray-500">Business impact and ROI achieved</div>
               </div>
             </label>
             
             <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
               <input type="checkbox" id="export-past" checked class="w-5 h-5 text-teal-600">
               <div>
-                <div class="font-medium">Achievements</div>
-                <div class="text-sm text-gray-500">Completed objectives and milestones</div>
+                <div class="font-medium">Past Objectives</div>
+                <div class="text-sm text-gray-500">Completed milestones and achievements</div>
               </div>
             </label>
-          </div>
-          
-          <div class="border-t pt-4">
-            <label class="block text-sm font-medium mb-2">Report Style</label>
-            <select id="export-style" class="text-zone p-2 w-full">
-              <option value="executive">Executive Summary (High-level)</option>
-              <option value="detailed" selected>Detailed Report (Comprehensive)</option>
-              <option value="metrics">Metrics Focus (KPIs & Data)</option>
-            </select>
+            
+            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+              <input type="checkbox" id="export-stakeholders" checked class="w-5 h-5 text-teal-600">
+              <div>
+                <div class="font-medium">Key Stakeholders</div>
+                <div class="text-sm text-gray-500">Primary contacts and their roles</div>
+              </div>
+            </label>
           </div>
         </div>
       `, [
         { label: 'Cancel', class: 'btn-ghost', action: () => closeModal() },
-        { label: 'Generate Report', class: 'btn-primary', action: () => {
+        { label: 'Export PDF', class: 'btn-primary', action: () => {
           const options = {
             includeSummary: $('#export-summary').checked,
             includeGoals: $('#export-goals').checked,
             includeObjectives: $('#export-objectives').checked,
             includeValue: $('#export-value').checked,
             includePast: $('#export-past').checked,
-            style: $('#export-style').value
+            includeStakeholders: $('#export-stakeholders').checked
           };
           closeModal();
-          generateProfessionalPDF(options);
+          generateCleanPDF(options);
         }}
       ]);
     };
     
-    async function generateProfessionalPDF(options) {
+    async function generateCleanPDF(options) {
       const btn = $('#export-pdf-btn');
       btn.disabled = true;
       btn.innerHTML = '<span class="animate-spin">⟳</span> Generating...';
