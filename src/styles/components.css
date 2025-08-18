@@ -1,0 +1,328 @@
+/* Component styles */
+
+/* Button styles */
+.btn {
+  @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 
+         font-semibold text-sm rounded-md border border-transparent 
+         transition-all duration-150 cursor-pointer whitespace-nowrap
+         focus:outline-none focus:ring-2 focus:ring-offset-2;
+  
+  min-height: 40px;
+}
+
+.btn:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+/* Button variants */
+.btn-primary {
+  @apply bg-responsive-teal text-white shadow-sm
+         hover:bg-responsive-teal-dark hover:shadow-md hover:-translate-y-0.5
+         focus:ring-responsive-teal;
+}
+
+.btn-secondary {
+  @apply bg-white text-gray-700 border-gray-300 shadow-sm
+         hover:bg-gray-50 hover:border-gray-400
+         focus:ring-gray-500;
+}
+
+.btn-success {
+  @apply bg-green-500 text-white shadow-sm
+         hover:bg-green-600 hover:shadow-md hover:-translate-y-0.5
+         focus:ring-green-500;
+}
+
+.btn-danger {
+  @apply bg-red-500 text-white shadow-sm
+         hover:bg-red-600 hover:shadow-md hover:-translate-y-0.5
+         focus:ring-red-500;
+}
+
+.btn-ghost {
+  @apply bg-transparent text-gray-600 border-0 shadow-none
+         hover:bg-gray-100 hover:text-gray-900
+         focus:ring-gray-500;
+}
+
+/* Button sizes */
+.btn-sm {
+  @apply px-3 py-1.5 text-xs;
+  min-height: 32px;
+}
+
+.btn-lg {
+  @apply px-6 py-3 text-base;
+  min-height: 48px;
+}
+
+/* Button icons */
+.btn svg {
+  @apply w-5 h-5 flex-shrink-0;
+}
+
+.btn-sm svg {
+  @apply w-4 h-4;
+}
+
+.btn-lg svg {
+  @apply w-6 h-6;
+}
+
+/* Card styles */
+.card {
+  @apply bg-white rounded-lg border border-gray-200 shadow-sm
+         transition-all duration-150;
+}
+
+.card-hover {
+  @apply hover:shadow-md hover:-translate-y-0.5;
+}
+
+/* Form controls */
+.form-label {
+  @apply block text-sm font-medium text-gray-700 mb-1;
+}
+
+.form-control {
+  @apply w-full px-3 py-2 text-sm text-gray-900 placeholder-gray-400
+         bg-white border border-gray-300 rounded-md shadow-sm
+         transition-all duration-150
+         focus:border-responsive-teal focus:ring-1 focus:ring-responsive-teal
+         focus:outline-none;
+}
+
+.form-control:disabled {
+  @apply bg-gray-50 text-gray-500 cursor-not-allowed;
+}
+
+.form-control-error {
+  @apply border-red-500 focus:border-red-500 focus:ring-red-500;
+}
+
+/* Textarea specific */
+textarea.form-control {
+  @apply resize-y min-h-[80px];
+}
+
+/* Select specific */
+select.form-control {
+  @apply pr-10 cursor-pointer;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Status pills */
+.status-pill {
+  @apply inline-flex items-center px-3 py-1 text-xs font-semibold
+         uppercase tracking-wide rounded-md;
+}
+
+.status-green {
+  @apply bg-green-500 text-white;
+}
+
+.status-yellow {
+  @apply bg-yellow-500 text-white;
+}
+
+.status-red {
+  @apply bg-red-500 text-white;
+}
+
+.status-gray {
+  @apply bg-gray-500 text-white;
+}
+
+.status-cyan {
+  @apply bg-cyan-500 text-white;
+}
+
+/* Number badges */
+.number-badge {
+  @apply inline-flex items-center justify-center w-8 h-8
+         bg-responsive-teal text-white font-semibold text-sm
+         rounded-full flex-shrink-0;
+}
+
+.number-badge-sm {
+  @apply w-6 h-6 text-xs;
+}
+
+.number-badge-lg {
+  @apply w-10 h-10 text-base;
+}
+
+/* Health radio pills */
+.health-pills {
+  @apply flex gap-2;
+}
+
+.health-pill {
+  @apply relative;
+}
+
+.health-pill input[type="radio"] {
+  @apply absolute opacity-0 w-0 h-0;
+}
+
+.health-pill label {
+  @apply block px-4 py-2 text-sm font-medium rounded-md cursor-pointer
+         border-2 border-transparent transition-all duration-150;
+}
+
+.health-pill input[type="radio"]:checked + label {
+  @apply ring-2 ring-offset-2;
+}
+
+.health-pill input[type="radio"]:focus + label {
+  @apply outline-none ring-2 ring-offset-2 ring-opacity-50;
+}
+
+.health-pill-green input[type="radio"]:checked + label {
+  @apply bg-green-500 text-white border-green-500 ring-green-500;
+}
+
+.health-pill-green label {
+  @apply text-green-700 hover:bg-green-50;
+}
+
+.health-pill-yellow input[type="radio"]:checked + label {
+  @apply bg-yellow-500 text-white border-yellow-500 ring-yellow-500;
+}
+
+.health-pill-yellow label {
+  @apply text-yellow-700 hover:bg-yellow-50;
+}
+
+.health-pill-red input[type="radio"]:checked + label {
+  @apply bg-red-500 text-white border-red-500 ring-red-500;
+}
+
+.health-pill-red label {
+  @apply text-red-700 hover:bg-red-50;
+}
+
+/* KPI cards */
+.kpi-card {
+  @apply bg-gray-50 border border-gray-200 rounded-lg p-4
+         transition-all duration-150 hover:bg-gray-100 hover:border-responsive-teal;
+}
+
+.kpi-value {
+  @apply text-4xl font-bold text-gray-900 leading-none;
+}
+
+.kpi-unit {
+  @apply text-lg font-normal text-gray-500 ml-1;
+}
+
+.kpi-delta {
+  @apply inline-flex items-center gap-1.5 px-3 py-1.5
+         text-sm font-semibold rounded-md;
+}
+
+.kpi-delta.positive {
+  @apply bg-green-100 text-green-800;
+}
+
+.kpi-delta.negative {
+  @apply bg-red-100 text-red-800;
+}
+
+.kpi-arrow {
+  @apply w-4 h-4;
+}
+
+/* Modal styles */
+.modal-overlay {
+  @apply fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm
+         flex items-center justify-center z-50 p-4;
+}
+
+.modal-panel {
+  @apply bg-white rounded-lg shadow-xl max-h-[90vh] overflow-y-auto
+         w-full max-w-2xl;
+}
+
+.modal-header {
+  @apply flex items-center justify-between p-6 border-b border-gray-200;
+}
+
+.modal-title {
+  @apply text-xl font-semibold text-gray-900;
+}
+
+.modal-body {
+  @apply p-6;
+}
+
+.modal-footer {
+  @apply flex items-center justify-end gap-3 p-6 border-t border-gray-200;
+}
+
+/* Notification styles */
+.notification {
+  @apply fixed top-4 right-4 z-50 flex items-center gap-3
+         px-4 py-3 rounded-lg shadow-lg min-w-[300px] max-w-md
+         transform transition-all duration-300;
+}
+
+.notification-success {
+  @apply bg-green-500 text-white;
+}
+
+.notification-error {
+  @apply bg-red-500 text-white;
+}
+
+.notification-info {
+  @apply bg-blue-500 text-white;
+}
+
+/* Loading spinner */
+.spinner {
+  @apply inline-block w-5 h-5 border-2 border-gray-300 
+         border-t-responsive-teal rounded-full animate-spin;
+}
+
+/* Utility classes */
+.linkish {
+  @apply text-responsive-teal hover:text-responsive-teal-dark 
+         underline cursor-pointer transition-colors duration-150;
+}
+
+.section-header {
+  @apply flex items-center justify-between mb-4;
+}
+
+.section-title {
+  @apply text-xl font-semibold text-gray-900;
+}
+
+/* Grid utilities */
+.grid-responsive {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+}
+
+.grid-responsive-3 {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4;
+}
+
+/* Spacing utilities */
+.stack-sm > * + * {
+  @apply mt-2;
+}
+
+.stack > * + * {
+  @apply mt-4;
+}
+
+.stack-lg > * + * {
+  @apply mt-6;
+}
