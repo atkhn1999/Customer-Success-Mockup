@@ -820,6 +820,9 @@
   <script>
     // Immediate debug check
     console.log('=== Script starting to execute ===');
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('=== DOMContentLoaded fired ===');
+    });
     
     // ---------- Data Models ----------
     const PRODUCT_KPIS = {
@@ -2824,8 +2827,8 @@
             doc.text(value.date || 'Not specified', 180, y + 10, { align: 'right' });
             
             // Description
-            const valueLines = doc.splitTextToSize(value.description, 155);
-            doc.text(valueLines, 35, y + 17);
+            const descLines = doc.splitTextToSize(value.description, 155);
+            doc.text(descLines, 35, y + 17);
             
             y += 30;
           });
