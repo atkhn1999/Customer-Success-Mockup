@@ -3332,7 +3332,24 @@
     };
 
     // Start the app
-    init();
+    try {
+      console.log('Starting application...');
+      init();
+      console.log('Application started successfully');
+    } catch (error) {
+      console.error('Failed to initialize application:', error);
+      console.error('Stack trace:', error.stack);
+      
+      // Show error to user
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'fixed top-4 right-4 max-w-md p-4 bg-red-100 border border-red-400 text-red-700 rounded shadow-lg z-50';
+      errorDiv.innerHTML = `
+        <h3 class="font-bold mb-2">Application Error</h3>
+        <p class="text-sm">${error.message}</p>
+        <p class="text-xs mt-2">Check browser console for details</p>
+      `;
+      document.body.appendChild(errorDiv);
+    }
   </script>
 </body>
 </html>
