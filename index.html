@@ -818,10 +818,19 @@
   </div>
 
   <script>
+    // Alert to confirm script is running (remove after debugging)
+    // alert('Script is executing!');
+    
     // Debug: Script loaded
     console.log('=== Customer Success Plan Script Loaded ===');
     console.log('Document readyState:', document.readyState);
     console.log('Script execution started at:', new Date().toISOString());
+    
+    // Immediate DOM test
+    console.log('Immediate DOM test:');
+    console.log('- document.body exists:', !!document.body);
+    console.log('- Can find app div:', !!document.getElementById('app'));
+    console.log('- Can find customer-name-display:', !!document.getElementById('customer-name-display'));
     
     // ---------- Data Models ----------
     const PRODUCT_KPIS = {
@@ -1018,10 +1027,29 @@
       valueRealizedBackup: [], // For cancel functionality
       planHealth: 'green'
     };
+    
+    // Immediate test - try to update customer name directly
+    setTimeout(() => {
+      console.log('=== Direct DOM update test after 100ms ===');
+      const customerDisplay = document.getElementById('customer-name-display');
+      if (customerDisplay) {
+        console.log('Found customer display, current text:', customerDisplay.textContent);
+        console.log('State customer name:', state.customerName);
+        customerDisplay.textContent = state.customerName;
+        console.log('Updated to:', customerDisplay.textContent);
+      } else {
+        console.error('Could not find customer-name-display element!');
+      }
+    }, 100);
 
     // ---------- Utility Functions ----------
     const $ = (q, root = document) => root.querySelector(q);
     const $$ = (q, root = document) => [...root.querySelectorAll(q)];
+    
+    // Test $ function immediately
+    console.log('Testing $ function:');
+    console.log('- $ function defined:', typeof $ === 'function');
+    console.log('- $("#customer-name-display"):', $('#customer-name-display'));
     
     function calculateDelta(current, previous) {
       if (!previous || previous === 0) return 0;
@@ -3269,23 +3297,36 @@
     }
     
     function renderCustomerName() {
-      const display = $('#customer-name-display');
-      if (display) {
-        display.textContent = state.customerName || 'Customer';
+      try {
+        console.log('renderCustomerName called, state.customerName:', state.customerName);
+        const display = $('#customer-name-display');
+        console.log('Found display element:', !!display);
+        if (display) {
+          console.log('Current text:', display.textContent);
+          display.textContent = state.customerName || 'Customer';
+          console.log('Updated to:', display.textContent);
+        } else {
+          console.error('Customer name display element not found!');
+        }
+      } catch (error) {
+        console.error('Error in renderCustomerName:', error);
       }
     }
 
           // ---------- Initialize ----------
       function init() {
-        // Set date
-        const dateEl = $('#last-updated-date');
-        if (dateEl) {
-          dateEl.textContent = new Date().toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-          });
-        }
+        console.log('=== INIT FUNCTION CALLED ===');
+        try {
+          // Set date
+          const dateEl = $('#last-updated-date');
+          console.log('Date element found:', !!dateEl);
+          if (dateEl) {
+            dateEl.textContent = new Date().toLocaleDateString('en-US', { 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            });
+          }
         
         // Set responsive font size for title
         function updateTitleSize() {
