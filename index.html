@@ -640,12 +640,12 @@
           <p class="text-teal-50/90 text-sm font-light whitespace-nowrap">Last updated: <span id="last-updated-date"></span></p>
           <div class="flex items-center gap-3">
             <button id="export-excel-btn" class="btn bg-gray-900 hover:bg-gray-800 text-white" aria-label="Export to Excel">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M13 7h-2v4H9v2h2v4h2v-4h4v-2h-4V7zm-8 6h4v2H5v-2z"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/><path d="M8.5 12.5l1.5 3 1.5-3m-3 0h3m-4.5-1h6v5h-6z"/></svg>
               Export Excel
             </button>
             <button id="export-pdf-btn" class="btn btn-primary flex items-center" aria-label="Export to PDF">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>
-              Export PDF
+              Generate PDF Report
             </button>
           </div>
         </div>
@@ -659,7 +659,7 @@
       <div class="edit-overlay">
         <button class="btn btn-ghost btn-sm" data-edit="mission-summary">Edit</button>
       </div>
-      <h2 class="text-2xl font-bold mb-4">Mission Summary</h2>
+      <h2 class="text-2xl font-bold mb-4">Executive Summary</h2>
       <div id="mission-summary-display" class="readonly-content"></div>
       <div id="mission-summary-edit" class="hidden">
         <textarea id="mission-summary-input" class="text-zone text-area p-3" rows="3"></textarea>
@@ -862,7 +862,7 @@
     // Application State
     const state = {
       customerName: '[Customer Name]',
-      products: ['Content Library', 'AI Assistant', 'Analytics Suite'],
+      products: ['Content Library', 'AI', 'Projects'],
       missionSummary: 'Partner with [Customer Name] to revolutionize their global sales operations through Receptive\'s AI-powered revenue enablement platform. Our mission is to empower 500+ sales professionals across 12 regions to deliver personalized, data-driven customer experiences that accelerate deal velocity by 45% and increase average contract values by 30% within the next 12 months.',
       missionGoals: [
         { 
@@ -1136,7 +1136,7 @@
     function renderMissionSummary() {
       const display = $('#mission-summary-display');
       if (display) {
-        display.innerHTML = state.missionSummary || '<span class="text-gray-500 italic">No mission summary defined</span>';
+        display.innerHTML = state.missionSummary || '<span class="text-gray-500 italic">No executive summary defined</span>';
       }
     }
 
@@ -2937,7 +2937,7 @@
       }
       
       btn.disabled = false;
-      btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>Export PDF';
+      btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>Generate PDF Report';
     }
 
     function exportToExcel() {
@@ -2953,7 +2953,7 @@
         
         // Plan Overview
         const overview = [{
-          'Mission Summary': state.missionSummary,
+          'Executive Summary': state.missionSummary,
           'Health Status': state.planHealth,
           'Active Products': state.products.join(', ')
         }];
