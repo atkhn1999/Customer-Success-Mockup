@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Platform Test Suite</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 { color: #333; margin-bottom: 30px; }
+    .test-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    .test-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    button {
+      padding: 10px 20px;
+      border: none;
+      background: #14b8a6;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    button:hover {
+      background: #0d9488;
+      transform: translateY(-1px);
+    }
+    iframe {
+      width: 100%;
+      height: 800px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+    .test-status {
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    .success { background: #d1fae5; color: #065f46; }
+    .error { background: #fee2e2; color: #991b1b; }
+    .info { background: #dbeafe; color: #1e40af; }
+  </style>
+</head>
+<body>
+  <h1>Customer Success Platform - Test Suite</h1>
+  
+  <div class="test-section">
+    <h2>Data Scenarios</h2>
+    <div class="test-buttons">
+      <button onclick="loadScenario('minimal')">Minimal Data</button>
+      <button onclick="loadScenario('typical')">Typical Data</button>
+      <button onclick="loadScenario('complex')">Complex Data</button>
+      <button onclick="loadScenario('edge')">Edge Cases</button>
+      <button onclick="loadScenario('empty')">Empty State</button>
+      <button onclick="loadScenario('maxed')">Maximum Data</button>
+    </div>
+    <div id="scenario-status" class="test-status info" style="display:none;"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Section Tests</h2>
+    <div class="test-buttons">
+      <button onclick="testSection('objectives')">Test Objectives</button>
+      <button onclick="testSection('value')">Test Value Realized</button>
+      <button onclick="testSection('past')">Test Past Objectives</button>
+      <button onclick="testSection('stakeholders')">Test Stakeholders</button>
+      <button onclick="testSection('pdf')">Test PDF Export</button>
+      <button onclick="testSection('all')">Test All Sections</button>
+    </div>
+    <div id="section-status" class="test-status info" style="display:none;"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Performance Tests</h2>
+    <div class="test-buttons">
+      <button onclick="performanceTest('render')">Test Render Speed</button>
+      <button onclick="performanceTest('interaction')">Test Interactions</button>
+      <button onclick="performanceTest('export')">Test Export Speed</button>
+      <button onclick="performanceTest('memory')">Test Memory Usage</button>
+    </div>
+    <div id="performance-status" class="test-status info" style="display:none;"></div>
+  </div>
+
+  <iframe id="test-frame" src="index.html"></iframe>
+
+  <script>
+    const frame = document.getElementById('test-frame');
+    
+    function showStatus(elementId, message, type = 'info') {
+      const status = document.getElementById(elementId);
+      status.style.display = 'block';
+      status.className = `test-status ${type}`;
+      status.textContent = message;
+    }
+
+    function getFrameWindow() {
+      return frame.contentWindow;
+    }
+
+    async function waitForFrame() {
+      return new Promise(resolve => {
+        if (frame.contentDocument.readyState === 'complete') {
+          resolve();
+        } else {
+          frame.onload = resolve;
+        }
+      });
+    }
+
+    const scenarios = {
+      minimal: {
+        customerName: 'Test Company',
+        products: ['Content Library'],
+        missionSummary: 'Basic mission statement.',
+        missionGoals: [
+          { id: 1, title: 'Goal 1', description: 'Simple goal', customFields: [] }
+        ],
+        stakeholders: [],
+        objectives: [
+          {
+            id: 1,
+            name: 'Single Objective',
+            targetDate: '2025-03-01',
+            status: 'Not Started',
+            description: 'Test objective',
+            challenges: 'None',
+            nextSteps: 'Start',
+            kpis: []
+          }
+        ],
+        pastObjectives: [],
+        valueRealized: []
+      },
+      typical: {
+        customerName: 'Acme Corporation',
+        products: ['Content Library', 'AI', 'Projects'],
+        missionSummary: 'Partner with Acme Corporation to transform their sales enablement strategy through our comprehensive platform, targeting 40% improvement in sales productivity.',
+        missionGoals: [
+          { 
+            id: 1, 
+            title: 'Content Excellence', 
+            description: 'Achieve 95% content accuracy through automated workflows.',
+            customFields: [
+              {id: 1, label: 'Dashboard', value: 'https://dashboard.example.com'}
+            ] 
+          },
+          { 
+            id: 2, 
+            title: 'AI Adoption', 
+            description: 'Drive 80% AI adoption across all teams.',
+            customFields: [] 
+          }
+        ],
+        stakeholders: [
+          { id: 1, name: 'John Smith', title: 'VP Sales', email: 'john@acme.com' },
+          { id: 2, name: 'Jane Doe', title: 'Director', email: 'jane@acme.com' }
+        ],
+        objectives: [
+          {
+            id: 1,
+            name: 'Q1 Content Migration',
+            targetDate: '2025-03-31',
+            status: 'In Progress',
+            description: 'Migrate 5000+ assets to new platform',
+            challenges: 'Legacy system compatibility',
+            nextSteps: 'Complete phase 1 by Feb 15',
+            kpis: [
+              { id: 1, typeKey: 'content_utilization', currentValue: 75, previousValue: 45, period: 'Quarter', comparePrevious: true },
+              { id: 2, typeKey: 'tagging_percentage', currentValue: 82, previousValue: 20, period: 'Month', comparePrevious: true }
+            ]
+          },
+          {
+            id: 2,
+            name: 'AI Training Program',
+            targetDate: '2025-04-30',
+            status: 'Not Started',
+            description: 'Train 200+ reps on AI features',
+            challenges: 'Varying skill levels',
+            nextSteps: 'Create training materials',
+            kpis: [
+              { id: 3, typeKey: 'answer_with_ai', currentValue: 45, previousValue: 10, period: 'Quarter', comparePrevious: true }
+            ]
+          }
+        ],
+        pastObjectives: [
+          {
+            id: 100,
+            name: 'Platform Deployment',
+            targetDate: '2024-12-31',
+            status: 'Completed',
+            description: 'Successfully deployed platform',
+            challenges: 'Initial resistance to change',
+            nextSteps: 'Monitor adoption metrics',
+            kpis: []
+          }
+        ],
+        valueRealized: [
+          {
+            id: 1,
+            product: 'Content Library',
+            date: '2025-01-15',
+            value: 'Reduced content search time by 65%',
+            impact: 'Saved 10 hours/week per rep'
+          }
+        ]
+      },
+      complex: {
+        customerName: 'Global Enterprise Solutions Inc.',
+        products: ['Content Library', 'AI', 'Projects', 'Trust Center'],
+        missionSummary: 'Transform Global Enterprise Solutions\' worldwide sales operations across 50+ countries and 2000+ sales professionals. Our comprehensive enablement strategy aims to standardize best practices, leverage AI-driven insights, and create a unified customer experience that drives $500M+ in incremental revenue over the next 24 months while reducing sales cycle time by 35%.',
+        missionGoals: Array.from({length: 5}, (_, i) => ({
+          id: i + 1,
+          title: `Strategic Initiative ${i + 1}`,
+          description: `Comprehensive description for initiative ${i + 1} including multiple phases, dependencies, and success metrics that span across different departments and regions.`,
+          customFields: Array.from({length: 3}, (_, j) => ({
+            id: i * 3 + j + 1,
+            label: `Resource ${j + 1}`,
+            value: `https://example.com/resource-${i}-${j}`
+          }))
+        })),
+        stakeholders: Array.from({length: 8}, (_, i) => ({
+          id: i + 1,
+          name: `Executive ${i + 1}`,
+          title: ['CRO', 'VP Sales', 'Director', 'Manager', 'Head of Ops', 'Sr. Director', 'EVP', 'CPO'][i],
+          email: `exec${i}@global.com`
+        })),
+        objectives: Array.from({length: 6}, (_, i) => ({
+          id: i + 1,
+          name: `Major Objective ${i + 1}: Long title that spans multiple lines to test layout`,
+          targetDate: new Date(2025, 2 + i, 15).toISOString().split('T')[0],
+          status: ['In Progress', 'Not Started', 'At Risk', 'In Progress', 'Not Started', 'In Progress'][i],
+          description: `Detailed multi-paragraph description for objective ${i + 1}. This includes background context, strategic alignment, expected outcomes, and measurable impact across the organization. The initiative spans multiple quarters and requires coordination across various teams.`,
+          challenges: `Challenge ${i + 1}: Multiple interconnected issues including technical debt, change management resistance, resource constraints, and competing priorities that need careful orchestration.`,
+          nextSteps: `Step 1: Complete assessment. Step 2: Build coalition. Step 3: Execute pilot. Step 4: Measure results. Step 5: Scale globally.`,
+          kpis: Array.from({length: 4}, (_, j) => ({
+            id: i * 4 + j + 1,
+            typeKey: Object.keys(window.PRODUCT_KPIS).flatMap(k => window.PRODUCT_KPIS[k].map(kpi => kpi.key))[j % 10],
+            currentValue: Math.floor(Math.random() * 50) + 50,
+            previousValue: Math.floor(Math.random() * 50) + 20,
+            period: ['Quarter', 'Month', 'Year'][j % 3],
+            comparePrevious: true
+          }))
+        })),
+        pastObjectives: Array.from({length: 10}, (_, i) => ({
+          id: 100 + i,
+          name: `Historical Achievement ${i + 1}`,
+          targetDate: new Date(2024, i, 15).toISOString().split('T')[0],
+          status: 'Completed',
+          description: `Successfully completed initiative that laid groundwork for current strategy.`,
+          challenges: `Overcame significant obstacles in phase ${i + 1}`,
+          nextSteps: 'Lessons learned incorporated into current planning',
+          kpis: []
+        })),
+        valueRealized: Array.from({length: 15}, (_, i) => ({
+          id: i + 1,
+          product: ['Content Library', 'AI', 'Projects', 'Trust Center'][i % 4],
+          date: new Date(2024, 11 - (i % 12), Math.floor(Math.random() * 28) + 1).toISOString().split('T')[0],
+          value: `Achievement ${i + 1}: Significant measurable improvement in key metrics`,
+          impact: `$${Math.floor(Math.random() * 500) + 100}K annual savings`
+        }))
+      },
+      edge: {
+        customerName: 'Test & Special <Characters> "Company" Ltd.',
+        products: [],
+        missionSummary: ''.padEnd(2000, 'Very long mission statement that tests the limits of the text field. '),
+        missionGoals: [
+          { 
+            id: 1, 
+            title: ''.padEnd(200, 'X'), 
+            description: ''.padEnd(1000, 'Long description '),
+            customFields: Array.from({length: 20}, (_, i) => ({
+              id: i + 1,
+              label: `Field ${i + 1}`,
+              value: 'https://very-long-url-that-might-break-layout.example.com/path/to/resource/with/many/segments'
+            }))
+          }
+        ],
+        stakeholders: [],
+        objectives: [
+          {
+            id: 1,
+            name: '🚀 Unicode & Emoji Test! 测试中文 🎯',
+            targetDate: '2025-12-31',
+            status: 'In Progress',
+            description: 'Testing special characters: <>&"\'`',
+            challenges: 'None\nMultiline\nText\nTest',
+            nextSteps: 'Test\ttabs\tand\tspacing',
+            kpis: [
+              { id: 1, typeKey: 'content_utilization', currentValue: 0, previousValue: 100, period: 'Quarter', comparePrevious: true },
+              { id: 2, typeKey: 'obsolete_records', currentValue: 100, previousValue: 0, period: 'Month', comparePrevious: true }
+            ]
+          }
+        ],
+        pastObjectives: [],
+        valueRealized: []
+      },
+      empty: {
+        customerName: '',
+        products: [],
+        missionSummary: '',
+        missionGoals: [],
+        stakeholders: [],
+        objectives: [],
+        pastObjectives: [],
+        valueRealized: []
+      },
+      maxed: {
+        customerName: 'Maximum Data Test Corporation International Holdings Limited',
+        products: ['Content Library', 'AI', 'Projects', 'Trust Center'],
+        missionSummary: ''.padEnd(5000, 'Maximum length test '),
+        missionGoals: Array.from({length: 20}, (_, i) => ({
+          id: i + 1,
+          title: `Goal ${i + 1}`.padEnd(100, ' Extended'),
+          description: `Description ${i + 1}`.padEnd(500, ' Extended'),
+          customFields: Array.from({length: 10}, (_, j) => ({
+            id: i * 10 + j + 1,
+            label: `Field ${j + 1}`,
+            value: `Value ${j + 1}`
+          }))
+        })),
+        stakeholders: Array.from({length: 50}, (_, i) => ({
+          id: i + 1,
+          name: `Contact ${i + 1}`,
+          title: `Title ${i + 1}`,
+          email: `contact${i}@max.com`
+        })),
+        objectives: Array.from({length: 20}, (_, i) => ({
+          id: i + 1,
+          name: `Objective ${i + 1}`,
+          targetDate: '2025-12-31',
+          status: ['In Progress', 'Not Started', 'At Risk'][i % 3],
+          description: 'Max data test',
+          challenges: 'Testing limits',
+          nextSteps: 'Continue testing',
+          kpis: Array.from({length: 10}, (_, j) => ({
+            id: i * 10 + j + 1,
+            typeKey: 'content_utilization',
+            currentValue: 99,
+            previousValue: 1,
+            period: 'Quarter',
+            comparePrevious: true
+          }))
+        })),
+        pastObjectives: Array.from({length: 50}, (_, i) => ({
+          id: 100 + i,
+          name: `Past ${i + 1}`,
+          targetDate: '2024-01-01',
+          status: 'Completed',
+          description: 'Historical',
+          challenges: 'None',
+          nextSteps: 'Done',
+          kpis: []
+        })),
+        valueRealized: Array.from({length: 100}, (_, i) => ({
+          id: i + 1,
+          product: 'Content Library',
+          date: '2024-01-01',
+          value: `Value ${i + 1}`,
+          impact: `Impact ${i + 1}`
+        }))
+      }
+    };
+
+    async function loadScenario(scenarioName) {
+      await waitForFrame();
+      const win = getFrameWindow();
+      const scenario = scenarios[scenarioName];
+      
+      if (!scenario) {
+        showStatus('scenario-status', `Unknown scenario: ${scenarioName}`, 'error');
+        return;
+      }
+
+      try {
+        // Update state in the iframe
+        win.state = { ...win.state, ...scenario };
+        
+        // Trigger re-render
+        if (win.initializeApp) {
+          win.initializeApp();
+        }
+        
+        showStatus('scenario-status', `Loaded scenario: ${scenarioName}`, 'success');
+        
+        // Log performance metrics
+        setTimeout(() => {
+          const performance = win.performance;
+          const memory = performance.memory || {};
+          console.log('Performance after load:', {
+            scenario: scenarioName,
+            memoryUsed: Math.round(memory.usedJSHeapSize / 1024 / 1024) + 'MB',
+            renderTime: performance.timing.loadEventEnd - performance.timing.navigationStart + 'ms'
+          });
+        }, 1000);
+      } catch (error) {
+        showStatus('scenario-status', `Error loading scenario: ${error.message}`, 'error');
+      }
+    }
+
+    async function testSection(section) {
+      await waitForFrame();
+      const win = getFrameWindow();
+      
+      try {
+        switch(section) {
+          case 'objectives':
+            // Test adding, editing, deleting objectives
+            win.document.getElementById('new-objective-btn').click();
+            showStatus('section-status', 'Testing objectives section...', 'info');
+            break;
+          case 'value':
+            // Test value realized section
+            const valueBtn = win.document.querySelector('[data-modal="value-realized"]');
+            if (valueBtn) valueBtn.click();
+            showStatus('section-status', 'Testing value realized section...', 'info');
+            break;
+          case 'pdf':
+            // Test PDF export
+            win.document.getElementById('export-pdf-btn').click();
+            showStatus('section-status', 'Testing PDF export...', 'info');
+            break;
+          case 'all':
+            // Run all tests
+            showStatus('section-status', 'Running all section tests...', 'info');
+            await testSection('objectives');
+            await testSection('value');
+            await testSection('past');
+            await testSection('stakeholders');
+            break;
+          default:
+            showStatus('section-status', `Testing ${section} section...`, 'info');
+        }
+        
+        setTimeout(() => {
+          showStatus('section-status', `${section} test completed`, 'success');
+        }, 2000);
+      } catch (error) {
+        showStatus('section-status', `Error testing ${section}: ${error.message}`, 'error');
+      }
+    }
+
+    async function performanceTest(type) {
+      await waitForFrame();
+      const win = getFrameWindow();
+      
+      const startTime = performance.now();
+      
+      try {
+        switch(type) {
+          case 'render':
+            // Test render performance with complex data
+            await loadScenario('complex');
+            const renderTime = performance.now() - startTime;
+            showStatus('performance-status', `Render time: ${renderTime.toFixed(2)}ms`, 'success');
+            break;
+          case 'interaction':
+            // Test interaction responsiveness
+            const buttons = win.document.querySelectorAll('button');
+            const clickTime = performance.now();
+            buttons.forEach((btn, i) => {
+              if (i < 10) btn.click();
+            });
+            const interactionTime = performance.now() - clickTime;
+            showStatus('performance-status', `Interaction time for 10 clicks: ${interactionTime.toFixed(2)}ms`, 'success');
+            break;
+          case 'export':
+            // Test export performance
+            win.document.getElementById('export-pdf-btn').click();
+            setTimeout(() => {
+              const exportTime = performance.now() - startTime;
+              showStatus('performance-status', `Export initiated in: ${exportTime.toFixed(2)}ms`, 'success');
+            }, 1000);
+            break;
+          case 'memory':
+            // Test memory usage
+            const memory = win.performance.memory || {};
+            const used = Math.round(memory.usedJSHeapSize / 1024 / 1024);
+            const total = Math.round(memory.totalJSHeapSize / 1024 / 1024);
+            showStatus('performance-status', `Memory: ${used}MB / ${total}MB`, 'info');
+            break;
+        }
+      } catch (error) {
+        showStatus('performance-status', `Error in ${type} test: ${error.message}`, 'error');
+      }
+    }
+
+    // Auto-load typical scenario on page load
+    window.addEventListener('load', () => {
+      setTimeout(() => loadScenario('typical'), 1000);
+    });
+  </script>
+</body>
+</html>

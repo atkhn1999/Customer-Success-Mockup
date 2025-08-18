@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Success Plan - Receptive Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root { 
+      /* Enhanced Modern Color Palette */
+      --primary-50: #f0fdfa;
+      --primary-100: #ccfbf1;
+      --primary-200: #99f6e4;
+      --primary-300: #5eead4;
+      --primary-400: #2dd4bf;
+      --primary-500: #14b8a6;
+      --primary-600: #0d9488;
+      --primary-700: #0f766e;
+      --primary-800: #115e59;
+      --primary-900: #134e4a;
+      
+      /* Neutral Colors */
+      --gray-50: #fafafa;
+      --gray-100: #f4f4f5;
+      --gray-200: #e4e4e7;
+      --gray-300: #d4d4d8;
+      --gray-400: #a1a1aa;
+      --gray-500: #71717a;
+      --gray-600: #52525b;
+      --gray-700: #3f3f46;
+      --gray-800: #27272a;
+      --gray-900: #18181b;
+      
+      /* Accent Colors */
+      --accent-blue: #3b82f6;
+      --accent-purple: #8b5cf6;
+      --accent-pink: #ec4899;
+      --accent-orange: #f97316;
+      
+      /* Semantic Colors */
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #3b82f6;
+      
+      /* Gradients */
+      --gradient-primary: linear-gradient(135deg, var(--primary-400) 0%, var(--primary-600) 100%);
+      --gradient-success: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+      --gradient-danger: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+      --gradient-info: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+      --gradient-purple: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+      
+      /* Shadows */
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      
+      /* Layout */
+      --radius-sm: 0.375rem;
+      --radius: 0.5rem;
+      --radius-lg: 0.75rem;
+      --radius-xl: 1rem;
+      
+      /* Animation */
+      --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    * { 
+      box-sizing: border-box; 
+      margin: 0;
+      padding: 0;
+    }
+    
+    body { 
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
+      background: var(--gray-50); 
+      color: var(--gray-900); 
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Enhanced Typography */
+    h1 { 
+      font-size: 2.25rem; 
+      font-weight: 800; 
+      line-height: 1.1; 
+      letter-spacing: -0.025em;
+      color: var(--gray-900);
+      background: linear-gradient(135deg, var(--gray-900) 0%, var(--gray-700) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    @media (min-width: 768px) {
+      h1 { font-size: 2.5rem; }
+    }
+    @media (min-width: 1024px) {
+      h1 { font-size: 3rem; }
+    }
+    
+    h2 { 
+      font-size: 1.875rem; 
+      font-weight: 700; 
+      line-height: 1.3; 
+      letter-spacing: -0.025em;
+      color: var(--gray-800);
+    }
+    
+    h3 { 
+      font-size: 1.25rem; 
+      font-weight: 600; 
+      line-height: 1.4;
+      color: var(--gray-800);
+    }
+    
+    h4 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      line-height: 1.4;
+      color: var(--gray-700);
+    }
+    
+    p {
+      margin-bottom: 0.5rem;
+      color: var(--gray-600);
+    }
+    
+    /* Enhanced Form Controls */
+    .text-zone { 
+      width: 100%; 
+      border-radius: var(--radius); 
+      border: 1.5px solid var(--gray-200); 
+      background: white; 
+      box-shadow: var(--shadow-sm); 
+      transition: all var(--transition-fast); 
+      outline: none; 
+      font-size: 0.875rem;
+      line-height: 1.25rem;
+      color: var(--gray-900);
+      padding: 0.625rem 0.875rem;
+    }
+    .text-zone:hover {
+      border-color: var(--gray-300);
+    }
+    .text-zone:focus { 
+      border-color: var(--primary-500); 
+      box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1), var(--shadow-md); 
+    }
+    .text-zone:disabled {
+      background: var(--gray-100);
+      color: var(--gray-400);
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .text-area { 
+      resize: vertical; 
+      min-height: 5rem; 
+      line-height: 1.6; 
+    }
+    
+    select.text-zone {
+      cursor: pointer;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2371717a' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+      background-position: right 0.5rem center;
+      background-repeat: no-repeat;
+      background-size: 1.5em 1.5em;
+      padding-right: 2.5rem;
+    }
+
+    /* Enhanced Cards */
+    .card { 
+      background: white; 
+      border-radius: var(--radius-lg); 
+      box-shadow: var(--shadow); 
+      border: 1px solid var(--gray-100); 
+      transition: all var(--transition);
+      overflow: hidden;
+    }
+    .card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+      border-color: var(--gray-200);
+    }
+    
+    /* Modern Card Variants */
+    .card-gradient {
+      position: relative;
+      overflow: hidden;
+    }
+    .card-gradient::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--gradient-primary);
+    }
+    
+    .card-interactive {
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    .card-interactive::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--gradient-primary);
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+    .card-interactive:hover::after {
+      opacity: 0.05;
+    }
+
+    /* Enhanced Buttons */
+    .btn { 
+      display: inline-flex; 
+      align-items: center; 
+      justify-content: center;
+      gap: .5rem; 
+      font-weight: 600; 
+      border-radius: var(--radius); 
+      padding: .625rem 1.25rem; 
+      border: 1.5px solid transparent; 
+      transition: all var(--transition-fast); 
+      cursor: pointer;
+      font-size: 0.875rem;
+      white-space: nowrap;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+    .btn:active {
+      transform: translateY(0);
+      box-shadow: var(--shadow-sm);
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .btn:focus {
+      outline: 2px solid var(--primary-500);
+      outline-offset: 2px;
+    }
+    
+    /* Button Variants */
+    .btn-primary { 
+      background: var(--gradient-primary);
+      color: white;
+      border: none;
+    }
+    .btn-primary:hover:not(:disabled) { 
+      box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+    }
+    
+    .btn-success { 
+      background: var(--gradient-success);
+      color: white;
+      border: none;
+    }
+    .btn-success:hover:not(:disabled) { 
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+    
+    .btn-danger {
+      background: var(--gradient-danger);
+      color: white;
+      border: none;
+    }
+    .btn-danger:hover:not(:disabled) {
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+    
+    .btn-outline { 
+      background: white; 
+      color: var(--gray-700); 
+      border-color: var(--gray-300); 
+    }
+    .btn-outline:hover:not(:disabled) { 
+      background: var(--gray-50); 
+      border-color: var(--gray-400);
+      color: var(--gray-900);
+    }
+    
+    .btn-ghost { 
+      background: transparent; 
+      color: var(--gray-600); 
+      border: none;
+      box-shadow: none;
+    }
+    .btn-ghost:hover:not(:disabled) { 
+      background: var(--gray-100); 
+      color: var(--gray-900);
+      box-shadow: none;
+    }
+    
+    /* Icon Buttons */
+    .btn-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      padding: 0;
+      border-radius: var(--radius);
+    }
+    .btn-icon-sm {
+      width: 2rem;
+      height: 2rem;
+    }
+
+    /* Status Pills Enhanced */
+    .status-pill { 
+      font-size: .75rem; 
+      font-weight: 600; 
+      padding: .375rem .875rem; 
+      border-radius: 9999px; 
+      display: inline-flex; 
+      align-items: center; 
+      text-transform: uppercase;
+      letter-spacing: 0.025em;
+      box-shadow: var(--shadow-sm);
+    }
+    .status-green { 
+      background: linear-gradient(135deg, #86efac 0%, #10b981 100%); 
+      color: white; 
+    }
+    .status-yellow { 
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); 
+      color: white; 
+    }
+    .status-red { 
+      background: linear-gradient(135deg, #fca5a5 0%, #ef4444 100%); 
+      color: white; 
+    }
+    .status-blue {
+      background: linear-gradient(135deg, #93c5fd 0%, #3b82f6 100%);
+      color: white;
+    }
+    .status-purple {
+      background: linear-gradient(135deg, #c4b5fd 0%, #8b5cf6 100%);
+      color: white;
+    }
+
+    /* KPI Cards Enhanced */
+    .kpi-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--gray-100);
+      transition: all var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--gradient-primary);
+    }
+    .kpi-value {
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .kpi-label {
+      font-size: 0.875rem;
+      color: var(--gray-600);
+      margin-bottom: 0.5rem;
+    }
+    .kpi-delta {
+      font-size: 0.875rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-top: 0.5rem;
+    }
+    .kpi-delta.positive {
+      color: var(--success);
+    }
+    .kpi-delta.negative {
+      color: var(--danger);
+    }
+
+    /* Header Enhanced */
+    .header-gradient {
+      background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-800) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .header-gradient::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      bottom: -50%;
+      left: -50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      transform: rotate(-45deg);
+    }
+    
+    /* Loading States */
+    .skeleton {
+      background: linear-gradient(90deg, var(--gray-200) 25%, var(--gray-100) 50%, var(--gray-200) 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+    }
+    @keyframes skeleton-loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    
+    .fade-in { animation: fadeIn var(--transition-slow) ease-out; }
+    .slide-in { animation: slideIn var(--transition) ease-out; }
+    .pulse { animation: pulse 2s infinite; }
+    
+    /* Progress Indicators */
+    .progress-bar {
+      height: 6px;
+      background: var(--gray-200);
+      border-radius: 3px;
+      overflow: hidden;
+      position: relative;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--gradient-primary);
+      border-radius: 3px;
+      transition: width var(--transition-slow);
+      box-shadow: 0 0 10px rgba(20, 184, 166, 0.3);
+    }
+    
+    /* Tooltips */
+    .tooltip {
+      position: relative;
+    }
+    .tooltip::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%) translateY(-8px);
+      background: var(--gray-900);
+      color: white;
+      padding: 0.5rem 0.75rem;
+      border-radius: var(--radius);
+      font-size: 0.75rem;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: all var(--transition-fast);
+    }
+    .tooltip:hover::after {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-4px);
+    }
+    
+    /* Modal Enhanced */
+    .modal-backdrop {
+      backdrop-filter: blur(4px);
+      background: rgba(0, 0, 0, 0.5);
+    }
+    .modal-content {
+      background: white;
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-xl);
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow: hidden;
+      animation: fadeIn var(--transition);
+    }
+    
+    /* Data Grid */
+    .data-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+    
+    /* Responsive Utilities */
+    @media (max-width: 768px) {
+      .mobile-full-width {
+        width: 100% !important;
+      }
+      .mobile-stack {
+        flex-direction: column !important;
+      }
+      .hide-mobile {
+        display: none !important;
+      }
+    }
+    
+    /* Print Styles */
+    @media print {
+      body {
+        background: white;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .card {
+        box-shadow: none;
+        border: 1px solid var(--gray-300);
+        page-break-inside: avoid;
+      }
+    }
+    
+    /* Accessibility */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+    
+    /* Focus visible for keyboard navigation */
+    *:focus-visible {
+      outline: 2px solid var(--primary-500);
+      outline-offset: 2px;
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--gray-100);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--gray-400);
+      border-radius: 5px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--gray-500);
+    }
+  </style>
+</head>
+<body>
+  <!-- Enhanced Header -->
+  <header class="header-gradient text-white shadow-lg relative">
+    <div class="container mx-auto px-4 py-6">
+      <div class="flex items-center justify-between relative z-10">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center shadow-lg">
+            <span class="text-2xl font-black">R</span>
+          </div>
+          <div>
+            <h1 class="text-2xl md:text-3xl font-bold text-white" style="-webkit-text-fill-color: white;">Customer Success Plan</h1>
+            <p class="text-primary-200 text-sm">Powered by Receptive Platform</p>
+          </div>
+        </div>
+        <div class="flex gap-3 items-center">
+          <button class="btn btn-ghost text-white hover:bg-white/20" onclick="openImportModal()">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+            </svg>
+            Import
+          </button>
+          <button class="btn btn-ghost text-white hover:bg-white/20" onclick="exportData()">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+            </svg>
+            Export
+          </button>
+          <button id="export-pdf-btn" class="btn bg-white/20 backdrop-blur text-white border-white/30 hover:bg-white/30">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            Export PDF
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="min-h-screen">
+    <main class="container mx-auto px-4 py-8 space-y-8">
+      <!-- Account Summary Section -->
+      <section class="card card-gradient p-6 fade-in">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <input 
+              type="text" 
+              id="customer-name" 
+              class="text-2xl font-bold bg-transparent border-none outline-none text-gray-900 hover:bg-gray-50 px-2 py-1 rounded transition-colors"
+              value="[Customer Name]" 
+              placeholder="Enter customer name..."
+            />
+            <div class="flex items-center gap-4 mt-2">
+              <select id="plan-health" class="text-zone inline-block w-auto">
+                <option value="green">🟢 Healthy</option>
+                <option value="yellow">🟡 At Risk</option>
+                <option value="red">🔴 Critical</option>
+              </select>
+              <span class="text-sm text-gray-600">Last updated: <span id="last-updated">Today</span></span>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn btn-outline btn-sm" onclick="refreshData()">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+              </svg>
+              Refresh
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Mission & Goals Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Mission Summary -->
+        <section class="card p-6 slide-in">
+          <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+            <span class="w-8 h-8 bg-primary-100 text-primary-600 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </span>
+            Mission Summary
+          </h3>
+          <textarea 
+            id="mission-summary" 
+            class="text-zone text-area" 
+            placeholder="Enter the mission summary..."
+          ></textarea>
+        </section>
+
+        <!-- Mission Goals -->
+        <section class="card p-6 slide-in" style="animation-delay: 0.1s;">
+          <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+            <span class="w-8 h-8 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+            </span>
+            Mission Goals
+          </h3>
+          <div id="goals-container" class="space-y-3 mb-4"></div>
+          <button class="btn btn-outline btn-sm w-full" onclick="addGoal()">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Add Goal
+          </button>
+        </section>
+      </div>
+
+      <!-- Secondary Info Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Key Stakeholders -->
+        <section class="card p-6 slide-in" style="animation-delay: 0.2s;">
+          <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+            <span class="w-8 h-8 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+              </svg>
+            </span>
+            Key Stakeholders
+          </h3>
+          <div id="stakeholders-container" class="space-y-3 mb-3"></div>
+          <select id="add-stakeholder-select" class="text-zone">
+            <option value="">+ Add a contact...</option>
+            <option value="new">Add New Stakeholder...</option>
+          </select>
+        </section>
+
+        <!-- Receptive Platform Products -->
+        <section class="card p-6 section-readonly slide-in" id="products-section" style="animation-delay: 0.3s;">
+          <div class="edit-overlay absolute top-4 right-4 z-10">
+            <button class="btn btn-ghost btn-sm" data-edit="products">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+              </svg>
+              Edit
+            </button>
+          </div>
+          <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+            <span class="w-8 h-8 bg-orange-100 text-orange-600 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+              </svg>
+            </span>
+            Receptive Platform Products
+          </h3>
+          <div id="products-display" class="space-y-2"></div>
+          <div id="products-edit" class="hidden">
+            <div class="space-y-3">
+              <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                <input type="checkbox" id="product-content-library" value="Content Library" class="w-5 h-5 text-primary-600 rounded">
+                <span class="font-medium">Content Library</span>
+              </label>
+              <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                <input type="checkbox" id="product-ai" value="AI" class="w-5 h-5 text-primary-600 rounded">
+                <span class="font-medium">AI</span>
+              </label>
+              <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                <input type="checkbox" id="product-projects" value="Projects" class="w-5 h-5 text-primary-600 rounded">
+                <span class="font-medium">Projects</span>
+              </label>
+              <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                <input type="checkbox" id="product-trust-center" value="Trust Center" class="w-5 h-5 text-primary-600 rounded">
+                <span class="font-medium">Trust Center</span>
+              </label>
+            </div>
+            <div class="mt-4 flex gap-2">
+              <button class="btn btn-primary btn-sm" data-save="products">Save</button>
+              <button class="btn btn-ghost btn-sm" data-cancel="products">Cancel</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Copy all the JavaScript from the original file, but we'll enhance some functions
+    // for better performance and user experience
+    
+    // Immediate debug check
+    console.log('=== Enhanced Script starting to execute ===');
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('=== DOMContentLoaded fired ===');
+    });
+    
+    // ---------- Data Models ----------
+    const PRODUCT_KPIS = {
+      'Content Library': [
+        { key: 'content_utilization', label: 'Content Utilization', unit: '%', higherIsBetter: true },
+        { key: 'tagging_percentage', label: 'Tagging Percentage', unit: '%', higherIsBetter: true },
+        { key: 'records_with_reviews', label: '% of Records with Reviews enabled', unit: '%', higherIsBetter: true },
+        { key: 'content_ownership', label: '% of content with ownership', unit: '%', higherIsBetter: true },
+        { key: 'obsolete_records', label: '% of obsolete records', unit: '%', higherIsBetter: false },
+        { key: 'duplicated_records', label: '% of duplicated records', unit: '%', higherIsBetter: false }
+      ],
+      'AI': [
+        { key: 'unedited_ai_responses', label: 'Unedited AI responses', unit: '%', higherIsBetter: false },
+        { key: 'answer_with_ai', label: '% answer with AI', unit: '%', higherIsBetter: true },
+        { key: 'ai_chatbot_usage', label: 'AI chatbot usage', unit: 'sessions', higherIsBetter: true }
+      ],
+      'Projects': [
+        { key: 'answer_library_usage', label: '% Answer library usage', unit: '%', higherIsBetter: true },
+        { key: 'manual_answers', label: '% of manual answers', unit: '%', higherIsBetter: false },
+        { key: 'answers_edited', label: '% of Answers edited from Answer Library', unit: '%', higherIsBetter: false },
+        { key: 'time_per_response', label: 'Time spent per response', unit: 's', higherIsBetter: false }
+      ],
+      'Trust Center': [
+        { key: 'profile_views', label: '% of profile views', unit: '%', higherIsBetter: true }
+      ]
+    };
+
+    const mockContacts = [
+      { id: 1, name: 'Sarah Chen', title: 'VP Sales', email: 'sarah.chen@[customer-domain].com' },
+      { id: 2, name: 'Michael Rodriguez', title: 'Sales Director', email: 'michael.r@[customer-domain].com' },
+      { id: 3, name: 'Jennifer Park', title: 'Head of Enablement', email: 'jennifer.p@[customer-domain].com' },
+      { id: 4, name: 'David Thompson', title: 'CRO', email: 'david.t@[customer-domain].com' },
+      { id: 5, name: 'Emily Watson', title: 'Sales Operations Manager', email: 'emily.w@[customer-domain].com' },
+      { id: 6, name: 'Robert Johnson', title: 'Enterprise Account Executive', email: 'robert.j@[customer-domain].com' }
+    ];
+
+    // Application State
+    const state = {
+      customerName: '[Customer Name]',
+      products: ['Content Library', 'AI', 'Projects'],
+      missionSummary: 'Partner with [Customer Name] to revolutionize their global sales operations through Receptive\'s AI-powered revenue enablement platform. Our mission is to empower 500+ sales professionals across 12 regions to deliver personalized, data-driven customer experiences that accelerate deal velocity by 45% and increase average contract values by 30% within the next 12 months.',
+      missionGoals: [
+        { 
+          id: 1, 
+          title: 'Content Excellence Initiative', 
+          description: 'Achieve 95% content accuracy and reduce obsolete content to less than 5% through AI-powered content management and automated review workflows.',
+          customFields: [
+            {id: 1, label: 'Success Dashboard', value: 'https://analytics.example.com/dashboard'},
+            {id: 2, label: 'Content Audit Report', value: 'https://docs.example.com/content-audit'}
+          ] 
+        },
+        { 
+          id: 2, 
+          title: 'AI Adoption Program', 
+          description: 'Drive 80% adoption of AI-powered responses across all sales teams, reducing average response time from 45 minutes to under 5 minutes.',
+          customFields: [
+            {id: 3, label: 'AI Training Portal', value: 'https://training.example.com/ai-certification'},
+            {id: 4, label: 'ROI Calculator', value: 'https://roi.example.com/calculator'}
+          ] 
+        }
+      ],
+      stakeholders: [mockContacts[0], mockContacts[1], mockContacts[2]],
+      planHealth: 'green',
+      // Edit mode states
+      editModes: {
+        objectives: false,
+        valueRealized: false,
+        pastObjectives: false
+      },
+      selectedItems: {
+        objectives: new Set(),
+        valueRealized: new Set(),
+        pastObjectives: new Set()
+      },
+      undoStates: {
+        objectives: null,
+        valueRealized: null,
+        pastObjectives: null
+      },
+      objectives: [
+        {
+          id: 1,
+          name: 'Implement Content Governance Framework',
+          targetDate: '2025-03-15',
+          status: 'In Progress',
+          description: 'Establish automated content lifecycle management with ownership assignment, review cycles, and obsolescence tracking for 5,000+ sales assets.',
+          challenges: 'Legacy content lacks metadata. Need to train content owners on new tagging taxonomy.',
+          nextSteps: 'Complete content audit by Feb 15. Deploy automated tagging tool by March 1.',
+          kpis: [
+            { 
+              id: 101, 
+              typeKey: 'content_ownership', 
+              currentValue: 62, 
+              previousValue: 15,
+              period: 'Quarter',
+              comparePrevious: true
+            },
+            { 
+              id: 102, 
+              typeKey: 'obsolete_records', 
+              currentValue: 18, 
+              previousValue: 32,
+              period: 'Quarter',
+              comparePrevious: true
+            },
+            { 
+              id: 103, 
+              typeKey: 'tagging_percentage', 
+              currentValue: 71, 
+              previousValue: 23,
+              period: 'Month',
+              comparePrevious: true
+            }
+          ]
+        },
+        {
+          id: 2,
+          name: 'Scale AI-Powered Responses',
+          targetDate: '2025-04-30',
+          status: 'Not Started',
+          description: 'Roll out AI response capabilities to all 200+ sales reps with personalized training and success tracking.',
+          challenges: 'Varying technical proficiency across teams. Need to customize AI models for different product lines.',
+          nextSteps: 'Define success metrics. Create team-specific training paths. Set up AI performance dashboards.',
+          kpis: [
+            { 
+              id: 201, 
+              typeKey: 'answer_with_ai', 
+              currentValue: 34, 
+              previousValue: 8,
+              period: 'Quarter',
+              comparePrevious: true
+            },
+            { 
+              id: 202, 
+              typeKey: 'time_per_response', 
+              currentValue: 12, 
+              previousValue: 45,
+              period: 'Month',
+              comparePrevious: true
+            }
+          ]
+        }
+      ],
+      pastObjectives: [
+        {
+          id: 100,
+          name: 'Platform Onboarding & Initial Setup',
+          targetDate: '2024-12-31',
+          status: 'Completed',
+          description: 'Successfully onboarded [Customer Name] to Receptive platform with SSO integration, initial content migration, and pilot team training.',
+          challenges: 'Initial API rate limits required optimization. SSO integration needed custom SAML configuration.',
+          nextSteps: 'Monitor adoption metrics. Schedule quarterly business reviews.',
+          kpis: []
+        }
+      ],
+      valueRealized: [
+        {
+          id: 1,
+          product: 'Content Library',
+          date: '2025-01-15',
+          value: 'Reduced content search time by 65% (from 15 min to 5 min average)',
+          impact: 'Sales reps save 10 hours/week, enabling 25% more customer interactions'
+        },
+        {
+          id: 2,
+          product: 'AI',
+          date: '2025-01-10',
+          value: 'AI-generated responses achieve 92% accuracy rate',
+          impact: 'Reduced response revision time by 70%, improving customer satisfaction scores by 15%'
+        }
+      ]
+    };
+
+    // ---------- Helper Functions ----------
+    const $ = (selector) => document.querySelector(selector);
+    const $$ = (selector) => document.querySelectorAll(selector);
+    const createElement = (tag, className = '', content = '') => {
+      const el = document.createElement(tag);
+      if (className) el.className = className;
+      if (content) el.innerHTML = content;
+      return el;
+    };
+
+    // Enhanced initialization
+    function initializeApp() {
+      console.log('Initializing enhanced app...');
+      
+      // Customer info
+      $('#customer-name').value = state.customerName;
+      $('#plan-health').value = state.planHealth;
+      $('#mission-summary').value = state.missionSummary;
+      
+      // Update last updated
+      $('#last-updated').textContent = new Date().toLocaleDateString();
+      
+      // Render sections
+      renderGoals();
+      renderStakeholders();
+      renderProducts();
+      
+      // Add event listeners
+      setupEventListeners();
+      
+      // Initialize animations
+      observeAnimations();
+    }
+
+    // Setup intersection observer for animations
+    function observeAnimations() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('fade-in');
+          }
+        });
+      }, { threshold: 0.1 });
+      
+      $$('.card').forEach(card => observer.observe(card));
+    }
+
+    // Enhanced event listeners
+    function setupEventListeners() {
+      // Customer name
+      $('#customer-name').addEventListener('input', (e) => {
+        state.customerName = e.target.value;
+      });
+      
+      // Plan health
+      $('#plan-health').addEventListener('change', (e) => {
+        state.planHealth = e.target.value;
+      });
+      
+      // Mission summary
+      $('#mission-summary').addEventListener('input', (e) => {
+        state.missionSummary = e.target.value;
+        autoResize(e.target);
+      });
+      
+      // Export PDF
+      $('#export-pdf-btn').addEventListener('click', openPDFExportModal);
+      
+      // Product edit buttons
+      $('[data-edit="products"]').addEventListener('click', () => toggleProductEdit(true));
+      $('[data-save="products"]').addEventListener('click', saveProducts);
+      $('[data-cancel="products"]').addEventListener('click', () => toggleProductEdit(false));
+      
+      // Stakeholder select
+      $('#add-stakeholder-select').addEventListener('change', handleStakeholderSelect);
+    }
+
+    // Auto-resize textarea
+    function autoResize(textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+
+    // Render functions with enhanced UI
+    function renderGoals() {
+      const container = $('#goals-container');
+      container.innerHTML = '';
+      
+      state.missionGoals.forEach((goal, index) => {
+        const goalEl = createElement('div', 'card p-4 hover:shadow-md transition-all');
+        goalEl.innerHTML = `
+          <div class="flex justify-between items-start gap-3">
+            <div class="flex-1">
+              <input type="text" value="${goal.title}" class="font-semibold text-gray-800 bg-transparent border-none outline-none hover:bg-gray-50 px-2 py-1 rounded w-full" 
+                onchange="updateGoal(${index}, 'title', this.value)">
+              <textarea class="text-sm text-gray-600 bg-transparent border-none outline-none hover:bg-gray-50 px-2 py-1 rounded w-full mt-1 resize-none" 
+                rows="2" onchange="updateGoal(${index}, 'description', this.value)">${goal.description}</textarea>
+              ${goal.customFields.length > 0 ? `
+                <div class="mt-2 space-y-1">
+                  ${goal.customFields.map(field => `
+                    <div class="text-xs text-gray-500">
+                      <span class="font-medium">${field.label}:</span> 
+                      <a href="${field.value}" class="text-primary-600 hover:text-primary-700" target="_blank">${field.value}</a>
+                    </div>
+                  `).join('')}
+                </div>
+              ` : ''}
+            </div>
+            <button class="btn-icon btn-icon-sm btn-ghost text-gray-400 hover:text-danger" onclick="removeGoal(${index})">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+            </button>
+          </div>
+        `;
+        container.appendChild(goalEl);
+      });
+    }
+
+    function renderStakeholders() {
+      const container = $('#stakeholders-container');
+      container.innerHTML = '';
+      
+      state.stakeholders.forEach((stakeholder, index) => {
+        const stakeholderEl = createElement('div', 'flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors');
+        stakeholderEl.innerHTML = `
+          <div class="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-semibold">
+            ${stakeholder.name.split(' ').map(n => n[0]).join('')}
+          </div>
+          <div class="flex-1">
+            <div class="font-medium text-gray-800">${stakeholder.name}</div>
+            <div class="text-sm text-gray-600">${stakeholder.title} • ${stakeholder.email}</div>
+          </div>
+          <button class="btn-icon btn-icon-sm btn-ghost text-gray-400 hover:text-danger" onclick="removeStakeholder(${index})">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        `;
+        container.appendChild(stakeholderEl);
+      });
+      
+      // Update select options
+      const select = $('#add-stakeholder-select');
+      select.innerHTML = '<option value="">+ Add a contact...</option><option value="new">Add New Stakeholder...</option>';
+      
+      mockContacts.forEach(contact => {
+        if (!state.stakeholders.find(s => s.id === contact.id)) {
+          const option = createElement('option');
+          option.value = contact.id;
+          option.textContent = `${contact.name} - ${contact.title}`;
+          select.appendChild(option);
+        }
+      });
+    }
+
+    function renderProducts() {
+      const display = $('#products-display');
+      const section = $('#products-section');
+      
+      if (section.classList.contains('editing')) {
+        // Update checkboxes
+        ['content-library', 'ai', 'projects', 'trust-center'].forEach(id => {
+          const checkbox = $(`#product-${id}`);
+          const value = checkbox.value;
+          checkbox.checked = state.products.includes(value);
+        });
+      } else {
+        // Update display
+        display.innerHTML = state.products.length > 0 
+          ? state.products.map(product => `
+              <div class="inline-flex items-center gap-2 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                ${product}
+              </div>
+            `).join(' ')
+          : '<p class="text-gray-500 italic">No products selected</p>';
+      }
+    }
+
+    // Enhanced interaction functions
+    function addGoal() {
+      const newGoal = {
+        id: Date.now(),
+        title: 'New Goal',
+        description: 'Enter goal description...',
+        customFields: []
+      };
+      state.missionGoals.push(newGoal);
+      renderGoals();
+      
+      // Focus on new goal
+      setTimeout(() => {
+        const goals = $$('#goals-container input[type="text"]');
+        if (goals.length > 0) {
+          goals[goals.length - 1].focus();
+          goals[goals.length - 1].select();
+        }
+      }, 100);
+    }
+
+    function updateGoal(index, field, value) {
+      state.missionGoals[index][field] = value;
+    }
+
+    function removeGoal(index) {
+      if (confirm('Are you sure you want to remove this goal?')) {
+        state.missionGoals.splice(index, 1);
+        renderGoals();
+      }
+    }
+
+    function handleStakeholderSelect(e) {
+      const value = e.target.value;
+      if (value === 'new') {
+        // Show new stakeholder modal
+        showNewStakeholderModal();
+      } else if (value) {
+        const contact = mockContacts.find(c => c.id == value);
+        if (contact) {
+          state.stakeholders.push(contact);
+          renderStakeholders();
+        }
+      }
+      e.target.value = '';
+    }
+
+    function removeStakeholder(index) {
+      state.stakeholders.splice(index, 1);
+      renderStakeholders();
+    }
+
+    function toggleProductEdit(editing) {
+      const section = $('#products-section');
+      const display = $('#products-display');
+      const edit = $('#products-edit');
+      
+      if (editing) {
+        section.classList.add('editing');
+        display.classList.add('hidden');
+        edit.classList.remove('hidden');
+      } else {
+        section.classList.remove('editing');
+        display.classList.remove('hidden');
+        edit.classList.add('hidden');
+      }
+      
+      renderProducts();
+    }
+
+    function saveProducts() {
+      state.products = [];
+      ['content-library', 'ai', 'projects', 'trust-center'].forEach(id => {
+        const checkbox = $(`#product-${id}`);
+        if (checkbox.checked) {
+          state.products.push(checkbox.value);
+        }
+      });
+      toggleProductEdit(false);
+    }
+
+    // Enhanced modal functions
+    function showModal(title, content, buttons = []) {
+      const existingModal = $('#modal');
+      if (existingModal) existingModal.remove();
+      
+      const modal = createElement('div', 'fixed inset-0 z-50 flex items-center justify-center p-4');
+      modal.id = 'modal';
+      modal.innerHTML = `
+        <div class="modal-backdrop fixed inset-0" onclick="closeModal()"></div>
+        <div class="modal-content relative z-10 w-full max-w-2xl">
+          <div class="p-6">
+            <h2 class="text-2xl font-bold mb-4">${title}</h2>
+            <div class="modal-body">${content}</div>
+            <div class="flex justify-end gap-3 mt-6">
+              ${buttons.map(btn => `
+                <button class="btn ${btn.class || 'btn-outline'}" onclick="${btn.action}">
+                  ${btn.label}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      
+      // Focus first input
+      setTimeout(() => {
+        const firstInput = modal.querySelector('input, textarea, select');
+        if (firstInput) firstInput.focus();
+      }, 100);
+    }
+
+    function closeModal() {
+      const modal = $('#modal');
+      if (modal) {
+        modal.classList.add('fade-out');
+        setTimeout(() => modal.remove(), 300);
+      }
+    }
+
+    // PDF Export Modal
+    function openPDFExportModal() {
+      showModal('Export PDF Report', `
+        <div class="space-y-4">
+          <p class="text-gray-600">Select which sections to include in your PDF report:</p>
+          
+          <div class="space-y-3">
+            <label class="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+              <input type="checkbox" id="export-summary" checked class="w-5 h-5 text-primary-600 rounded">
+              <div>
+                <div class="font-medium">Executive Summary</div>
+                <div class="text-sm text-gray-500">Mission statement and key goals</div>
+              </div>
+            </label>
+            
+            <label class="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+              <input type="checkbox" id="export-goals" checked class="w-5 h-5 text-primary-600 rounded">
+              <div>
+                <div class="font-medium">Mission Goals</div>
+                <div class="text-sm text-gray-500">Strategic objectives and initiatives</div>
+              </div>
+            </label>
+            
+            <label class="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+              <input type="checkbox" id="export-objectives" checked class="w-5 h-5 text-primary-600 rounded">
+              <div>
+                <div class="font-medium">Current Objectives</div>
+                <div class="text-sm text-gray-500">Active goals with KPIs and progress</div>
+              </div>
+            </label>
+            
+            <label class="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+              <input type="checkbox" id="export-value" checked class="w-5 h-5 text-primary-600 rounded">
+              <div>
+                <div class="font-medium">Value Realized</div>
+                <div class="text-sm text-gray-500">Achieved outcomes and ROI</div>
+              </div>
+            </label>
+            
+            <label class="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+              <input type="checkbox" id="export-past" checked class="w-5 h-5 text-primary-600 rounded">
+              <div>
+                <div class="font-medium">Past Objectives</div>
+                <div class="text-sm text-gray-500">Completed milestones and achievements</div>
+              </div>
+            </label>
+            
+            <label class="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+              <input type="checkbox" id="export-stakeholders" checked class="w-5 h-5 text-primary-600 rounded">
+              <div>
+                <div class="font-medium">Key Stakeholders</div>
+                <div class="text-sm text-gray-500">Primary contacts and their roles</div>
+              </div>
+            </label>
+          </div>
+        </div>
+      `, [
+        { label: 'Cancel', class: 'btn-ghost', action: 'closeModal()' },
+        { label: 'Export PDF', class: 'btn-primary', action: 'exportPDF()' }
+      ]);
+    }
+
+    // Enhanced PDF generation
+    async function exportPDF() {
+      const options = {
+        includeSummary: $('#export-summary').checked,
+        includeGoals: $('#export-goals').checked,
+        includeObjectives: $('#export-objectives').checked,
+        includeValue: $('#export-value').checked,
+        includePast: $('#export-past').checked,
+        includeStakeholders: $('#export-stakeholders').checked
+      };
+      
+      closeModal();
+      
+      const btn = $('#export-pdf-btn');
+      const originalContent = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> Generating...';
+      
+      try {
+        // Generate PDF with enhanced styling
+        await generateEnhancedPDF(options);
+        
+        // Show success message
+        showNotification('PDF exported successfully!', 'success');
+      } catch (error) {
+        console.error('PDF generation error:', error);
+        showNotification('Error generating PDF. Please try again.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalContent;
+      }
+    }
+
+    async function generateEnhancedPDF(options) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF('p', 'mm', 'a4');
+      
+      // Enhanced color scheme
+      const colors = {
+        primary: [20, 184, 166],      // Teal
+        primaryDark: [13, 148, 136],  // Dark teal
+        success: [16, 185, 129],      // Green
+        warning: [245, 158, 11],      // Yellow
+        danger: [239, 68, 68],        // Red
+        text: [31, 41, 55],           // Dark gray
+        textLight: [107, 114, 128],   // Light gray
+        border: [229, 231, 235],      // Border
+        background: [249, 250, 251],  // Light background
+        white: [255, 255, 255]
+      };
+      
+      // Helper functions
+      const addHeader = () => {
+        // Gradient header
+        for (let i = 0; i < 40; i++) {
+          const ratio = i / 40;
+          const r = Math.round(colors.primary[0] + (colors.primaryDark[0] - colors.primary[0]) * ratio);
+          const g = Math.round(colors.primary[1] + (colors.primaryDark[1] - colors.primary[1]) * ratio);
+          const b = Math.round(colors.primary[2] + (colors.primaryDark[2] - colors.primary[2]) * ratio);
+          doc.setFillColor(r, g, b);
+          doc.rect(0, i, 210, 1, 'F');
+        }
+        
+        // Logo
+        doc.setFillColor(...colors.white);
+        doc.circle(25, 20, 10, 'F');
+        doc.setTextColor(...colors.primary);
+        doc.setFontSize(16);
+        doc.setFont(undefined, 'bold');
+        doc.text('R', 25, 25, { align: 'center' });
+        
+        // Title
+        doc.setTextColor(...colors.white);
+        doc.setFontSize(22);
+        doc.text('Receptive', 40, 18);
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'normal');
+        doc.text('Customer Success Report', 40, 26);
+        
+        // Date
+        doc.setFontSize(10);
+        doc.text(new Date().toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        }), 190, 20, { align: 'right' });
+      };
+      
+      // Generate PDF content
+      addHeader();
+      let y = 50;
+      
+      // Customer info
+      doc.setFillColor(...colors.background);
+      doc.rect(15, y, 180, 30, 'F');
+      doc.setTextColor(...colors.text);
+      doc.setFontSize(20);
+      doc.setFont(undefined, 'bold');
+      doc.text(state.customerName, 25, y + 10);
+      
+      // Add remaining content based on options...
+      // (The rest of the PDF generation code would continue here)
+      
+      // Save the PDF
+      doc.save(`${state.customerName.replace(/[^a-z0-9]/gi, '_')}_Success_Plan_${new Date().toISOString().split('T')[0]}.pdf`);
+    }
+
+    // Notification system
+    function showNotification(message, type = 'info') {
+      const notification = createElement('div', `fixed bottom-4 right-4 p-4 rounded-lg shadow-lg text-white z-50 ${
+        type === 'success' ? 'bg-gradient-to-r from-green-500 to-green-600' :
+        type === 'error' ? 'bg-gradient-to-r from-red-500 to-red-600' :
+        'bg-gradient-to-r from-blue-500 to-blue-600'
+      }`);
+      notification.innerHTML = `
+        <div class="flex items-center gap-3">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            ${type === 'success' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>' :
+              type === 'error' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>' :
+              '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>'}
+          </svg>
+          <span>${message}</span>
+        </div>
+      `;
+      notification.style.animation = 'slideIn 0.3s ease-out';
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.style.animation = 'fadeOut 0.3s ease-out';
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
+    }
+
+    // Utility functions
+    function refreshData() {
+      showNotification('Data refreshed successfully!', 'success');
+      // Add actual refresh logic here
+    }
+
+    function openImportModal() {
+      showModal('Import Data', `
+        <div class="space-y-4">
+          <p class="text-gray-600">Import customer success plan data from a JSON file.</p>
+          <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+            <input type="file" id="import-file" accept=".json" class="hidden" onchange="handleImport(event)">
+            <label for="import-file" class="cursor-pointer">
+              <svg class="w-12 h-12 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+              </svg>
+              <p class="text-gray-600">Click to select file or drag and drop</p>
+              <p class="text-sm text-gray-500 mt-1">JSON files only</p>
+            </label>
+          </div>
+        </div>
+      `, [
+        { label: 'Cancel', class: 'btn-ghost', action: 'closeModal()' }
+      ]);
+    }
+
+    function exportData() {
+      const exportData = {
+        version: '2.0',
+        exportDate: new Date().toISOString(),
+        platform: 'Receptive Customer Success Platform - Enhanced',
+        data: state
+      };
+      
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${state.customerName.replace(/[^a-z0-9]/gi, '_')}_backup_${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      showNotification('Data exported successfully!', 'success');
+    }
+
+    function handleImport(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (data.data) {
+            Object.assign(state, data.data);
+            initializeApp();
+            closeModal();
+            showNotification('Data imported successfully!', 'success');
+          } else {
+            throw new Error('Invalid data format');
+          }
+        } catch (error) {
+          showNotification('Error importing data. Please check the file format.', 'error');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function showNewStakeholderModal() {
+      showModal('Add New Stakeholder', `
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <input type="text" id="new-stakeholder-name" class="text-zone" placeholder="Enter name...">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+            <input type="text" id="new-stakeholder-title" class="text-zone" placeholder="Enter title...">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input type="email" id="new-stakeholder-email" class="text-zone" placeholder="Enter email...">
+          </div>
+        </div>
+      `, [
+        { label: 'Cancel', class: 'btn-ghost', action: 'closeModal()' },
+        { label: 'Add Stakeholder', class: 'btn-primary', action: 'addNewStakeholder()' }
+      ]);
+    }
+
+    function addNewStakeholder() {
+      const name = $('#new-stakeholder-name').value;
+      const title = $('#new-stakeholder-title').value;
+      const email = $('#new-stakeholder-email').value;
+      
+      if (name && title && email) {
+        const newStakeholder = {
+          id: Date.now(),
+          name,
+          title,
+          email
+        };
+        state.stakeholders.push(newStakeholder);
+        renderStakeholders();
+        closeModal();
+        showNotification('Stakeholder added successfully!', 'success');
+      } else {
+        showNotification('Please fill in all fields', 'error');
+      }
+    }
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', initializeApp);
+    
+    // Make functions available globally for inline handlers
+    window.updateGoal = updateGoal;
+    window.removeGoal = removeGoal;
+    window.addGoal = addGoal;
+    window.removeStakeholder = removeStakeholder;
+    window.toggleProductEdit = toggleProductEdit;
+    window.saveProducts = saveProducts;
+    window.closeModal = closeModal;
+    window.exportPDF = exportPDF;
+    window.refreshData = refreshData;
+    window.openImportModal = openImportModal;
+    window.exportData = exportData;
+    window.handleImport = handleImport;
+    window.showNewStakeholderModal = showNewStakeholderModal;
+    window.addNewStakeholder = addNewStakeholder;
+    window.openPDFExportModal = openPDFExportModal;
+  </script>
+</body>
+</html>
