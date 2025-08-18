@@ -2496,328 +2496,454 @@
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
         
-        // Professional color scheme
+        // Premium color palette
         const colors = {
-          primary: [14, 165, 233],      // Sky blue
-          secondary: [99, 102, 241],    // Indigo
-          success: [34, 197, 94],       // Green
-          danger: [239, 68, 68],        // Red
-          warning: [251, 146, 60],      // Orange
-          dark: [17, 24, 39],           // Almost black
-          gray: [107, 114, 128],        // Gray
-          lightGray: [243, 244, 246],   // Light gray
-          white: [255, 255, 255]
+          primary: [59, 130, 246],      // Blue-600
+          primaryLight: [147, 197, 253], // Blue-300
+          secondary: [99, 102, 241],     // Indigo-500
+          accent: [236, 72, 153],        // Pink-500
+          success: [34, 197, 94],        // Green-500
+          danger: [239, 68, 68],         // Red-500
+          warning: [245, 158, 11],       // Amber-500
+          dark: [17, 24, 39],            // Gray-900
+          gray: [107, 114, 128],         // Gray-500
+          lightGray: [243, 244, 246],    // Gray-100
+          white: [255, 255, 255],
+          background: [249, 250, 251]    // Gray-50
         };
         
-        let y = 0;
+        // Advanced helper functions
+        const drawGradient = (x, y, w, h, color1, color2, vertical = true) => {
+          const steps = 20;
+          const stepSize = vertical ? h / steps : w / steps;
+          
+          for (let i = 0; i < steps; i++) {
+            const ratio = i / steps;
+            const r = Math.round(color1[0] + (color2[0] - color1[0]) * ratio);
+            const g = Math.round(color1[1] + (color2[1] - color1[1]) * ratio);
+            const b = Math.round(color1[2] + (color2[2] - color1[2]) * ratio);
+            
+            doc.setFillColor(r, g, b);
+            if (vertical) {
+              doc.rect(x, y + i * stepSize, w, stepSize, 'F');
+            } else {
+              doc.rect(x + i * stepSize, y, stepSize, h, 'F');
+            }
+          }
+        };
         
-        // Cover Page
-        doc.setFillColor(...colors.primary);
-        doc.rect(0, 0, 210, 100, 'F');
+        const drawShadow = (x, y, w, h, blur = 3) => {
+          const steps = blur;
+          for (let i = steps; i > 0; i--) {
+            const alpha = 0.05 * (steps - i + 1);
+            doc.setFillColor(0, 0, 0);
+            doc.setGState(new doc.GState({ opacity: alpha }));
+            doc.roundedRect(x + i, y + i, w, h, 3, 3, 'F');
+          }
+          doc.setGState(new doc.GState({ opacity: 1 }));
+        };
         
-        // White overlay box
+        // COVER PAGE - Premium Design
+        // Background gradient
+        drawGradient(0, 0, 210, 297, colors.primary, colors.secondary);
+        
+        // Geometric patterns
+        doc.setDrawColor(...colors.primaryLight);
+        doc.setLineWidth(0.5);
+        for (let i = 0; i < 20; i++) {
+          doc.line(0, i * 15, 210, i * 15 + 60);
+        }
+        
+        // Main content card
+        drawShadow(20, 50, 170, 120, 5);
         doc.setFillColor(...colors.white);
-        doc.roundedRect(20, 30, 170, 50, 3, 3, 'F');
+        doc.roundedRect(20, 50, 170, 120, 5, 5, 'F');
+        
+        // Logo placeholder
+        doc.setFillColor(...colors.primary);
+        doc.circle(105, 80, 15, 'F');
+        doc.setFillColor(...colors.white);
+        doc.setFontSize(20);
+        doc.setFont(undefined, 'bold');
+        doc.text('R', 105, 86, { align: 'center' });
         
         // Title
         doc.setTextColor(...colors.dark);
-        doc.setFontSize(28);
+        doc.setFontSize(32);
         doc.setFont(undefined, 'bold');
-        doc.text('Customer Success Report', 105, 50, { align: 'center' });
+        doc.text('Success Report', 105, 110, { align: 'center' });
         
-        doc.setFontSize(18);
+        // Customer name with underline
+        doc.setFontSize(24);
         doc.setFont(undefined, 'normal');
-        doc.text(state.customerName, 105, 65, { align: 'center' });
+        doc.setTextColor(...colors.secondary);
+        doc.text(state.customerName, 105, 130, { align: 'center' });
+        doc.setDrawColor(...colors.accent);
+        doc.setLineWidth(2);
+        doc.line(60, 133, 150, 133);
         
-        // Date
-        doc.setFontSize(12);
+        // Date badge
+        doc.setFillColor(...colors.background);
+        doc.roundedRect(60, 145, 90, 15, 3, 3, 'F');
         doc.setTextColor(...colors.gray);
+        doc.setFontSize(11);
         doc.text(new Date().toLocaleDateString('en-US', { 
           year: 'numeric', 
           month: 'long', 
           day: 'numeric' 
-        }), 105, 110, { align: 'center' });
+        }), 105, 155, { align: 'center' });
         
-        // Health Status Badge
-        const healthColors = {
-          green: colors.success,
-          yellow: colors.warning,
-          red: colors.danger
+        // Health Status - Premium Badge
+        const healthConfig = {
+          green: { color: colors.success, label: 'EXCELLENT HEALTH', icon: '✓' },
+          yellow: { color: colors.warning, label: 'NEEDS ATTENTION', icon: '!' },
+          red: { color: colors.danger, label: 'CRITICAL STATUS', icon: '✗' }
         };
-        const healthLabels = {
-          green: 'ON TRACK',
-          yellow: 'NEEDS ATTENTION',
-          red: 'AT RISK'
-        };
-        doc.setFillColor(...(healthColors[state.planHealth] || colors.success));
-        doc.roundedRect(75, 120, 60, 10, 2, 2, 'F');
+        const health = healthConfig[state.planHealth] || healthConfig.green;
+        
+        drawShadow(55, 190, 100, 30, 3);
+        drawGradient(55, 190, 100, 30, health.color, colors.dark);
         doc.setTextColor(...colors.white);
-        doc.setFontSize(10);
+        doc.setFontSize(14);
         doc.setFont(undefined, 'bold');
-        doc.text(healthLabels[state.planHealth] || 'ON TRACK', 105, 127, { align: 'center' });
+        doc.text(health.icon, 70, 207, { align: 'center' });
+        doc.text(health.label, 105, 207, { align: 'center' });
         
-        // Footer
-        doc.setTextColor(...colors.gray);
-        doc.setFontSize(9);
-        doc.setFont(undefined, 'normal');
-        doc.text('Powered by Receptive Platform', 105, 280, { align: 'center' });
+        // Bottom decoration
+        doc.setFillColor(...colors.accent);
+        doc.rect(0, 270, 210, 2, 'F');
         
-        // Start content pages
+        // ========== CONTENT PAGES ==========
         doc.addPage();
-        y = 25;
+        let y = 30;
         
-        // Helper functions
-        const drawSectionHeader = (title, icon = '📊') => {
+        // Premium section header
+        const drawSectionHeader = (title, subtitle = '') => {
           if (y > 240) {
             doc.addPage();
-            y = 25;
+            y = 30;
           }
           
-          // Section background
-          doc.setFillColor(...colors.lightGray);
-          doc.roundedRect(15, y - 8, 180, 18, 2, 2, 'F');
+          // Header background with gradient
+          drawGradient(0, y - 15, 210, 25, colors.primary, colors.secondary, false);
           
-          // Section title
-          doc.setTextColor(...colors.dark);
-          doc.setFontSize(16);
+          // Title
+          doc.setTextColor(...colors.white);
+          doc.setFontSize(18);
           doc.setFont(undefined, 'bold');
-          doc.text(`${icon} ${title}`, 20, y);
+          doc.text(title.toUpperCase(), 20, y - 2);
+          
+          if (subtitle) {
+            doc.setFontSize(11);
+            doc.setFont(undefined, 'normal');
+            doc.text(subtitle, 20, y + 5);
+          }
+          
           y += 20;
         };
         
-        const drawMetricCard = (label, value, delta, unit = '', x, yPos, width = 40) => {
-          // Card background
-          doc.setFillColor(...colors.white);
-          doc.setDrawColor(...colors.lightGray);
-          doc.roundedRect(x, yPos, width, 25, 2, 2, 'FD');
+        // Advanced metric card
+        const drawMetricCard = (metric, x, yPos) => {
+          const w = 55;
+          const h = 35;
           
-          // Label
+          // Card with shadow
+          drawShadow(x, yPos, w, h, 2);
+          doc.setFillColor(...colors.white);
+          doc.roundedRect(x, yPos, w, h, 3, 3, 'F');
+          
+          // Metric type
           doc.setTextColor(...colors.gray);
-          doc.setFontSize(8);
+          doc.setFontSize(9);
           doc.setFont(undefined, 'normal');
-          doc.text(label, x + width/2, yPos + 6, { align: 'center' });
+          doc.text(metric.label, x + w/2, yPos + 8, { align: 'center' });
           
           // Value
           doc.setTextColor(...colors.dark);
-          doc.setFontSize(14);
+          doc.setFontSize(16);
           doc.setFont(undefined, 'bold');
-          doc.text(`${value}${unit}`, x + width/2, yPos + 14, { align: 'center' });
+          doc.text(`${metric.value}${metric.unit || ''}`, x + w/2, yPos + 18, { align: 'center' });
           
-          // Delta
-          if (delta !== undefined && delta !== null) {
-            const deltaColor = delta >= 0 ? colors.success : colors.danger;
-            doc.setTextColor(...deltaColor);
-            doc.setFontSize(9);
-            doc.setFont(undefined, 'normal');
-            doc.text(`${delta >= 0 ? '↑' : '↓'} ${Math.abs(delta)}%`, x + width/2, yPos + 21, { align: 'center' });
+          // Change indicator
+          if (metric.delta !== undefined && metric.delta !== null) {
+            const isPositive = metric.delta >= 0;
+            drawGradient(x + 5, yPos + 23, w - 10, 7, 
+              isPositive ? colors.success : colors.danger,
+              isPositive ? colors.success : colors.danger
+            );
+            
+            doc.setTextColor(...colors.white);
+            doc.setFontSize(8);
+            doc.setFont(undefined, 'bold');
+            doc.text(
+              `${isPositive ? '↑' : '↓'} ${Math.abs(metric.delta)}%`, 
+              x + w/2, 
+              yPos + 28, 
+              { align: 'center' }
+            );
           }
         };
         
-        // Executive Summary
+        // EXECUTIVE SUMMARY
         if (options.includeSummary) {
-          drawSectionHeader('Executive Summary', '📋');
+          drawSectionHeader('Executive Summary', 'Strategic Overview & Health Status');
           
+          // Summary card
+          drawShadow(20, y, 170, 60, 3);
+          doc.setFillColor(...colors.background);
+          doc.roundedRect(20, y, 170, 60, 3, 3, 'F');
+          
+          // Quote mark
+          doc.setTextColor(...colors.primaryLight);
+          doc.setFontSize(40);
+          doc.text('"', 25, y + 15);
+          
+          // Summary text
           doc.setTextColor(...colors.dark);
           doc.setFontSize(11);
           doc.setFont(undefined, 'normal');
-          const summaryLines = doc.splitTextToSize(state.missionSummary || 'No summary provided', 170);
-          doc.text(summaryLines, 20, y);
-          y += summaryLines.length * 5 + 15;
+          const summaryLines = doc.splitTextToSize(state.missionSummary || 'No summary provided', 150);
+          doc.text(summaryLines, 35, y + 20);
+          
+          y += 70;
         }
         
-        // Strategic Goals
+        // STRATEGIC GOALS
         if (options.includeGoals && state.missionGoals.length > 0) {
-          drawSectionHeader('Strategic Goals', '🎯');
+          drawSectionHeader('Strategic Goals', `${state.missionGoals.length} Key Initiatives`);
           
           state.missionGoals.forEach((goal, index) => {
-            if (y > 240) {
+            if (y > 220) {
               doc.addPage();
-              y = 25;
+              y = 30;
             }
             
-            // Goal card
+            // Goal card with number badge
+            drawShadow(20, y, 170, 45, 3);
             doc.setFillColor(...colors.white);
-            doc.setDrawColor(...colors.primary);
-            doc.roundedRect(20, y, 170, 35, 2, 2, 'FD');
+            doc.roundedRect(20, y, 170, 45, 3, 3, 'F');
             
-            // Goal number
-            doc.setFillColor(...colors.primary);
-            doc.circle(30, y + 17, 8, 'F');
+            // Number badge with gradient
+            drawGradient(25, y + 5, 35, 35, colors.primary, colors.secondary);
             doc.setTextColor(...colors.white);
-            doc.setFontSize(12);
+            doc.setFontSize(20);
             doc.setFont(undefined, 'bold');
-            doc.text((index + 1).toString(), 30, y + 20, { align: 'center' });
+            doc.text(`0${index + 1}`, 42.5, y + 25, { align: 'center' });
             
             // Goal content
             doc.setTextColor(...colors.dark);
-            doc.setFontSize(12);
+            doc.setFontSize(13);
             doc.setFont(undefined, 'bold');
-            doc.text(goal.title, 45, y + 10);
+            doc.text(goal.title, 70, y + 15);
             
+            doc.setTextColor(...colors.gray);
             doc.setFontSize(10);
             doc.setFont(undefined, 'normal');
-            const goalDesc = doc.splitTextToSize(goal.description, 130);
-            doc.text(goalDesc, 45, y + 18);
+            const goalLines = doc.splitTextToSize(goal.description, 110);
+            doc.text(goalLines, 70, y + 23);
             
-            y += 40;
+            y += 50;
           });
           y += 10;
         }
         
-        // Current Objectives & KPIs
+        // CURRENT OBJECTIVES & KPIs
         if (options.includeObjectives && state.objectives.length > 0) {
-          drawSectionHeader('Current Objectives & Performance', '📈');
+          drawSectionHeader('Performance Dashboard', 'Current Objectives & Key Metrics');
           
           state.objectives.forEach(obj => {
-            if (y > 220) {
+            if (y > 200) {
               doc.addPage();
-              y = 25;
+              y = 30;
             }
             
-            // Objective header
-            doc.setFillColor(...colors.secondary);
-            doc.roundedRect(20, y, 170, 8, 2, 2, 'F');
-            doc.setTextColor(...colors.white);
-            doc.setFontSize(11);
-            doc.setFont(undefined, 'bold');
-            doc.text(obj.name, 25, y + 5.5);
-            y += 12;
+            // Objective card
+            drawShadow(20, y, 170, 15, 2);
+            drawGradient(20, y, 170, 15, colors.secondary, colors.primary, false);
             
-            // Status and date
+            // Objective name
+            doc.setTextColor(...colors.white);
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.text(obj.name, 25, y + 10);
+            
+            // Status badge
+            const statusColors = {
+              'On Track': colors.success,
+              'At Risk': colors.warning,
+              'Blocked': colors.danger
+            };
+            doc.setFillColor(...(statusColors[obj.status] || colors.gray));
+            doc.roundedRect(155, y + 4, 30, 7, 2, 2, 'F');
+            doc.setFontSize(8);
+            doc.text(obj.status, 170, y + 9, { align: 'center' });
+            
+            y += 20;
+            
+            // Target date
             doc.setTextColor(...colors.gray);
             doc.setFontSize(9);
             doc.setFont(undefined, 'normal');
-            doc.text(`Status: ${obj.status} | Target: ${obj.targetDate || 'Not set'}`, 25, y);
+            doc.text(`Target: ${obj.targetDate || 'Not set'}`, 25, y);
             y += 8;
             
-            // KPIs in grid
+            // KPI Grid
             if (obj.kpis && obj.kpis.length > 0) {
-              const kpiStartY = y;
-              let kpiX = 25;
-              const kpiWidth = 50;
-              const kpiSpacing = 55;
+              let kpiX = 20;
+              let kpiY = y;
               
               obj.kpis.forEach((kpi, kpiIndex) => {
                 if (kpiIndex > 0 && kpiIndex % 3 === 0) {
-                  y += 30;
-                  kpiX = 25;
+                  kpiY += 40;
+                  kpiX = 20;
                 }
                 
                 const type = getKPIType(kpi.typeKey);
                 const delta = kpi.comparePrevious ? calculateDelta(kpi.currentValue, kpi.previousValue) : null;
                 
-                drawMetricCard(
-                  type.label,
-                  kpi.currentValue,
-                  delta,
-                  type.unit,
-                  kpiX,
-                  y,
-                  kpiWidth
-                );
+                drawMetricCard({
+                  label: type.label,
+                  value: kpi.currentValue,
+                  unit: type.unit,
+                  delta: delta
+                }, kpiX, kpiY);
                 
-                kpiX += kpiSpacing;
+                kpiX += 60;
               });
               
-              y += 35;
+              y = kpiY + 45;
             }
             
             y += 10;
           });
         }
         
-        // Value Realized
+        // VALUE REALIZED
         if (options.includeValue && state.valueRealized.length > 0) {
-          drawSectionHeader('Value Realized', '💎');
+          drawSectionHeader('Value Realized', 'Documented Business Impact');
           
           state.valueRealized.forEach((value, index) => {
-            if (y > 240) {
+            if (y > 230) {
               doc.addPage();
-              y = 25;
+              y = 30;
             }
             
-            // Value card with gradient effect
-            const gradientColors = [
-              [[34, 197, 94], [16, 185, 129]],    // Green gradient
-              [[99, 102, 241], [79, 70, 229]],    // Purple gradient
-              [[251, 146, 60], [251, 113, 133]]   // Orange-pink gradient
+            // Value card with accent gradient
+            drawShadow(20, y, 170, 40, 3);
+            const valueColors = [
+              [colors.success, colors.primary],
+              [colors.secondary, colors.accent],
+              [colors.warning, colors.danger]
             ];
-            const gradient = gradientColors[index % gradientColors.length];
+            const gradient = valueColors[index % valueColors.length];
+            drawGradient(20, y, 170, 40, gradient[0], gradient[1]);
             
-            doc.setFillColor(...gradient[0]);
-            doc.roundedRect(20, y, 170, 30, 3, 3, 'F');
-            
-            // Icon circle
+            // Icon background
             doc.setFillColor(...colors.white);
-            doc.circle(35, y + 15, 10, 'F');
-            doc.setTextColor(...gradient[0]);
-            doc.setFontSize(16);
-            doc.text('✓', 35, y + 19, { align: 'center' });
+            doc.setGState(new doc.GState({ opacity: 0.2 }));
+            doc.circle(35, y + 20, 12, 'F');
+            doc.setGState(new doc.GState({ opacity: 1 }));
+            
+            // Checkmark
+            doc.setTextColor(...colors.white);
+            doc.setFontSize(18);
+            doc.setFont(undefined, 'bold');
+            doc.text('✓', 35, y + 25, { align: 'center' });
             
             // Value content
-            doc.setTextColor(...colors.white);
-            doc.setFontSize(12);
-            doc.setFont(undefined, 'bold');
-            doc.text(value.type, 50, y + 10);
+            doc.setFontSize(13);
+            doc.text(value.type, 55, y + 15);
             
             doc.setFontSize(10);
             doc.setFont(undefined, 'normal');
-            const valueDesc = doc.splitTextToSize(value.description, 120);
-            doc.text(valueDesc, 50, y + 18);
+            const valueLines = doc.splitTextToSize(value.description, 115);
+            doc.text(valueLines, 55, y + 23);
             
+            // Date badge
+            doc.setFillColor(...colors.white);
+            doc.setGState(new doc.GState({ opacity: 0.9 }));
+            doc.roundedRect(140, y + 30, 45, 7, 2, 2, 'F');
+            doc.setGState(new doc.GState({ opacity: 1 }));
+            doc.setTextColor(...colors.dark);
             doc.setFontSize(8);
-            doc.text(`Realized: ${value.date || 'Not specified'}`, 50, y + 26);
+            doc.text(value.date || 'Not specified', 162.5, y + 35, { align: 'center' });
             
-            y += 35;
+            y += 45;
           });
           y += 10;
         }
         
-        // Achievements
+        // ACHIEVEMENTS
         if (options.includePast && state.pastObjectives.length > 0) {
-          drawSectionHeader('Achievements', '🏆');
+          drawSectionHeader('Achievements', 'Completed Milestones');
           
-          state.pastObjectives.forEach(obj => {
+          // Achievement timeline
+          doc.setDrawColor(...colors.primaryLight);
+          doc.setLineWidth(2);
+          doc.line(30, y + 5, 30, y + (state.pastObjectives.length * 25));
+          
+          state.pastObjectives.forEach((obj, index) => {
             if (y > 250) {
               doc.addPage();
-              y = 25;
+              y = 30;
             }
             
-            // Achievement item
+            // Timeline dot
             doc.setFillColor(...colors.success);
-            doc.circle(25, y + 3, 3, 'F');
+            doc.circle(30, y + 10, 4, 'F');
+            doc.setFillColor(...colors.white);
+            doc.circle(30, y + 10, 2, 'F');
             
+            // Achievement card
+            doc.setFillColor(...colors.background);
+            doc.roundedRect(40, y, 145, 20, 2, 2, 'F');
+            
+            // Trophy icon
+            doc.setTextColor(...colors.warning);
+            doc.setFontSize(12);
+            doc.text('🏆', 45, y + 12);
+            
+            // Achievement content
             doc.setTextColor(...colors.dark);
             doc.setFontSize(11);
             doc.setFont(undefined, 'bold');
-            doc.text(obj.name, 35, y + 5);
+            doc.text(obj.name, 55, y + 8);
             
             doc.setTextColor(...colors.gray);
             doc.setFontSize(9);
             doc.setFont(undefined, 'normal');
-            doc.text(`Completed: ${obj.targetDate || 'Not specified'}`, 35, y + 10);
+            doc.text(`Completed: ${obj.targetDate || 'Not specified'}`, 55, y + 15);
             
-            y += 15;
+            y += 25;
           });
         }
         
-        // Footer on each page
+        // FOOTER - All pages
         const pageCount = doc.internal.getNumberOfPages();
-        for (let i = 1; i <= pageCount; i++) {
+        for (let i = 2; i <= pageCount; i++) {
           doc.setPage(i);
+          
+          // Footer background
+          doc.setFillColor(...colors.background);
+          doc.rect(0, 280, 210, 17, 'F');
+          
+          // Footer content
           doc.setTextColor(...colors.gray);
           doc.setFontSize(8);
-          doc.text(`${state.customerName} Success Report`, 20, 285);
-          doc.text(`Page ${i} of ${pageCount}`, 190, 285, { align: 'right' });
+          doc.text('CONFIDENTIAL', 20, 290);
+          doc.text(`${state.customerName} Success Report`, 105, 290, { align: 'center' });
+          doc.text(`${i} / ${pageCount}`, 190, 290, { align: 'right' });
           
-          // Decorative line
-          doc.setDrawColor(...colors.lightGray);
-          doc.line(20, 280, 190, 280);
+          // Accent line
+          doc.setFillColor(...colors.accent);
+          doc.rect(0, 280, 210, 0.5, 'F');
         }
         
-        // Save
-        doc.save(`${state.customerName.toLowerCase().replace(/\s+/g, '-')}-success-report.pdf`);
-        showNotification('Professional report generated successfully!', 'success');
+        // Save with premium filename
+        const date = new Date().toISOString().split('T')[0];
+        doc.save(`${state.customerName.toLowerCase().replace(/\s+/g, '-')}-executive-report-${date}.pdf`);
+        showNotification('Premium report generated successfully!', 'success');
+        
       } catch (error) {
         showNotification('Report generation failed. Please try again.', 'error');
         console.error('PDF export error:', error);
