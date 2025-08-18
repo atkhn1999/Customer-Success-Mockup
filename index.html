@@ -2422,43 +2422,80 @@
           }
         });
         
-        // Hide export buttons temporarily
-        const exportBtns = $$('#export-pdf-btn, #export-excel-btn');
-        exportBtns.forEach(b => b.style.display = 'none');
+        // Create a clone of the app for PDF generation
+        const app = document.getElementById('app');
+        const clone = app.cloneNode(true);
         
-        // Capture the main content
-        const element = document.getElementById('app');
-        const canvas = await html2canvas(element, {
+        // Remove interactive elements from clone
+        clone.querySelectorAll('button, .btn').forEach(el => el.remove());
+        clone.querySelectorAll('.edit-mode-banner').forEach(el => el.remove());
+        clone.querySelectorAll('input[type="checkbox"]').forEach(el => el.remove());
+        clone.querySelectorAll('.edit-overlay').forEach(el => el.remove());
+        
+        // Create a temporary container
+        const tempContainer = document.createElement('div');
+        tempContainer.style.position = 'absolute';
+        tempContainer.style.left = '-9999px';
+        tempContainer.style.width = '1200px';
+        tempContainer.appendChild(clone);
+        document.body.appendChild(tempContainer);
+        
+        // Capture with html2canvas
+        const canvas = await html2canvas(clone, {
           scale: 2,
+          width: 1200,
+          windowWidth: 1200,
           logging: false,
           useCORS: true,
-          allowTaint: true
+          backgroundColor: '#f8fafc'
         });
         
-        // Show export buttons again
-        exportBtns.forEach(b => b.style.display = '');
+        // Remove temporary container
+        document.body.removeChild(tempContainer);
         
-        // Convert to PDF
-        const imgData = canvas.toDataURL('image/png');
+        // Create PDF with proper formatting
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p', 'mm', 'a4');
+        const orientation = canvas.width > canvas.height ? 'l' : 'p';
+        const doc = new jsPDF(orientation, 'mm', 'a4');
         
-        const imgWidth = 210; // A4 width in mm
-        const pageHeight = 295; // A4 height in mm
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        
+        // Calculate dimensions to fit page width
+        const imgWidth = pageWidth - 20; // 10mm margins on each side
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        let heightLeft = imgHeight;
-        let position = 0;
         
-        // Add first page
-        doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+        // Add pages as needed
+        let y = 10; // Top margin
+        const pageContentHeight = pageHeight - 20; // Account for margins
         
-        // Add additional pages if needed
-        while (heightLeft >= 0) {
-          position = heightLeft - imgHeight;
-          doc.addPage();
-          doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
+        if (imgHeight <= pageContentHeight) {
+          // Fits on one page
+          doc.addImage(canvas.toDataURL('image/png'), 'PNG', 10, y, imgWidth, imgHeight);
+        } else {
+          // Split across multiple pages
+          const totalPages = Math.ceil(imgHeight / pageContentHeight);
+          
+          for (let i = 0; i < totalPages; i++) {
+            if (i > 0) doc.addPage();
+            
+            const sourceY = i * pageContentHeight * (canvas.height / imgHeight);
+            const sourceHeight = pageContentHeight * (canvas.height / imgHeight);
+            
+            // Create a temporary canvas for this page section
+            const pageCanvas = document.createElement('canvas');
+            pageCanvas.width = canvas.width;
+            pageCanvas.height = sourceHeight;
+            const ctx = pageCanvas.getContext('2d');
+            
+            ctx.drawImage(
+              canvas,
+              0, sourceY, canvas.width, sourceHeight,
+              0, 0, canvas.width, sourceHeight
+            );
+            
+            doc.addImage(pageCanvas.toDataURL('image/png'), 'PNG', 10, 10, imgWidth, pageContentHeight);
+          }
         }
         
         // Save the PDF
