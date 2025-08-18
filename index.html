@@ -2490,7 +2490,7 @@
           const format = $('#export-format').value;
           if (format === 'onepager') {
             closeModal();
-            generateOnePagerPDF();
+            generateSimpleOnePager();
           } else {
             const options = {
               includeSummary: $('#export-summary').checked,
@@ -2948,7 +2948,7 @@
       btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>Export PDF';
     }
     
-    async function generateOnePagerPDF() {
+    async function generateSimpleOnePager() {
       const btn = $('#export-pdf-btn');
       btn.disabled = true;
       btn.innerHTML = '<span class="animate-spin">⟳</span> Generating...';
@@ -2973,16 +2973,9 @@
           blue: [59, 130, 246]          // Blue accent
         };
         
-        // Background gradient
-        for (let i = 0; i < 30; i++) {
-          const opacity = 1 - (i / 30) * 0.7;
-          doc.setFillColor(
-            Math.round(colors.accent[0] * opacity + 255 * (1 - opacity)),
-            Math.round(colors.accent[1] * opacity + 255 * (1 - opacity)),
-            Math.round(colors.accent[2] * opacity + 255 * (1 - opacity))
-          );
-          doc.rect(0, i * (210/30), 297, 210/30, 'F');
-        }
+        // Simple background
+        doc.setFillColor(...colors.background);
+        doc.rect(0, 0, 297, 210, 'F');
         
         // Header section
         doc.setFillColor(...colors.primary);
@@ -3054,9 +3047,7 @@
         state.missionGoals.slice(0, 3).forEach((goal, index) => {
           // Goal number
           doc.setFillColor(...colors.purple);
-          doc.setGState(new doc.GState({ opacity: 0.1 }));
           doc.circle(startX + 8, goalY + 4, 4, 'F');
-          doc.setGState(new doc.GState({ opacity: 1 }));
           
           doc.setTextColor(...colors.purple);
           doc.setFontSize(10);
@@ -3172,11 +3163,9 @@
           doc.setFillColor(...colors.background);
           doc.roundedRect(valX + 5, valY, columnWidth - 10, 35, 2, 2, 'F');
           
-          // Icon
-          doc.setFillColor(...colors.success);
-          doc.setGState(new doc.GState({ opacity: 0.2 }));
+          // Icon background
+          doc.setFillColor(200, 230, 200);
           doc.circle(valX + 12, valY + 8, 5, 'F');
-          doc.setGState(new doc.GState({ opacity: 1 }));
           
           doc.setTextColor(...colors.success);
           doc.setFontSize(10);
