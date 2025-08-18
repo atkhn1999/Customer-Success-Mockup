@@ -2955,249 +2955,169 @@
       
       try {
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('l', 'mm', 'a4'); // Landscape orientation
+        const doc = new jsPDF('l', 'mm', 'a4'); // Landscape
         
-        // Professional color scheme
-        const colors = {
-          primary: [45, 55, 72],        // Dark navy
-          accent: [56, 178, 172],       // Teal
-          success: [72, 187, 120],      // Green
-          warning: [246, 173, 85],      // Orange
-          danger: [245, 101, 101],      // Red
-          text: [45, 55, 72],           // Dark text
-          textLight: [113, 128, 150],   // Gray text
-          border: [226, 232, 240],      // Light border
-          background: [247, 250, 252],  // Light background
-          white: [255, 255, 255],
-          purple: [139, 92, 246],       // Purple accent
-          blue: [59, 130, 246]          // Blue accent
-        };
+        // Define all colors upfront
+        const navy = [45, 55, 72];
+        const teal = [56, 178, 172];
+        const gray = [113, 128, 150];
+        const lightGray = [243, 244, 246];
+        const white = [255, 255, 255];
+        const green = [72, 187, 120];
+        const purple = [139, 92, 246];
+        const blue = [59, 130, 246];
+        const red = [239, 68, 68];
+        const yellow = [245, 158, 11];
         
-        // Simple background
-        doc.setFillColor(...colors.background);
+        // Background
+        doc.setFillColor(...white);
         doc.rect(0, 0, 297, 210, 'F');
         
-        // Header section
-        doc.setFillColor(...colors.primary);
-        doc.rect(0, 0, 297, 35, 'F');
-        
-        // Logo area
-        doc.setFillColor(...colors.white);
-        doc.circle(20, 17.5, 8, 'F');
-        doc.setTextColor(...colors.primary);
-        doc.setFontSize(12);
+        // Header
+        doc.setFillColor(...navy);
+        doc.rect(0, 0, 297, 30, 'F');
+        doc.setTextColor(...white);
+        doc.setFontSize(20);
         doc.setFont(undefined, 'bold');
-        doc.text('R', 20, 20, { align: 'center' });
-        
-        // Title
-        doc.setTextColor(...colors.white);
-        doc.setFontSize(22);
-        doc.text('Executive Success Summary', 35, 15);
-        doc.setFontSize(14);
-        doc.setFont(undefined, 'normal');
-        doc.text(state.customerName, 35, 23);
-        
-        // Date and Health Status
+        doc.text('Executive Summary - ' + state.customerName, 20, 18);
         doc.setFontSize(10);
-        doc.text(new Date().toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        }), 270, 15, { align: 'right' });
+        doc.setFont(undefined, 'normal');
+        doc.text(new Date().toLocaleDateString(), 260, 18);
         
-        // Health badge
-        const healthColors = {
-          green: colors.success,
-          yellow: colors.warning,
-          red: colors.danger
-        };
-        const healthLabels = {
-          green: 'ON TRACK',
-          yellow: 'AT RISK',
-          red: 'CRITICAL'
-        };
-        doc.setFillColor(...(healthColors[state.planHealth] || colors.success));
-        doc.roundedRect(240, 20, 30, 8, 2, 2, 'F');
-        doc.setTextColor(...colors.white);
+        // Health Status
+        const healthColor = state.planHealth === 'green' ? green : 
+                          state.planHealth === 'yellow' ? yellow : red;
+        doc.setFillColor(...healthColor);
+        doc.roundedRect(240, 22, 30, 6, 2, 2, 'F');
         doc.setFontSize(8);
-        doc.setFont(undefined, 'bold');
-        doc.text(healthLabels[state.planHealth] || 'ON TRACK', 255, 25, { align: 'center' });
+        doc.text(state.planHealth.toUpperCase(), 255, 26, { align: 'center' });
         
-        // Three column layout
-        const columnWidth = 90;
-        const columnGap = 8;
-        const startX = 10;
-        const startY = 45;
+        // Three columns
+        let col1X = 15, col2X = 105, col3X = 195;
+        let startY = 40;
         
-        // Mission Goals Column
-        doc.setFillColor(...colors.white);
-        doc.setDrawColor(...colors.border);
-        doc.roundedRect(startX, startY, columnWidth, 145, 3, 3, 'FD');
-        
-        // Mission Goals Header
-        doc.setFillColor(...colors.purple);
-        doc.roundedRect(startX, startY, columnWidth, 12, 3, 3, 'F');
-        doc.setTextColor(...colors.white);
+        // Column 1: Mission Goals
+        doc.setFillColor(...purple);
+        doc.roundedRect(col1X, startY, 85, 8, 2, 2, 'F');
+        doc.setTextColor(...white);
         doc.setFontSize(12);
         doc.setFont(undefined, 'bold');
-        doc.text('MISSION GOALS', startX + columnWidth/2, startY + 8, { align: 'center' });
+        doc.text('MISSION GOALS', col1X + 42.5, startY + 6, { align: 'center' });
         
-        // Mission Goals Content
-        let goalY = startY + 18;
-        state.missionGoals.slice(0, 3).forEach((goal, index) => {
-          // Goal number
-          doc.setFillColor(...colors.purple);
-          doc.circle(startX + 8, goalY + 4, 4, 'F');
-          
-          doc.setTextColor(...colors.purple);
-          doc.setFontSize(10);
+        doc.setTextColor(...navy);
+        let y1 = startY + 15;
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'normal');
+        state.missionGoals.slice(0, 3).forEach((goal, i) => {
           doc.setFont(undefined, 'bold');
-          doc.text((index + 1).toString(), startX + 8, goalY + 6, { align: 'center' });
-          
-          // Goal text
-          doc.setTextColor(...colors.text);
-          doc.setFontSize(9);
-          doc.setFont(undefined, 'bold');
-          const titleLines = doc.splitTextToSize(goal.title, columnWidth - 20);
-          doc.text(titleLines, startX + 15, goalY + 4);
-          
-          doc.setTextColor(...colors.textLight);
-          doc.setFontSize(8);
+          doc.text(`${i + 1}. ${goal.title}`, col1X, y1);
+          y1 += 6;
           doc.setFont(undefined, 'normal');
-          const descLines = doc.splitTextToSize(goal.description, columnWidth - 15);
-          doc.text(descLines.slice(0, 3), startX + 15, goalY + 10);
-          
-          goalY += 40;
+          doc.setTextColor(...gray);
+          const lines = doc.splitTextToSize(goal.description, 80);
+          doc.text(lines.slice(0, 2), col1X + 5, y1);
+          doc.setTextColor(...navy);
+          y1 += lines.length * 4 + 8;
         });
         
-        // Current Objectives Column
-        const objX = startX + columnWidth + columnGap;
-        doc.setFillColor(...colors.white);
-        doc.setDrawColor(...colors.border);
-        doc.roundedRect(objX, startY, columnWidth, 145, 3, 3, 'FD');
-        
-        // Objectives Header
-        doc.setFillColor(...colors.blue);
-        doc.roundedRect(objX, startY, columnWidth, 12, 3, 3, 'F');
-        doc.setTextColor(...colors.white);
+        // Column 2: Current Objectives
+        doc.setFillColor(...blue);
+        doc.roundedRect(col2X, startY, 85, 8, 2, 2, 'F');
+        doc.setTextColor(...white);
         doc.setFontSize(12);
         doc.setFont(undefined, 'bold');
-        doc.text('CURRENT OBJECTIVES', objX + columnWidth/2, startY + 8, { align: 'center' });
+        doc.text('CURRENT OBJECTIVES', col2X + 42.5, startY + 6, { align: 'center' });
         
-        // Objectives Content
-        let objY = startY + 18;
+        doc.setTextColor(...navy);
+        let y2 = startY + 15;
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'normal');
         state.objectives.slice(0, 2).forEach(obj => {
-          // Status indicator
-          const statusColor = obj.status === 'On Track' ? colors.success : 
-                            obj.status === 'At Risk' ? colors.warning : colors.danger;
+          // Status dot
+          const statusColor = obj.status === 'On Track' ? green : 
+                            obj.status === 'At Risk' ? yellow : red;
           doc.setFillColor(...statusColor);
-          doc.circle(objX + 5, objY + 3, 2, 'F');
+          doc.circle(col2X + 2, y2 - 2, 2, 'F');
           
-          // Objective name
-          doc.setTextColor(...colors.text);
-          doc.setFontSize(9);
           doc.setFont(undefined, 'bold');
-          const nameLines = doc.splitTextToSize(obj.name, columnWidth - 15);
-          doc.text(nameLines, objX + 10, objY + 4);
-          
-          // Target date
-          doc.setTextColor(...colors.textLight);
-          doc.setFontSize(8);
+          doc.text(obj.name, col2X + 7, y2);
+          y2 += 6;
           doc.setFont(undefined, 'normal');
-          doc.text(`Target: ${obj.targetDate || 'Not set'}`, objX + 10, objY + 12);
+          doc.setTextColor(...gray);
+          doc.text(`Target: ${obj.targetDate || 'Not set'}`, col2X + 7, y2);
+          doc.setTextColor(...navy);
+          y2 += 8;
           
-          // Top KPIs
+          // Show first 2 KPIs
           if (obj.kpis && obj.kpis.length > 0) {
-            let kpiY = objY + 18;
             obj.kpis.slice(0, 2).forEach(kpi => {
               const type = getKPIType(kpi.typeKey);
-              
-              // KPI box
-              doc.setFillColor(...colors.background);
-              doc.roundedRect(objX + 5, kpiY, columnWidth - 10, 12, 2, 2, 'F');
-              
-              // KPI label and value
-              doc.setTextColor(...colors.textLight);
-              doc.setFontSize(7);
-              doc.text(type.label, objX + 8, kpiY + 5);
-              
-              doc.setTextColor(...colors.text);
-              doc.setFontSize(10);
+              doc.setFillColor(...lightGray);
+              doc.roundedRect(col2X + 7, y2, 70, 8, 1, 1, 'F');
+              doc.setTextColor(...gray);
+              doc.setFontSize(8);
+              doc.text(type.label, col2X + 9, y2 + 5);
+              doc.setTextColor(...navy);
               doc.setFont(undefined, 'bold');
-              doc.text(`${kpi.currentValue}${type.unit}`, objX + columnWidth - 8, kpiY + 5, { align: 'right' });
+              doc.text(`${kpi.currentValue}${type.unit}`, col2X + 75, y2 + 5, { align: 'right' });
+              doc.setFont(undefined, 'normal');
               
-              // Delta
               if (kpi.comparePrevious && kpi.previousValue) {
                 const delta = calculateDelta(kpi.currentValue, kpi.previousValue);
-                const deltaColor = delta >= 0 ? colors.success : colors.danger;
+                const deltaColor = delta >= 0 ? green : red;
                 doc.setTextColor(...deltaColor);
                 doc.setFontSize(7);
-                doc.text(`${delta >= 0 ? '+' : ''}${delta}%`, objX + columnWidth - 8, kpiY + 10, { align: 'right' });
+                doc.text(`${delta >= 0 ? '+' : ''}${delta}%`, col2X + 75, y2 + 10, { align: 'right' });
               }
-              
-              kpiY += 14;
+              y2 += 10;
             });
           }
-          
-          objY += 65;
+          y2 += 8;
         });
         
-        // Value Realized Column
-        const valX = objX + columnWidth + columnGap;
-        doc.setFillColor(...colors.white);
-        doc.setDrawColor(...colors.border);
-        doc.roundedRect(valX, startY, columnWidth, 145, 3, 3, 'FD');
-        
-        // Value Header
-        doc.setFillColor(...colors.success);
-        doc.roundedRect(valX, startY, columnWidth, 12, 3, 3, 'F');
-        doc.setTextColor(...colors.white);
+        // Column 3: Value Realized
+        doc.setFillColor(...green);
+        doc.roundedRect(col3X, startY, 85, 8, 2, 2, 'F');
+        doc.setTextColor(...white);
         doc.setFontSize(12);
         doc.setFont(undefined, 'bold');
-        doc.text('VALUE REALIZED', valX + columnWidth/2, startY + 8, { align: 'center' });
+        doc.text('VALUE REALIZED', col3X + 42.5, startY + 6, { align: 'center' });
         
-        // Value Content
-        let valY = startY + 18;
-        state.valueRealized.slice(0, 3).forEach((value, index) => {
-          // Value card
-          doc.setFillColor(...colors.background);
-          doc.roundedRect(valX + 5, valY, columnWidth - 10, 35, 2, 2, 'F');
+        doc.setTextColor(...navy);
+        let y3 = startY + 15;
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'normal');
+        state.valueRealized.slice(0, 3).forEach(value => {
+          doc.setFillColor(...lightGray);
+          doc.roundedRect(col3X, y3 - 3, 85, 30, 2, 2, 'F');
           
-          // Icon background
-          doc.setFillColor(200, 230, 200);
-          doc.circle(valX + 12, valY + 8, 5, 'F');
-          
-          doc.setTextColor(...colors.success);
-          doc.setFontSize(10);
-          doc.text('✓', valX + 12, valY + 10, { align: 'center' });
-          
-          // Value type
-          doc.setTextColor(...colors.text);
-          doc.setFontSize(9);
+          doc.setTextColor(...green);
+          doc.text('✓', col3X + 3, y3 + 2);
+          doc.setTextColor(...navy);
           doc.setFont(undefined, 'bold');
-          doc.text(value.type, valX + 20, valY + 8);
-          
-          // Description
-          doc.setTextColor(...colors.textLight);
-          doc.setFontSize(8);
+          doc.text(value.type, col3X + 10, y3 + 2);
           doc.setFont(undefined, 'normal');
-          const valueLines = doc.splitTextToSize(value.description, columnWidth - 25);
-          doc.text(valueLines.slice(0, 3), valX + 10, valY + 15);
           
-          // Date
+          y3 += 7;
+          const lines = doc.splitTextToSize(value.description, 75);
+          doc.setTextColor(...gray);
+          doc.setFontSize(8);
+          doc.text(lines.slice(0, 2), col3X + 5, y3);
+          
           doc.setFontSize(7);
-          doc.text(value.date || 'Not specified', valX + columnWidth - 8, valY + 32, { align: 'right' });
-          
-          valY += 40;
+          doc.text(value.date || 'Not specified', col3X + 80, y3 + 15, { align: 'right' });
+          doc.setTextColor(...navy);
+          doc.setFontSize(10);
+          y3 += 25;
         });
         
         // Footer
-        doc.setFillColor(...colors.primary);
+        doc.setFillColor(...navy);
         doc.rect(0, 195, 297, 15, 'F');
-        doc.setTextColor(...colors.white);
+        doc.setTextColor(...white);
         doc.setFontSize(9);
-        doc.text('Confidential - Receptive Platform Executive Summary', 15, 203);
-        doc.text('For more details, generate the full report', 282, 203, { align: 'right' });
+        doc.text('Confidential - Executive Summary', 20, 203);
+        doc.text('Generated: ' + new Date().toISOString().split('T')[0], 255, 203);
         
         // Save
         const customerNameClean = state.customerName.replace(/\[|\]/g, '').toLowerCase().replace(/\s+/g, '-');
