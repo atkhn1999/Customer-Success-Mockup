@@ -2410,6 +2410,84 @@
 
     // ---------- Export Functions ----------
     async function exportToPDF() {
+      // Show export options modal
+      showPDFExportModal();
+    }
+    
+    window.showPDFExportModal = function() {
+      const modal = createModal('Export Success Report', `
+        <div class="space-y-6">
+          <p class="text-gray-600">Select the sections you'd like to include in your executive report:</p>
+          
+          <div class="space-y-3">
+            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+              <input type="checkbox" id="export-summary" checked class="w-5 h-5 text-teal-600">
+              <div>
+                <div class="font-medium">Executive Summary</div>
+                <div class="text-sm text-gray-500">Mission statement and overall health status</div>
+              </div>
+            </label>
+            
+            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+              <input type="checkbox" id="export-goals" checked class="w-5 h-5 text-teal-600">
+              <div>
+                <div class="font-medium">Strategic Goals</div>
+                <div class="text-sm text-gray-500">High-level mission goals and initiatives</div>
+              </div>
+            </label>
+            
+            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+              <input type="checkbox" id="export-objectives" checked class="w-5 h-5 text-teal-600">
+              <div>
+                <div class="font-medium">Current Objectives & KPIs</div>
+                <div class="text-sm text-gray-500">Active objectives with performance metrics</div>
+              </div>
+            </label>
+            
+            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+              <input type="checkbox" id="export-value" checked class="w-5 h-5 text-teal-600">
+              <div>
+                <div class="font-medium">Value Realized</div>
+                <div class="text-sm text-gray-500">Documented business impact and ROI</div>
+              </div>
+            </label>
+            
+            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+              <input type="checkbox" id="export-past" checked class="w-5 h-5 text-teal-600">
+              <div>
+                <div class="font-medium">Achievements</div>
+                <div class="text-sm text-gray-500">Completed objectives and milestones</div>
+              </div>
+            </label>
+          </div>
+          
+          <div class="border-t pt-4">
+            <label class="block text-sm font-medium mb-2">Report Style</label>
+            <select id="export-style" class="text-zone p-2 w-full">
+              <option value="executive">Executive Summary (High-level)</option>
+              <option value="detailed" selected>Detailed Report (Comprehensive)</option>
+              <option value="metrics">Metrics Focus (KPIs & Data)</option>
+            </select>
+          </div>
+        </div>
+      `, [
+        { label: 'Cancel', class: 'btn-ghost', action: () => closeModal() },
+        { label: 'Generate Report', class: 'btn-primary', action: () => {
+          const options = {
+            includeSummary: $('#export-summary').checked,
+            includeGoals: $('#export-goals').checked,
+            includeObjectives: $('#export-objectives').checked,
+            includeValue: $('#export-value').checked,
+            includePast: $('#export-past').checked,
+            style: $('#export-style').value
+          };
+          closeModal();
+          generateProfessionalPDF(options);
+        }}
+      ]);
+    };
+    
+    async function generateProfessionalPDF(options) {
       const btn = $('#export-pdf-btn');
       btn.disabled = true;
       btn.innerHTML = '<span class="animate-spin">⟳</span> Generating...';
@@ -2417,209 +2495,332 @@
       try {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
-
-        // Header
-        doc.setFontSize(20);
-        doc.text('Customer Success Plan - Receptive Platform', 20, 20);
+        
+        // Professional color scheme
+        const colors = {
+          primary: [14, 165, 233],      // Sky blue
+          secondary: [99, 102, 241],    // Indigo
+          success: [34, 197, 94],       // Green
+          danger: [239, 68, 68],        // Red
+          warning: [251, 146, 60],      // Orange
+          dark: [17, 24, 39],           // Almost black
+          gray: [107, 114, 128],        // Gray
+          lightGray: [243, 244, 246],   // Light gray
+          white: [255, 255, 255]
+        };
+        
+        let y = 0;
+        
+        // Cover Page
+        doc.setFillColor(...colors.primary);
+        doc.rect(0, 0, 210, 100, 'F');
+        
+        // White overlay box
+        doc.setFillColor(...colors.white);
+        doc.roundedRect(20, 30, 170, 50, 3, 3, 'F');
+        
+        // Title
+        doc.setTextColor(...colors.dark);
+        doc.setFontSize(28);
+        doc.setFont(undefined, 'bold');
+        doc.text('Customer Success Report', 105, 50, { align: 'center' });
+        
+        doc.setFontSize(18);
+        doc.setFont(undefined, 'normal');
+        doc.text(state.customerName, 105, 65, { align: 'center' });
+        
+        // Date
         doc.setFontSize(12);
-        doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 30);
-
-        // Sections
-        let y = 50;
-
-        // Mission Summary
-        doc.setFontSize(14);
-        doc.text('Mission Summary', 20, y);
-        y += 10;
+        doc.setTextColor(...colors.gray);
+        doc.text(new Date().toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        }), 105, 110, { align: 'center' });
+        
+        // Health Status Badge
+        const healthColors = {
+          green: colors.success,
+          yellow: colors.warning,
+          red: colors.danger
+        };
+        const healthLabels = {
+          green: 'ON TRACK',
+          yellow: 'NEEDS ATTENTION',
+          red: 'AT RISK'
+        };
+        doc.setFillColor(...(healthColors[state.planHealth] || colors.success));
+        doc.roundedRect(75, 120, 60, 10, 2, 2, 'F');
+        doc.setTextColor(...colors.white);
         doc.setFontSize(10);
-        const summaryLines = doc.splitTextToSize(state.missionSummary || 'Not defined', 170);
-        doc.text(summaryLines, 20, y);
-        y += summaryLines.length * 5 + 10;
-
-        // Check page break
-        if (y > 250) {
-          doc.addPage();
-          y = 20;
-        }
-
-        // Mission Goals
-        if (state.missionGoals && state.missionGoals.length > 0) {
+        doc.setFont(undefined, 'bold');
+        doc.text(healthLabels[state.planHealth] || 'ON TRACK', 105, 127, { align: 'center' });
+        
+        // Footer
+        doc.setTextColor(...colors.gray);
+        doc.setFontSize(9);
+        doc.setFont(undefined, 'normal');
+        doc.text('Powered by Receptive Platform', 105, 280, { align: 'center' });
+        
+        // Start content pages
+        doc.addPage();
+        y = 25;
+        
+        // Helper functions
+        const drawSectionHeader = (title, icon = '📊') => {
+          if (y > 240) {
+            doc.addPage();
+            y = 25;
+          }
+          
+          // Section background
+          doc.setFillColor(...colors.lightGray);
+          doc.roundedRect(15, y - 8, 180, 18, 2, 2, 'F');
+          
+          // Section title
+          doc.setTextColor(...colors.dark);
+          doc.setFontSize(16);
+          doc.setFont(undefined, 'bold');
+          doc.text(`${icon} ${title}`, 20, y);
+          y += 20;
+        };
+        
+        const drawMetricCard = (label, value, delta, unit = '', x, yPos, width = 40) => {
+          // Card background
+          doc.setFillColor(...colors.white);
+          doc.setDrawColor(...colors.lightGray);
+          doc.roundedRect(x, yPos, width, 25, 2, 2, 'FD');
+          
+          // Label
+          doc.setTextColor(...colors.gray);
+          doc.setFontSize(8);
+          doc.setFont(undefined, 'normal');
+          doc.text(label, x + width/2, yPos + 6, { align: 'center' });
+          
+          // Value
+          doc.setTextColor(...colors.dark);
           doc.setFontSize(14);
-          doc.text('Mission Goals', 20, y);
-          y += 10;
+          doc.setFont(undefined, 'bold');
+          doc.text(`${value}${unit}`, x + width/2, yPos + 14, { align: 'center' });
+          
+          // Delta
+          if (delta !== undefined && delta !== null) {
+            const deltaColor = delta >= 0 ? colors.success : colors.danger;
+            doc.setTextColor(...deltaColor);
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'normal');
+            doc.text(`${delta >= 0 ? '↑' : '↓'} ${Math.abs(delta)}%`, x + width/2, yPos + 21, { align: 'center' });
+          }
+        };
+        
+        // Executive Summary
+        if (options.includeSummary) {
+          drawSectionHeader('Executive Summary', '📋');
+          
+          doc.setTextColor(...colors.dark);
+          doc.setFontSize(11);
+          doc.setFont(undefined, 'normal');
+          const summaryLines = doc.splitTextToSize(state.missionSummary || 'No summary provided', 170);
+          doc.text(summaryLines, 20, y);
+          y += summaryLines.length * 5 + 15;
+        }
+        
+        // Strategic Goals
+        if (options.includeGoals && state.missionGoals.length > 0) {
+          drawSectionHeader('Strategic Goals', '🎯');
           
           state.missionGoals.forEach((goal, index) => {
-            if (y > 250) {
+            if (y > 240) {
               doc.addPage();
-              y = 20;
-            }
-            doc.setFontSize(11);
-            doc.text(`${index + 1}. ${goal.title}`, 20, y);
-            y += 7;
-            doc.setFontSize(10);
-            const goalLines = doc.splitTextToSize(goal.description, 170);
-            doc.text(goalLines, 20, y);
-            y += goalLines.length * 5 + 5;
-          });
-          y += 5;
-        }
-
-        // Value Realized
-        if (state.valueRealized && state.valueRealized.length > 0) {
-          if (y > 250) {
-            doc.addPage();
-            y = 20;
-          }
-          doc.setFontSize(14);
-          doc.text('Value Realized', 20, y);
-          y += 10;
-          
-          state.valueRealized.forEach(value => {
-            if (y > 250) {
-              doc.addPage();
-              y = 20;
-            }
-            doc.setFontSize(11);
-            doc.text(`• ${value.type}`, 20, y);
-            y += 7;
-            doc.setFontSize(10);
-            const valueLines = doc.splitTextToSize(value.description, 170);
-            doc.text(valueLines, 20, y);
-            y += valueLines.length * 5 + 2;
-            doc.text(`Date: ${value.date || 'Not specified'}`, 20, y);
-            y += 8;
-          });
-          y += 5;
-        }
-
-        // Current Objectives
-        if (state.objectives && state.objectives.length > 0) {
-          if (y > 250) {
-            doc.addPage();
-            y = 20;
-          }
-          doc.setFontSize(14);
-          doc.text('Current Objectives', 20, y);
-          y += 10;
-          
-          state.objectives.forEach(obj => {
-            if (y > 250) {
-              doc.addPage();
-              y = 20;
-            }
-            doc.setFontSize(11);
-            doc.text(obj.name, 20, y);
-            y += 7;
-            doc.setFontSize(10);
-            doc.text(`Status: ${obj.status} | Target: ${obj.targetDate || 'Not set'}`, 20, y);
-            y += 7;
-            if (obj.description) {
-              const descLines = doc.splitTextToSize(obj.description, 170);
-              doc.text(descLines, 20, y);
-              y += descLines.length * 5 + 2;
+              y = 25;
             }
             
-            // KPIs
-            if (obj.kpis && obj.kpis.length > 0) {
-              doc.text('KPIs:', 25, y);
-              y += 5;
-              obj.kpis.forEach(kpi => {
-                if (y > 250) {
-                  doc.addPage();
-                  y = 20;
-                }
-                const type = getKPIType(kpi.typeKey);
-                const delta = calculateDelta(kpi.currentValue, kpi.previousValue);
-                let kpiText = `- ${type.label}: ${kpi.currentValue}${type.unit}`;
-                if (kpi.comparePrevious && kpi.previousValue !== undefined) {
-                  kpiText += ` (${delta > 0 ? '+' : ''}${delta}%)`;
-                }
-                doc.text(kpiText, 30, y);
-                y += 5;
-              });
-            }
-            y += 5;
+            // Goal card
+            doc.setFillColor(...colors.white);
+            doc.setDrawColor(...colors.primary);
+            doc.roundedRect(20, y, 170, 35, 2, 2, 'FD');
+            
+            // Goal number
+            doc.setFillColor(...colors.primary);
+            doc.circle(30, y + 17, 8, 'F');
+            doc.setTextColor(...colors.white);
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.text((index + 1).toString(), 30, y + 20, { align: 'center' });
+            
+            // Goal content
+            doc.setTextColor(...colors.dark);
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.text(goal.title, 45, y + 10);
+            
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            const goalDesc = doc.splitTextToSize(goal.description, 130);
+            doc.text(goalDesc, 45, y + 18);
+            
+            y += 40;
           });
-          y += 5;
-        }
-
-        // Past Objectives
-        if (state.pastObjectives && state.pastObjectives.length > 0) {
-          if (y > 250) {
-            doc.addPage();
-            y = 20;
-          }
-          doc.setFontSize(14);
-          doc.text('Past Objectives Achieved', 20, y);
           y += 10;
+        }
+        
+        // Current Objectives & KPIs
+        if (options.includeObjectives && state.objectives.length > 0) {
+          drawSectionHeader('Current Objectives & Performance', '📈');
+          
+          state.objectives.forEach(obj => {
+            if (y > 220) {
+              doc.addPage();
+              y = 25;
+            }
+            
+            // Objective header
+            doc.setFillColor(...colors.secondary);
+            doc.roundedRect(20, y, 170, 8, 2, 2, 'F');
+            doc.setTextColor(...colors.white);
+            doc.setFontSize(11);
+            doc.setFont(undefined, 'bold');
+            doc.text(obj.name, 25, y + 5.5);
+            y += 12;
+            
+            // Status and date
+            doc.setTextColor(...colors.gray);
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'normal');
+            doc.text(`Status: ${obj.status} | Target: ${obj.targetDate || 'Not set'}`, 25, y);
+            y += 8;
+            
+            // KPIs in grid
+            if (obj.kpis && obj.kpis.length > 0) {
+              const kpiStartY = y;
+              let kpiX = 25;
+              const kpiWidth = 50;
+              const kpiSpacing = 55;
+              
+              obj.kpis.forEach((kpi, kpiIndex) => {
+                if (kpiIndex > 0 && kpiIndex % 3 === 0) {
+                  y += 30;
+                  kpiX = 25;
+                }
+                
+                const type = getKPIType(kpi.typeKey);
+                const delta = kpi.comparePrevious ? calculateDelta(kpi.currentValue, kpi.previousValue) : null;
+                
+                drawMetricCard(
+                  type.label,
+                  kpi.currentValue,
+                  delta,
+                  type.unit,
+                  kpiX,
+                  y,
+                  kpiWidth
+                );
+                
+                kpiX += kpiSpacing;
+              });
+              
+              y += 35;
+            }
+            
+            y += 10;
+          });
+        }
+        
+        // Value Realized
+        if (options.includeValue && state.valueRealized.length > 0) {
+          drawSectionHeader('Value Realized', '💎');
+          
+          state.valueRealized.forEach((value, index) => {
+            if (y > 240) {
+              doc.addPage();
+              y = 25;
+            }
+            
+            // Value card with gradient effect
+            const gradientColors = [
+              [[34, 197, 94], [16, 185, 129]],    // Green gradient
+              [[99, 102, 241], [79, 70, 229]],    // Purple gradient
+              [[251, 146, 60], [251, 113, 133]]   // Orange-pink gradient
+            ];
+            const gradient = gradientColors[index % gradientColors.length];
+            
+            doc.setFillColor(...gradient[0]);
+            doc.roundedRect(20, y, 170, 30, 3, 3, 'F');
+            
+            // Icon circle
+            doc.setFillColor(...colors.white);
+            doc.circle(35, y + 15, 10, 'F');
+            doc.setTextColor(...gradient[0]);
+            doc.setFontSize(16);
+            doc.text('✓', 35, y + 19, { align: 'center' });
+            
+            // Value content
+            doc.setTextColor(...colors.white);
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.text(value.type, 50, y + 10);
+            
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            const valueDesc = doc.splitTextToSize(value.description, 120);
+            doc.text(valueDesc, 50, y + 18);
+            
+            doc.setFontSize(8);
+            doc.text(`Realized: ${value.date || 'Not specified'}`, 50, y + 26);
+            
+            y += 35;
+          });
+          y += 10;
+        }
+        
+        // Achievements
+        if (options.includePast && state.pastObjectives.length > 0) {
+          drawSectionHeader('Achievements', '🏆');
           
           state.pastObjectives.forEach(obj => {
             if (y > 250) {
               doc.addPage();
-              y = 20;
+              y = 25;
             }
+            
+            // Achievement item
+            doc.setFillColor(...colors.success);
+            doc.circle(25, y + 3, 3, 'F');
+            
+            doc.setTextColor(...colors.dark);
             doc.setFontSize(11);
-            doc.text(`✓ ${obj.name}`, 20, y);
-            y += 7;
-            doc.setFontSize(10);
-            doc.text(`Completed: ${obj.targetDate || 'Not specified'}`, 20, y);
-            y += 7;
-            if (obj.description) {
-              const descLines = doc.splitTextToSize(obj.description, 170);
-              doc.text(descLines, 20, y);
-              y += descLines.length * 5 + 2;
-            }
-            y += 5;
+            doc.setFont(undefined, 'bold');
+            doc.text(obj.name, 35, y + 5);
+            
+            doc.setTextColor(...colors.gray);
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'normal');
+            doc.text(`Completed: ${obj.targetDate || 'Not specified'}`, 35, y + 10);
+            
+            y += 15;
           });
-          y += 5;
         }
-
-        // Key Stakeholders
-        if (state.stakeholders && state.stakeholders.length > 0) {
-          if (y > 250) {
-            doc.addPage();
-            y = 20;
-          }
-          doc.setFontSize(14);
-          doc.text('Key Stakeholders', 20, y);
-          y += 10;
+        
+        // Footer on each page
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+          doc.setPage(i);
+          doc.setTextColor(...colors.gray);
+          doc.setFontSize(8);
+          doc.text(`${state.customerName} Success Report`, 20, 285);
+          doc.text(`Page ${i} of ${pageCount}`, 190, 285, { align: 'right' });
           
-          state.stakeholders.forEach(stakeholder => {
-            if (y > 250) {
-              doc.addPage();
-              y = 20;
-            }
-            doc.setFontSize(10);
-            doc.text(`• ${stakeholder.name} - ${stakeholder.title}`, 20, y);
-            y += 5;
-            doc.text(`  ${stakeholder.email}`, 20, y);
-            y += 7;
-          });
-          y += 5;
+          // Decorative line
+          doc.setDrawColor(...colors.lightGray);
+          doc.line(20, 280, 190, 280);
         }
-
-        // Products
-        if (state.products && state.products.length > 0) {
-          if (y > 250) {
-            doc.addPage();
-            y = 20;
-          }
-          doc.setFontSize(14);
-          doc.text('Receptive Platform Products', 20, y);
-          y += 10;
-          
-          doc.setFontSize(10);
-          state.products.forEach(product => {
-            doc.text(`• ${product}`, 20, y);
-            y += 5;
-          });
-        }
-
+        
         // Save
-        doc.save('customer-success-plan-receptive.pdf');
-        showNotification('PDF exported successfully', 'success');
+        doc.save(`${state.customerName.toLowerCase().replace(/\s+/g, '-')}-success-report.pdf`);
+        showNotification('Professional report generated successfully!', 'success');
       } catch (error) {
-        showNotification('PDF export failed. Please try again.', 'error');
+        showNotification('Report generation failed. Please try again.', 'error');
+        console.error('PDF export error:', error);
       }
       
       btn.disabled = false;
