@@ -623,9 +623,22 @@
         min-width: 100%;
       }
     }
+    
+    .watermark {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      color: rgba(156, 163, 175, 0.3);
+      font-size: 14px;
+      font-weight: 300;
+      pointer-events: none;
+      z-index: 10;
+      user-select: none;
+    }
   </style>
 </head>
 <body>
+  <div class="watermark">Created by Atiq Azel Khan</div>
   <div id="app" class="max-w-screen-xl mx-auto p-4 sm:p-6 lg:p-8">
     <!-- Header -->
     <header class="mb-10 p-6 md:p-8 lg:p-10 bg-gradient-to-r from-teal-950 via-teal-800 to-emerald-600 text-white shadow-xl">
