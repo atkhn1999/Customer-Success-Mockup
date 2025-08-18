@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>DOM Test</title>
+</head>
+<body>
+  <h1 id="test">Initial Text</h1>
+  <div id="status"></div>
+  
+  <script>
+    // Test 1: Direct execution
+    console.log('Script loaded');
+    document.getElementById('status').innerHTML += '<p>1. Script executed</p>';
+    
+    // Test 2: DOM ready check
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('status').innerHTML += '<p>2. DOMContentLoaded fired</p>';
+        document.getElementById('test').textContent = 'DOM is ready!';
+      });
+    } else {
+      document.getElementById('status').innerHTML += '<p>2. DOM already loaded</p>';
+      document.getElementById('test').textContent = 'DOM was ready!';
+    }
+    
+    // Test 3: Window load
+    window.addEventListener('load', function() {
+      document.getElementById('status').innerHTML += '<p>3. Window load fired</p>';
+    });
+  </script>
+</body>
+</html>
