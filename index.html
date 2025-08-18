@@ -1444,6 +1444,13 @@
         `).join('');
       }
     }
+    
+    function renderHealthScore() {
+      const healthSelect = $('#health-score');
+      if (healthSelect) {
+        healthSelect.value = state.planHealth || 'green';
+      }
+    }
 
     // ---------- Modals ----------
     window.showAddObjectiveModal = function(isPast = false) {
@@ -2508,10 +2515,53 @@
       try {
         const saved = localStorage.getItem('responsiveCustomerSuccess');
         if (saved) {
-          Object.assign(state, JSON.parse(saved));
+          const savedState = JSON.parse(saved);
+          // Only load if the saved state has valid data
+          if (savedState && typeof savedState === 'object') {
+            // Preserve the default data if saved data is empty
+            if (savedState.objectives && savedState.objectives.length > 0) {
+              state.objectives = savedState.objectives;
+            }
+            if (savedState.pastObjectives && savedState.pastObjectives.length > 0) {
+              state.pastObjectives = savedState.pastObjectives;
+            }
+            if (savedState.valueRealized && savedState.valueRealized.length > 0) {
+              state.valueRealized = savedState.valueRealized;
+            }
+            if (savedState.missionGoals && savedState.missionGoals.length > 0) {
+              state.missionGoals = savedState.missionGoals;
+            }
+            if (savedState.stakeholders && savedState.stakeholders.length > 0) {
+              state.stakeholders = savedState.stakeholders;
+            }
+            if (savedState.products && savedState.products.length > 0) {
+              state.products = savedState.products;
+            }
+            if (savedState.customerName) {
+              state.customerName = savedState.customerName;
+            }
+            if (savedState.missionSummary) {
+              state.missionSummary = savedState.missionSummary;
+            }
+            if (savedState.planHealth) {
+              state.planHealth = savedState.planHealth;
+            }
+            // Reset edit states
+            state.editModes = {
+              objectives: false,
+              valueRealized: false,
+              pastObjectives: false
+            };
+            state.selectedItems = {
+              objectives: new Set(),
+              valueRealized: new Set(),
+              pastObjectives: new Set()
+            };
+          }
         }
       } catch (error) {
-        // Silently fail - localStorage may be disabled
+        console.error('Error loading from localStorage:', error);
+        // Keep default data on error
       }
     }
 
@@ -2524,6 +2574,7 @@
       renderObjectives();
       renderStakeholders();
       renderProducts();
+      renderHealthScore();
     }
     
     function renderCustomerName() {
@@ -2576,6 +2627,23 @@
           }
         });
       }
+
+    // Add a global function to reset data if needed
+    window.resetToDefaultData = function() {
+      localStorage.removeItem('responsiveCustomerSuccess');
+      location.reload();
+    };
+    
+    // Debug function to check state
+    window.debugState = function() {
+      console.log('Current State:', state);
+      console.log('Objectives:', state.objectives.length);
+      console.log('Past Objectives:', state.pastObjectives.length);
+      console.log('Value Realized:', state.valueRealized.length);
+      console.log('Mission Goals:', state.missionGoals.length);
+      console.log('Products:', state.products);
+      console.log('Stakeholders:', state.stakeholders.length);
+    };
 
     // Start the app
     init();
