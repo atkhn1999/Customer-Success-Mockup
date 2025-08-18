@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Customer Success Plan - Responsive Platform</title>
+  <title>Customer Success Plan - Receptive Platform</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -781,12 +781,12 @@
           </select>
         </section>
 
-        <!-- Responsive Platform Products -->
+        <!-- Receptive Platform Products -->
         <section class="card p-6 section-readonly" id="products-section">
           <div class="edit-overlay">
             <button class="btn btn-ghost btn-sm" data-edit="products">Edit</button>
           </div>
-          <h3 class="text-lg font-semibold mb-3">Responsive Platform Products</h3>
+          <h3 class="text-lg font-semibold mb-3">Receptive Platform Products</h3>
           <div id="products-display" class="space-y-2"></div>
           <div id="products-edit" class="hidden">
             <div class="space-y-2">
@@ -857,7 +857,7 @@
     const state = {
       customerName: 'TechCorp',
       products: ['Content Library', 'AI'],
-      missionSummary: 'Transform TechCorp\'s sales organization with Responsive\'s AI-powered platform, enabling 200+ sales reps to access the right content instantly, personalize customer interactions, and close deals 40% faster while maintaining compliance and brand consistency.',
+      missionSummary: 'Transform TechCorp\'s sales organization with Receptive\'s AI-powered platform, enabling 200+ sales reps to access the right content instantly, personalize customer interactions, and close deals 40% faster while maintaining compliance and brand consistency.',
       missionGoals: [
         { 
           id: 1, 
@@ -965,7 +965,7 @@
           name: 'Platform Onboarding & Initial Setup',
           targetDate: '2024-12-31',
           status: 'Completed',
-          description: 'Successfully onboarded TechCorp to Responsive platform with SSO integration, initial content migration, and pilot team training.',
+          description: 'Successfully onboarded TechCorp to Receptive platform with SSO integration, initial content migration, and pilot team training.',
           challenges: 'Initial API rate limits required optimization. SSO integration needed custom SAML configuration.',
           nextSteps: 'Monitor system performance. Gather user feedback for Phase 2 rollout.',
           kpis: [
@@ -2378,7 +2378,7 @@
         
         // Add content
         doc.setFontSize(20);
-        doc.text('Customer Success Plan - Responsive Platform', 20, 20);
+        doc.text('Customer Success Plan - Receptive Platform', 20, 20);
         
         doc.setFontSize(12);
         doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 30);
@@ -2396,7 +2396,7 @@
         y += summaryLines.length * 5 + 10;
         
         // Save
-        doc.save('customer-success-plan-responsive.pdf');
+        doc.save('customer-success-plan-receptive.pdf');
         showNotification('PDF exported successfully', 'success');
       } catch (error) {
         showNotification('PDF export failed. Please try again.', 'error');
@@ -2453,7 +2453,7 @@
         XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(state.missionGoals), 'Mission Goals');
         XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(state.valueRealized), 'Value Realized');
         
-        XLSX.writeFile(wb, 'customer-success-plan-responsive.xlsx');
+        XLSX.writeFile(wb, 'customer-success-plan-receptive.xlsx');
         showNotification('Excel exported successfully', 'success');
       } catch (error) {
         showNotification('Excel export failed. Please try again.', 'error');
