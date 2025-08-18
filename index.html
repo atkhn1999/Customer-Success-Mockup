@@ -3131,8 +3131,26 @@
       console.log('Stakeholders:', state.stakeholders.length);
     };
 
-    // Start the app
-    init();
+    // Ensure DOM is ready before initializing
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        // Clear any corrupted localStorage on load (remove this after fixing)
+        try {
+          localStorage.removeItem('responsiveCustomerSuccess');
+        } catch (e) {
+          // Ignore errors
+        }
+        init();
+      });
+    } else {
+      // Clear any corrupted localStorage on load (remove this after fixing)
+      try {
+        localStorage.removeItem('responsiveCustomerSuccess');
+      } catch (e) {
+        // Ignore errors
+      }
+      init();
+    }
   </script>
 </body>
 </html>
