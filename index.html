@@ -818,6 +818,9 @@
   </div>
 
   <script>
+    // Immediate debug check
+    console.log('=== Script starting to execute ===');
+    
     // ---------- Data Models ----------
     const PRODUCT_KPIS = {
       'Content Library': [
@@ -3112,7 +3115,7 @@
             if (modal) closeModal();
           }
         });
-      }
+    }
 
     // Add a global function to reset data if needed
     window.resetToDefaultData = function() {
@@ -3132,24 +3135,34 @@
     };
 
     // Ensure DOM is ready before initializing
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function() {
-        // Clear any corrupted localStorage on load (remove this after fixing)
+    console.log('Setting up initialization...');
+    
+    function safeInit() {
+      try {
+        console.log('Calling init function...');
+        // Clear any corrupted localStorage
         try {
           localStorage.removeItem('responsiveCustomerSuccess');
+          console.log('Cleared localStorage');
         } catch (e) {
-          // Ignore errors
+          console.warn('Could not clear localStorage:', e);
         }
+        
         init();
-      });
-    } else {
-      // Clear any corrupted localStorage on load (remove this after fixing)
-      try {
-        localStorage.removeItem('responsiveCustomerSuccess');
-      } catch (e) {
-        // Ignore errors
+        console.log('Init completed successfully!');
+      } catch (error) {
+        console.error('ERROR in init:', error);
+        console.error('Stack trace:', error.stack);
+        alert('Application failed to initialize. Check console for errors.\n\nError: ' + error.message);
       }
-      init();
+    }
+    
+    if (document.readyState === 'loading') {
+      console.log('DOM still loading, waiting for DOMContentLoaded...');
+      document.addEventListener('DOMContentLoaded', safeInit);
+    } else {
+      console.log('DOM already loaded, initializing now...');
+      setTimeout(safeInit, 100); // Small delay to ensure everything is ready
     }
   </script>
 </body>
