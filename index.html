@@ -2415,43 +2415,192 @@
       btn.innerHTML = '<span class="animate-spin">⟳</span> Generating...';
       
       try {
-        const element = document.getElementById('app');
-        const opt = {
-          margin: 10,
-          filename: 'customer-success-plan.pdf',
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2 },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        let yPosition = 20;
+        const lineHeight = 7;
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const margin = 20;
+        const contentWidth = pageWidth - (2 * margin);
+        
+        // Helper function to add text with word wrap
+        const addWrappedText = (text, fontSize, isBold = false) => {
+          doc.setFontSize(fontSize);
+          if (isBold) {
+            doc.setFont(undefined, 'bold');
+          } else {
+            doc.setFont(undefined, 'normal');
+          }
+          const lines = doc.splitTextToSize(text, contentWidth);
+          lines.forEach(line => {
+            if (yPosition + lineHeight > pageHeight - 20) {
+              doc.addPage();
+              yPosition = 20;
+            }
+            doc.text(line, margin, yPosition);
+            yPosition += lineHeight;
+          });
+          return lines.length;
         };
         
-        // Use html2canvas and jsPDF
-        const canvas = await html2canvas(element, {
-          scale: 2,
-          logging: false,
-          useCORS: true
-        });
+        // Title
+        doc.setFontSize(20);
+        doc.setFont(undefined, 'bold');
+        doc.text(`${state.customerName} Success Plan`, margin, yPosition);
+        yPosition += 15;
         
-        const imgData = canvas.toDataURL('image/jpeg', 0.98);
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF('p', 'mm', 'a4');
+        // Subtitle
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'normal');
+        doc.text('Receptive Platform', margin, yPosition);
+        yPosition += 10;
         
-        const imgWidth = 210;
-        const pageHeight = 297;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        let heightLeft = imgHeight;
-        let position = 0;
+        // Date
+        doc.setFontSize(10);
+        doc.text(`Generated: ${new Date().toLocaleDateString()}`, margin, yPosition);
+        yPosition += 15;
         
-        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+        // Health Status
+        addWrappedText('Overall Health', 14, true);
+        yPosition += 5;
+        const healthText = state.planHealth === 'green' ? 'On Track' : 
+                          state.planHealth === 'yellow' ? 'Needs Attention' : 'At Risk';
+        addWrappedText(`Status: ${healthText}`, 12);
+        yPosition += 10;
         
-        while (heightLeft >= 0) {
-          position = heightLeft - imgHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
+        // Mission Summary
+        if (state.missionSummary) {
+          addWrappedText('Mission Summary', 14, true);
+          yPosition += 5;
+          addWrappedText(state.missionSummary, 11);
+          yPosition += 10;
         }
         
-        pdf.save('customer-success-plan-responsive.pdf');
+        // Mission Goals
+        if (state.missionGoals && state.missionGoals.length > 0) {
+          addWrappedText('Mission Goals', 14, true);
+          yPosition += 5;
+          state.missionGoals.forEach((goal, index) => {
+            addWrappedText(`${index + 1}. ${goal.title}`, 12, true);
+            yPosition += 3;
+            addWrappedText(goal.description, 11);
+            if (goal.customFields && goal.customFields.length > 0) {
+              goal.customFields.forEach(field => {
+                yPosition += 3;
+                addWrappedText(`${field.label}: ${field.value}`, 10);
+              });
+            }
+            yPosition += 7;
+          });
+          yPosition += 5;
+        }
+        
+        // Value Realized
+        if (state.valueRealized && state.valueRealized.length > 0) {
+          addWrappedText('Value Realized', 14, true);
+          yPosition += 5;
+          state.valueRealized.forEach(value => {
+            addWrappedText(`• ${value.type}`, 12, true);
+            yPosition += 3;
+            addWrappedText(value.description, 11);
+            yPosition += 3;
+            addWrappedText(`Realized: ${value.date || 'Not specified'}`, 10);
+            yPosition += 7;
+          });
+          yPosition += 5;
+        }
+        
+        // Current Objectives
+        if (state.objectives && state.objectives.length > 0) {
+          addWrappedText('Current Objectives', 14, true);
+          yPosition += 5;
+          state.objectives.forEach(obj => {
+            addWrappedText(obj.name, 12, true);
+            yPosition += 3;
+            addWrappedText(`Status: ${obj.status} | Target: ${obj.targetDate || 'Not set'}`, 11);
+            yPosition += 3;
+            if (obj.description) {
+              addWrappedText(obj.description, 11);
+              yPosition += 5;
+            }
+            
+            // KPIs
+            if (obj.kpis && obj.kpis.length > 0) {
+              addWrappedText('Key Performance Indicators:', 11, true);
+              yPosition += 3;
+              obj.kpis.forEach(kpi => {
+                const type = getKPIType(kpi.typeKey);
+                const delta = calculateDelta(kpi.currentValue, kpi.previousValue);
+                let kpiText = `• ${type.label}: ${kpi.currentValue}${type.unit}`;
+                if (kpi.comparePrevious && kpi.previousValue !== undefined) {
+                  kpiText += ` (${delta > 0 ? '+' : ''}${delta}%)`;
+                }
+                addWrappedText(kpiText, 10);
+                yPosition += 2;
+              });
+              yPosition += 3;
+            }
+            
+            // Challenges and Next Steps
+            if (obj.challenges) {
+              addWrappedText('Challenges:', 11, true);
+              yPosition += 3;
+              addWrappedText(obj.challenges, 10);
+              yPosition += 5;
+            }
+            if (obj.nextSteps) {
+              addWrappedText('Next Steps:', 11, true);
+              yPosition += 3;
+              addWrappedText(obj.nextSteps, 10);
+              yPosition += 5;
+            }
+            yPosition += 5;
+          });
+        }
+        
+        // Past Objectives
+        if (state.pastObjectives && state.pastObjectives.length > 0) {
+          addWrappedText('Past Objectives Achieved', 14, true);
+          yPosition += 5;
+          state.pastObjectives.forEach(obj => {
+            addWrappedText(`✓ ${obj.name}`, 12, true);
+            yPosition += 3;
+            addWrappedText(`Completed: ${obj.targetDate || 'Not specified'}`, 11);
+            yPosition += 3;
+            if (obj.description) {
+              addWrappedText(obj.description, 11);
+              yPosition += 5;
+            }
+            yPosition += 5;
+          });
+        }
+        
+        // Key Stakeholders
+        if (state.stakeholders && state.stakeholders.length > 0) {
+          addWrappedText('Key Stakeholders', 14, true);
+          yPosition += 5;
+          state.stakeholders.forEach(stakeholder => {
+            addWrappedText(`${stakeholder.name} - ${stakeholder.title}`, 11, true);
+            yPosition += 3;
+            addWrappedText(stakeholder.email, 10);
+            yPosition += 7;
+          });
+        }
+        
+        // Products
+        if (state.products && state.products.length > 0) {
+          addWrappedText('Receptive Platform Products', 14, true);
+          yPosition += 5;
+          state.products.forEach(product => {
+            addWrappedText(`• ${product}`, 11);
+            yPosition += 3;
+          });
+        }
+        
+        // Save
+        doc.save('customer-success-plan-receptive.pdf');
         showNotification('PDF exported successfully', 'success');
       } catch (error) {
         showNotification('PDF export failed. Please try again.', 'error');
