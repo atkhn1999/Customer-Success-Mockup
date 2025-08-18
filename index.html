@@ -36,6 +36,35 @@
       padding: 0;
     }
     
+    /* Watermark styles */
+    .watermark {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-45deg);
+      font-size: 6rem;
+      font-weight: 700;
+      color: rgba(148, 163, 184, 0.1); /* Very light gray with transparency */
+      z-index: 0;
+      pointer-events: none;
+      user-select: none;
+      white-space: nowrap;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    
+    @media (max-width: 768px) {
+      .watermark {
+        font-size: 3rem;
+      }
+    }
+    
+    /* Ensure content stays above watermark */
+    body > * {
+      position: relative;
+      z-index: 1;
+    }
+    
     body { 
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
       background: var(--light-bg); 
@@ -523,6 +552,9 @@
   </style>
 </head>
 <body>
+  <!-- Watermark -->
+  <div class="watermark">atiq azel khan</div>
+  
   <div id="app" class="max-w-screen-xl mx-auto p-4 sm:p-6 lg:p-8">
     <!-- Header -->
     <header class="mb-10 p-6 md:p-8 lg:p-10 bg-gradient-to-r from-teal-950 via-teal-800 to-emerald-600 text-white shadow-xl">
