@@ -1940,21 +1940,32 @@
 
     // ---------- Edit Mode Functions ----------
     window.toggleEditMode = function(section) {
-      const editBtn = $(`#edit-${section.toLowerCase()}-btn`);
-      const isEditMode = !state.editModes[section];
+      // Convert section names to match HTML IDs
+      const sectionIdMap = {
+        'objectives': 'objectives',
+        'valueRealized': 'value-realized',
+        'pastObjectives': 'past-objectives'
+      };
+      const sectionId = sectionIdMap[section] || section.toLowerCase();
       
+      const editBtn = $(`#edit-${sectionId}-btn`);
+      const banner = $(`#${sectionId}-edit-banner`);
+      
+      if (!editBtn || !banner) return;
+      
+      const isEditMode = !state.editModes[section];
       state.editModes[section] = isEditMode;
       
       if (isEditMode) {
         editBtn.textContent = 'Done';
         editBtn.classList.remove('btn-ghost');
         editBtn.classList.add('btn-primary');
-        $(`#${section.toLowerCase()}-edit-banner`).classList.remove('hidden');
+        banner.classList.remove('hidden');
       } else {
         editBtn.textContent = 'Edit';
         editBtn.classList.remove('btn-primary');
         editBtn.classList.add('btn-ghost');
-        $(`#${section.toLowerCase()}-edit-banner`).classList.add('hidden');
+        banner.classList.add('hidden');
         // Clear selections when exiting edit mode
         state.selectedItems[section].clear();
         updateDeleteButtonState(section);
@@ -1967,12 +1978,20 @@
       state.editModes[section] = false;
       state.selectedItems[section].clear();
       
-      const editBtn = $(`#edit-${section.toLowerCase()}-btn`);
+      // Convert section names to match HTML IDs
+      const sectionIdMap = {
+        'objectives': 'objectives',
+        'valueRealized': 'value-realized',
+        'pastObjectives': 'past-objectives'
+      };
+      const sectionId = sectionIdMap[section] || section.toLowerCase();
+      
+      const editBtn = $(`#edit-${sectionId}-btn`);
       editBtn.textContent = 'Edit';
       editBtn.classList.remove('btn-primary');
       editBtn.classList.add('btn-ghost');
       
-      $(`#${section.toLowerCase()}-edit-banner`).classList.add('hidden');
+      $(`#${sectionId}-edit-banner`).classList.add('hidden');
       updateDeleteButtonState(section);
       renderAll();
     };
@@ -2005,7 +2024,15 @@
     };
     
     function updateSelectAllCheckbox(section) {
-      const checkbox = $(`#${section.toLowerCase()}-select-all`);
+      // Convert section names to match HTML IDs
+      const sectionIdMap = {
+        'objectives': 'objectives',
+        'valueRealized': 'value-realized',
+        'pastObjectives': 'past-objectives'
+      };
+      const sectionId = sectionIdMap[section] || section.toLowerCase();
+      
+      const checkbox = $(`#${sectionId}-select-all`);
       if (!checkbox) return;
       
       const items = section === 'objectives' ? state.objectives :
@@ -2020,7 +2047,15 @@
     }
     
     function updateDeleteButtonState(section) {
-      const deleteBtn = $(`#${section.toLowerCase()}-delete-btn`);
+      // Convert section names to match HTML IDs
+      const sectionIdMap = {
+        'objectives': 'objectives',
+        'valueRealized': 'value-realized',
+        'pastObjectives': 'past-objectives'
+      };
+      const sectionId = sectionIdMap[section] || section.toLowerCase();
+      
+      const deleteBtn = $(`#${sectionId}-delete-btn`);
       if (deleteBtn) {
         deleteBtn.disabled = state.selectedItems[section].size === 0;
       }
