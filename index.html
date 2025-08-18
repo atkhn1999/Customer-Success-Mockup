@@ -652,21 +652,21 @@
         <div class="flex flex-col md:flex-row items-start md:items-center gap-4">
           <p class="text-teal-50/90 text-sm font-light whitespace-nowrap">Last updated: <span id="last-updated-date"></span></p>
           <div class="grid grid-cols-2 gap-2 max-w-md">
-            <button id="export-pdf-btn" class="btn btn-primary flex items-center justify-center text-sm transform transition-all duration-200 hover:-translate-y-1 hover:shadow-lg" aria-label="Export to PDF">
+            <button id="export-pdf-btn" class="btn btn-primary flex items-center justify-center text-sm transform transition-all duration-200 hover:shadow-lg" style="transform: translateY(0px);" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0px)'" aria-label="Export to PDF">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>
               PDF Report
             </button>
-            <button id="export-excel-btn" class="btn bg-emerald-700 hover:bg-emerald-800 text-white flex items-center justify-center text-sm transform transition-all duration-200 hover:-translate-y-1 hover:shadow-lg" aria-label="Export to Excel">
+            <button id="export-excel-btn" class="btn bg-emerald-700 hover:bg-emerald-800 text-white flex items-center justify-center text-sm transform transition-all duration-200 hover:shadow-lg" style="transform: translateY(0px);" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0px)'" aria-label="Export to Excel">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/><path d="M8.5 12.5l1.5 3 1.5-3m-3 0h3m-4.5-1h6v5h-6z"/></svg>
               Excel
             </button>
-            <button id="export-data-btn" class="btn bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center text-sm transform transition-all duration-200 hover:-translate-y-1 hover:shadow-lg" aria-label="Export Data">
+            <button id="export-data-btn" class="btn bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center text-sm transform transition-all duration-200 hover:shadow-lg" style="transform: translateY(0px);" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0px)'" aria-label="Export Data">
               <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
               </svg>
               Backup
             </button>
-            <button id="import-data-btn" class="btn bg-green-600 hover:bg-green-700 text-white flex items-center justify-center text-sm transform transition-all duration-200 hover:-translate-y-1 hover:shadow-lg" aria-label="Import Data">
+            <button id="import-data-btn" class="btn bg-green-600 hover:bg-green-700 text-white flex items-center justify-center text-sm transform transition-all duration-200 hover:shadow-lg" style="transform: translateY(0px);" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0px)'" aria-label="Import Data">
               <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
               </svg>
