@@ -252,14 +252,26 @@
     
     /* Header button styles */
     .btn-header {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.15);
       color: white;
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(10px);
     }
     .btn-header:hover:not(:disabled) {
-      background: rgba(255, 255, 255, 0.2);
-      border-color: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.6);
       transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Excel button specific styling for better visibility */
+    #export-excel-btn {
+      background: rgba(33, 150, 83, 0.9);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+    #export-excel-btn:hover:not(:disabled) {
+      background: rgba(33, 150, 83, 1);
+      border-color: rgba(255, 255, 255, 0.8);
     }
 
     /* Read-only sections */
@@ -537,7 +549,9 @@
           <p class="text-teal-50/90 text-sm font-light whitespace-nowrap">Last updated: <span id="last-updated-date"></span></p>
           <div class="flex items-center gap-3">
             <button id="export-excel-btn" class="btn btn-header" aria-label="Export to Excel">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M13 7h-2v4H9v2h2v4h2v-4h4v-2h-4V7zm-8 6h4v2H5v-2z"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 384 512" fill="currentColor" aria-hidden="true">
+                <path d="M64 0C28.7 0 0 28.7 0 64V448c0 35.3 28.7 64 64 64H320c35.3 0 64-28.7 64-64V160H256c-17.7 0-32-14.3-32-32V0H64zM256 0V128H384L256 0zM155.7 250.2L192 302.1l36.3-51.9c7.6-10.9 22.6-13.5 33.4-5.9s13.5 22.6 5.9 33.4L221.3 344l46.4 66.2c7.6 10.9 5 25.8-5.9 33.4s-25.8 5-33.4-5.9L192 385.8l-36.3 51.9c-7.6 10.9-22.6 13.5-33.4 5.9s-13.5-22.6-5.9-33.4L162.7 344l-46.4-66.2c-7.6-10.9-5-25.8 5.9-33.4s25.8-5 33.4 5.9z"/>
+              </svg>
               Export Excel
             </button>
             <button id="export-pdf-btn" class="btn btn-primary flex items-center" aria-label="Export to PDF">
@@ -705,13 +719,14 @@
       'AI': [
         { key: 'unedited_ai_responses', label: 'Unedited AI responses', unit: '%', higherIsBetter: false },
         { key: 'answer_with_ai', label: '% answer with AI', unit: '%', higherIsBetter: true },
-        { key: 'ai_chatbot_usage', label: 'AI chatbot usage', unit: 'sessions', higherIsBetter: true }
+        { key: 'ai_chatbot_usage', label: 'AI chatbot usage', unit: 'sessions', higherIsBetter: true },
+        { key: 'ai_responses_percentage', label: '% of AI responses', unit: '%', higherIsBetter: true }
       ],
       'Projects': [
         { key: 'answer_library_usage', label: '% Answer library usage', unit: '%', higherIsBetter: true },
         { key: 'manual_answers', label: '% of manual answers', unit: '%', higherIsBetter: false },
         { key: 'answers_edited', label: '% of Answers edited from Answer Library', unit: '%', higherIsBetter: false },
-        { key: 'time_per_response', label: 'Time spent per response', unit: 's', higherIsBetter: false }
+        { key: 'time_per_response', label: 'Time per response', unit: 's', higherIsBetter: false }
       ],
       'Trust Center': [
         { key: 'profile_views', label: '% of profile views', unit: '%', higherIsBetter: true }
@@ -886,7 +901,14 @@
 
     function getKPIType(typeKey) {
       const allTypes = getAvailableKPITypes();
-      return allTypes.find(t => t.key === typeKey) || { label: 'Unknown KPI', unit: '', higherIsBetter: true };
+      // If KPI type not found, check if it's one of the renamed ones
+      if (!allTypes.find(t => t.key === typeKey)) {
+        // Map old KPI keys to new ones if needed
+        if (typeKey === 'ai_responses') {
+          typeKey = 'answer_with_ai';
+        }
+      }
+      return allTypes.find(t => t.key === typeKey) || { label: 'Time per Response', unit: 's', higherIsBetter: false };
     }
 
     function autoResizeTextarea(textarea) {
