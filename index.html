@@ -855,17 +855,17 @@
 
     // Application State
     const state = {
-      customerName: 'TechCorp Enterprise',
+      customerName: '[Customer Name]',
       products: ['Content Library', 'AI Assistant', 'Analytics Suite'],
-      missionSummary: 'Partner with TechCorp to revolutionize their global sales operations through Receptive\'s AI-powered revenue enablement platform. Our mission is to empower 500+ sales professionals across 12 regions to deliver personalized, data-driven customer experiences that accelerate deal velocity by 45% and increase average contract values by 30% within the next 12 months.',
+      missionSummary: 'Partner with [Customer Name] to revolutionize their global sales operations through Receptive\'s AI-powered revenue enablement platform. Our mission is to empower 500+ sales professionals across 12 regions to deliver personalized, data-driven customer experiences that accelerate deal velocity by 45% and increase average contract values by 30% within the next 12 months.',
       missionGoals: [
         { 
           id: 1, 
           title: 'Content Excellence Initiative', 
           description: 'Achieve 95% content accuracy and reduce obsolete content to less than 5% through AI-powered content management and automated review workflows.',
           customFields: [
-            {id: 1, label: 'Success Dashboard', value: 'https://analytics.responsive.io/techcorp/content'},
-            {id: 2, label: 'Content Audit Report', value: 'https://docs.responsive.io/content-audit-q1'}
+            {id: 1, label: 'Success Dashboard', value: 'https://analytics.example.com/dashboard'},
+            {id: 2, label: 'Content Audit Report', value: 'https://docs.example.com/content-audit'}
           ] 
         },
         { 
@@ -873,8 +873,8 @@
           title: 'AI Adoption Program', 
           description: 'Drive 80% adoption of AI-powered responses across all sales teams, reducing average response time from 45 minutes to under 5 minutes.',
           customFields: [
-            {id: 3, label: 'AI Training Portal', value: 'https://learn.responsive.io/ai-certification'},
-            {id: 4, label: 'ROI Calculator', value: 'https://responsive.io/roi/techcorp-ai'}
+            {id: 3, label: 'AI Training Portal', value: 'https://training.example.com/ai-certification'},
+            {id: 4, label: 'ROI Calculator', value: 'https://roi.example.com/calculator'}
           ] 
         }
       ],
@@ -965,7 +965,7 @@
           name: 'Platform Onboarding & Initial Setup',
           targetDate: '2024-12-31',
           status: 'Completed',
-          description: 'Successfully onboarded TechCorp to Receptive platform with SSO integration, initial content migration, and pilot team training.',
+          description: 'Successfully onboarded [Customer Name] to Receptive platform with SSO integration, initial content migration, and pilot team training.',
           challenges: 'Initial API rate limits required optimization. SSO integration needed custom SAML configuration.',
           nextSteps: 'Monitor system performance. Gather user feedback for Phase 2 rollout.',
           kpis: [
@@ -984,23 +984,30 @@
         { 
           id: 1, 
           type: 'Time Savings', 
-          description: 'Sales team saves average 6 hours/week per rep through instant content discovery and AI-powered responses. Validated through time tracking study of 50 pilot users.',
+          description: 'Sales team saves average 8 hours/week per rep through instant content discovery and AI-powered responses. With 500 reps, this equals 4,000 hours weekly or $8.3M in annual productivity gains.',
           date: '2025-01-15', 
-          link: 'https://responsive.io/impact/techcorp/time-savings' 
+          link: 'https://metrics.example.com/time-savings' 
         },
         {
           id: 2,
-          type: 'Win Rate Increase',
-          description: 'Teams using AI-recommended content show 12% higher win rates compared to control group, resulting in $2.1M additional revenue in Q1.',
+          type: 'Response Time Reduction',
+          description: 'Average time per customer response decreased from 45 minutes to 7 minutes using AI assistance. Reps now handle 6x more inquiries daily with higher quality responses.',
           date: '2025-01-22',
-          link: 'https://responsive.io/impact/techcorp/win-rate'
+          link: 'https://metrics.example.com/response-time'
         },
         {
           id: 3,
-          type: 'Cost Reduction',
-          description: 'Reduced content creation costs by 35% through reuse of high-performing materials and AI-assisted content generation.',
-          date: '2025-01-10',
-          link: 'https://responsive.io/impact/techcorp/cost-savings'
+          type: 'Database Utilization',
+          description: 'Content database utilization increased from 23% to 89% after implementing AI-powered search and recommendations. Previously hidden valuable content now actively drives deals.',
+          date: '2025-01-28',
+          link: 'https://analytics.example.com/content-usage'
+        },
+        {
+          id: 4,
+          type: 'Deal Velocity Impact',
+          description: 'Sales cycles reduced by 35 days on average when using AI-recommended content sequences. Deals with high content engagement close 42% faster than traditional approach.',
+          date: '2025-02-05',
+          link: 'https://analytics.example.com/deal-velocity'
         }
       ],
       valueRealizedBackup: [], // For cancel functionality
@@ -2543,9 +2550,16 @@
         };
         
         const addSection = (title, yPos) => {
-          // Section header
-          doc.setFillColor(...colors.accent);
-          doc.rect(0, yPos, 210, 10, 'F');
+          // Section header with gradient effect
+          for (let i = 0; i < 10; i++) {
+            const ratio = i / 10;
+            const r = Math.round(colors.accent[0] + (colors.primary[0] - colors.accent[0]) * ratio * 0.3);
+            const g = Math.round(colors.accent[1] + (colors.primary[1] - colors.accent[1]) * ratio * 0.3);
+            const b = Math.round(colors.accent[2] + (colors.primary[2] - colors.accent[2]) * ratio * 0.3);
+            doc.setFillColor(r, g, b);
+            doc.rect(0, yPos + i, 210, 1, 'F');
+          }
+          
           doc.setTextColor(...colors.white);
           doc.setFontSize(12);
           doc.setFont(undefined, 'bold');
