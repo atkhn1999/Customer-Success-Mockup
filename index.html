@@ -2240,7 +2240,15 @@
     };
     
     window.toggleSelectAll = function(section) {
-      const checkbox = $(`#${section.toLowerCase()}-select-all`);
+      // Map section names to their HTML element IDs
+      const sectionIdMap = {
+        'objectives': 'objectives',
+        'valueRealized': 'value-realized',
+        'pastObjectives': 'past-objectives'
+      };
+      const sectionId = sectionIdMap[section] || section.toLowerCase();
+      
+      const checkbox = $(`#${sectionId}-select-all`);
       const items = section === 'objectives' ? state.objectives :
                    section === 'valueRealized' ? state.valueRealized :
                    state.pastObjectives;
