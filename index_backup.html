@@ -2424,73 +2424,117 @@
     window.showPDFExportModal = function() {
       const modal = createModal('Export Report', `
         <div class="space-y-6">
-          <p class="text-gray-600">Select the sections to include in your report:</p>
-          
-          <div class="space-y-3">
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-summary" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Executive Summary</div>
-                <div class="text-sm text-gray-500">Mission statement and account health</div>
-              </div>
-            </label>
-            
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-goals" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Mission Goals</div>
-                <div class="text-sm text-gray-500">Strategic objectives and key initiatives</div>
-              </div>
-            </label>
-            
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-objectives" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Current Objectives</div>
-                <div class="text-sm text-gray-500">Active objectives with KPIs and metrics</div>
-              </div>
-            </label>
-            
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-value" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Value Realized</div>
-                <div class="text-sm text-gray-500">Business impact and ROI achieved</div>
-              </div>
-            </label>
-            
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-past" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Past Objectives</div>
-                <div class="text-sm text-gray-500">Completed milestones and achievements</div>
-              </div>
-            </label>
-            
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-stakeholders" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Key Stakeholders</div>
-                <div class="text-sm text-gray-500">Primary contacts and their roles</div>
-              </div>
-            </label>
+          <div>
+            <div class="text-sm text-gray-600 mb-2">Choose a preset or use Custom to configure sections</div>
+            <div class="grid grid-cols-4 gap-2">
+              <button id="preset-Executive" class="btn btn-ghost border">Executive</button>
+              <button id="preset-Detailed" class="btn btn-ghost border">Detailed</button>
+              <button id="preset-Compact" class="btn btn-ghost border">Compact</button>
+              <button id="preset-Custom" class="btn btn-primary">Custom</button>
+            </div>
+            <div id="preset-preview" class="mt-3 text-xs text-gray-600"></div>
+          </div>
+
+          <div id="custom-config" class="space-y-4">
+            <p class="text-gray-600">Select the sections to include in your report:</p>
+            <div class="grid grid-cols-2 gap-3">
+              <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" id="export-summary" checked class="w-5 h-5 text-teal-600">
+                <div>
+                  <div class="font-medium">Executive Summary</div>
+                  <div class="text-sm text-gray-500">Mission statement and account health</div>
+                </div>
+              </label>
+              <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" id="export-goals" checked class="w-5 h-5 text-teal-600">
+                <div>
+                  <div class="font-medium">Mission Goals</div>
+                  <div class="text-sm text-gray-500">Strategic objectives and key initiatives</div>
+                </div>
+              </label>
+              <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" id="export-objectives" checked class="w-5 h-5 text-teal-600">
+                <div>
+                  <div class="font-medium">Current Objectives</div>
+                  <div class="text-sm text-gray-500">Active objectives with KPIs and metrics</div>
+                </div>
+              </label>
+              <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" id="export-value" checked class="w-5 h-5 text-teal-600">
+                <div>
+                  <div class="font-medium">Value Realized</div>
+                  <div class="text-sm text-gray-500">Business impact and ROI achieved</div>
+                </div>
+              </label>
+              <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" id="export-past" checked class="w-5 h-5 text-teal-600">
+                <div>
+                  <div class="font-medium">Past Objectives</div>
+                  <div class="text-sm text-gray-500">Completed milestones and achievements</div>
+                </div>
+              </label>
+              <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" id="export-stakeholders" checked class="w-5 h-5 text-teal-600">
+                <div>
+                  <div class="font-medium">Key Stakeholders</div>
+                  <div class="text-sm text-gray-500">Primary contacts and their roles</div>
+                </div>
+              </label>
+            </div>
           </div>
         </div>
       `, [
         { label: 'Cancel', class: 'btn-ghost', action: () => closeModal() },
         { label: 'Export PDF', class: 'btn-primary', action: () => {
-          const options = {
-            includeSummary: $('#export-summary').checked,
-            includeGoals: $('#export-goals').checked,
-            includeObjectives: $('#export-objectives').checked,
-            includeValue: $('#export-value').checked,
-            includePast: $('#export-past').checked,
-            includeStakeholders: $('#export-stakeholders').checked
+          const isCustom = document.querySelector('#preset-Custom')?.classList.contains('btn-primary');
+          let options;
+          const presets = {
+            Executive: { includeSummary: true, includeGoals: true, includeObjectives: true, includeValue: true, includePast: false, includeStakeholders: true },
+            Detailed: { includeSummary: true, includeGoals: true, includeObjectives: true, includeValue: true, includePast: true, includeStakeholders: true },
+            Compact: { includeSummary: true, includeGoals: false, includeObjectives: true, includeValue: false, includePast: false, includeStakeholders: false }
           };
+          if (!isCustom) {
+            const active = ['Executive','Detailed','Compact'].find(name => document.querySelector(`#preset-${name}`)?.classList.contains('btn-primary')) || 'Executive';
+            options = { ...presets[active] };
+          } else {
+            options = {
+              includeSummary: $('#export-summary').checked,
+              includeGoals: $('#export-goals').checked,
+              includeObjectives: $('#export-objectives').checked,
+              includeValue: $('#export-value').checked,
+              includePast: $('#export-past').checked,
+              includeStakeholders: $('#export-stakeholders').checked
+            };
+          }
           closeModal();
           generateCleanPDF(options);
         }}
       ]);
+
+      // Live preset preview
+      const previewEl = document.querySelector('#preset-preview');
+      function renderPreviewFor(name) {
+        const map = {
+          Executive: ['Executive Summary','Mission Goals','Current Objectives','Value Realized','Stakeholders'],
+          Detailed: ['Executive Summary','Mission Goals','Current Objectives','Value Realized','Past Objectives','Stakeholders'],
+          Compact: ['Executive Summary','Current Objectives']
+        };
+        const items = map[name] || [];
+        previewEl.innerHTML = items.length ? `Included: ${items.join(' • ')}` : '';
+      }
+      function activatePreset(name) {
+        ['Executive','Detailed','Compact','Custom'].forEach(n => {
+          const el = document.querySelector(`#preset-${n}`);
+          if (!el) return;
+          el.classList.toggle('btn-primary', n === name);
+          el.classList.toggle('btn-ghost', n !== name);
+        });
+        const isCustom = name === 'Custom';
+        document.querySelector('#custom-config').style.display = isCustom ? 'block' : 'none';
+        if (!isCustom) renderPreviewFor(name); else previewEl.innerHTML = '';
+      }
+      ['Executive','Detailed','Compact','Custom'].forEach(n => document.querySelector(`#preset-${n}`)?.addEventListener('click', () => activatePreset(n)));
+      activatePreset('Custom');
     };
     
     async function generateCleanPDF(options) {
@@ -2567,6 +2611,15 @@
           return yPos + 15;
         };
         
+        // Ensure we don't start a section at the bottom of the page
+        const ensureSpace = (requiredHeight) => {
+          const pageBottom = 270; // keep footer space
+          if (y + requiredHeight > pageBottom) {
+            doc.addPage();
+            y = 20;
+          }
+        };
+        
         const drawKPICard = (kpi, x, y) => {
           const w = 60;
           const h = 32;
@@ -2599,11 +2652,22 @@
           if (kpi.comparePrevious && kpi.previousValue) {
             const delta = calculateDelta(kpi.currentValue, kpi.previousValue);
             const color = delta >= 0 ? colors.success : colors.danger;
+            const arrow = delta >= 0 ? '▲' : '▼';
+            const basis = (function normalizeBasis(raw, typeLabel){
+              const s = String(raw || '').trim().toLowerCase();
+              if (s === 'qoq' || s.includes('quarter')) return 'QoQ';
+              if (s === 'yoy' || s.includes('year')) return 'YoY';
+              if (s === 'wow' || s.includes('week')) return 'WoW';
+              if (s === 'mom' || s.includes('month')) return 'MoM';
+              if (typeLabel && /quarter/i.test(typeLabel)) return 'QoQ';
+              if (typeLabel && /year/i.test(typeLabel)) return 'YoY';
+              return 'MoM';
+            })(kpi.compareBasis || kpi.basis || kpi.period, type.label);
             doc.setTextColor(...color);
             doc.setFontSize(9);
-            doc.setFont(undefined, 'normal');
+            doc.setFont(undefined, 'bold');
             const deltaX = x + (w / 2);
-            doc.text(`${delta >= 0 ? '+' : ''}${delta}%`, deltaX, y + 27, { align: 'center' });
+            doc.text(`${arrow} ${Math.abs(delta)}% ${basis}`, deltaX, y + 27, { align: 'center' });
           }
         };
         
@@ -2648,30 +2712,27 @@
         
         // Executive Summary
         if (options.includeSummary && state.missionSummary) {
+          const summaryLines = doc.splitTextToSize(state.missionSummary, 180);
+          const projected = 15 /*header*/ + (summaryLines.length * 5) + 10;
+          ensureSpace(projected);
           y = addSection('EXECUTIVE SUMMARY', y);
-          
           doc.setTextColor(...colors.text);
           doc.setFontSize(10);
           doc.setFont(undefined, 'normal');
-          const summaryLines = doc.splitTextToSize(state.missionSummary, 180);
           doc.text(summaryLines, 15, y);
           y += summaryLines.length * 5 + 10;
         }
         
         // Mission Goals
         if (options.includeGoals && state.missionGoals.length > 0) {
-          if (y > 200) {
-            doc.addPage();
-            y = 20;
-          }
-          
+          // Ensure header + at least one goal fits
+          ensureSpace(15 + 25);
           y = addSection('MISSION GOALS', y);
           
           state.missionGoals.forEach((goal, index) => {
-            if (y > 250) {
-              doc.addPage();
-              y = 20;
-            }
+            const goalLines = doc.splitTextToSize(goal.description, 155);
+            const est = 15 + goalLines.length * 5 + 5;
+            ensureSpace(est);
             
             // Goal number
             doc.setFillColor(...colors.accent);
@@ -2692,7 +2753,6 @@
             doc.setTextColor(...colors.textLight);
             doc.setFontSize(10);
             doc.setFont(undefined, 'normal');
-            const goalLines = doc.splitTextToSize(goal.description, 155);
             doc.text(goalLines, 35, y + 15);
             
             y += 15 + goalLines.length * 5 + 5;
@@ -2702,11 +2762,8 @@
         
         // Current Objectives with KPIs
         if (options.includeObjectives && state.objectives.length > 0) {
-          if (y > 200) {
-            doc.addPage();
-            y = 20;
-          }
-          
+          // Ensure header + minimal objective header fits
+          ensureSpace(15 + 25);
           y = addSection('CURRENT OBJECTIVES', y);
           
           state.objectives.forEach(obj => {
@@ -2723,10 +2780,7 @@
             spaceNeeded += 10; // Bottom margin
             
             // Check if we need a new page
-            if (y + spaceNeeded > 270) {
-              doc.addPage();
-              y = 20;
-            }
+            ensureSpace(spaceNeeded);
             
             // Objective card
             doc.setFillColor(...colors.background);
@@ -2780,11 +2834,8 @@
         
         // Value Realized
         if (options.includeValue && state.valueRealized.length > 0) {
-          if (y > 200) {
-            doc.addPage();
-            y = 20;
-          }
-          
+          // Ensure header + first value card fits
+          ensureSpace(15 + 30);
           y = addSection('VALUE REALIZED', y);
           
           state.valueRealized.forEach(value => {
@@ -2792,21 +2843,19 @@
             const valueLines = doc.splitTextToSize(value.description, 155);
             const spaceNeeded = 30 + (valueLines.length * 5);
             
-            if (y + spaceNeeded > 270) {
-              doc.addPage();
-              y = 20;
-            }
+            ensureSpace(spaceNeeded);
             
             // Value card
             doc.setFillColor(...colors.background);
             doc.roundedRect(15, y, 180, 25, 2, 2, 'F');
             
-            // Icon
+            // Icon (perfectly centered)
             doc.setFillColor(...colors.success);
-            doc.circle(25, y + 12, 5, 'F');
+            const icx = 25, icy = y + 12; // circle center
+            doc.circle(icx, icy, 5, 'F');
             doc.setTextColor(...colors.white);
             doc.setFontSize(10);
-            doc.text('✓', 25, y + 15, { align: 'center' });
+            doc.text('✓', icx, icy + 0.8, { align: 'center' });
             
             // Value type
             doc.setTextColor(...colors.text);
@@ -2831,18 +2880,12 @@
         
         // Past Objectives
         if (options.includePast && state.pastObjectives.length > 0) {
-          if (y > 200) {
-            doc.addPage();
-            y = 20;
-          }
-          
+          // Ensure header + at least one past objective fits
+          ensureSpace(15 + 12);
           y = addSection('COMPLETED OBJECTIVES', y);
           
           state.pastObjectives.forEach(obj => {
-            if (y > 260) {
-              doc.addPage();
-              y = 20;
-            }
+            ensureSpace(15);
             
             // Checkmark
             doc.setTextColor(...colors.success);
@@ -2868,11 +2911,8 @@
         
         // Key Stakeholders
         if (options.includeStakeholders && state.stakeholders.length > 0) {
-          if (y > 200) {
-            doc.addPage();
-            y = 20;
-          }
-          
+          // Ensure header + header row fits
+          ensureSpace(15 + 22);
           y = addSection('KEY STAKEHOLDERS', y);
           
           // Table header
