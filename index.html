@@ -2599,7 +2599,7 @@
     
     // Modern PDF Report Configuration System
     window.showEnhancedPDFExportModal = function() {
-      const presetTemplates = {
+              const presetTemplates = {
         executive: {
           name: 'Executive Summary',
           description: 'High-level overview for C-suite stakeholders',
@@ -2610,13 +2610,13 @@
           name: 'Detailed Report',
           description: 'Comprehensive report with all sections',
           sections: ['summary', 'goals', 'objectives', 'value', 'past', 'stakeholders'],
-          theme: 'modern'
+          theme: 'joyful'
         },
         progress: {
           name: 'Progress Update',
           description: 'Focus on current objectives and achievements',
           sections: ['objectives', 'value', 'past'],
-          theme: 'minimal'
+          theme: 'modern'
         },
         quarterly: {
           name: 'Quarterly Review',
@@ -2879,6 +2879,24 @@
             background: [247, 249, 252],  // Frost
             surface: [255, 255, 255],     // Pure white
             white: [255, 255, 255]
+          },
+          joyful: {
+            // Modern, approachable palette with vibrant accents
+            primary: [79, 70, 229],       // Vibrant indigo
+            secondary: [99, 102, 241],    // Bright indigo
+            accent: [236, 72, 153],       // Pink accent
+            accentLight: [249, 168, 212], // Light pink
+            success: [52, 211, 153],      // Bright teal
+            warning: [251, 191, 36],      // Sunny yellow
+            danger: [248, 113, 113],      // Coral red
+            text: [30, 41, 59],           // Slate 800
+            textLight: [100, 116, 139],   // Slate 500
+            textMuted: [148, 163, 184],   // Slate 400
+            border: [226, 232, 240],      // Slate 200
+            borderLight: [241, 245, 249], // Slate 100
+            background: [248, 250, 252],  // Slate 50
+            surface: [255, 255, 255],     // Pure white
+            white: [255, 255, 255]
           }
         };
         
@@ -2999,24 +3017,26 @@
             doc.line(x, 0, x + 10, 45);
           }
           
-          // Company logo with sophisticated styling
-          doc.setFillColor(...colors.surface);
-          doc.circle(25, 22, 11, 'F');
+          // Company logo with modern, joyful styling
+          doc.setFillColor(...colors.accentLight);
+          doc.circle(25, 22, 8.5, 'F');
           doc.setFillColor(...colors.accent);
-          doc.circle(25, 22, 10, 'F');
+          doc.circle(25, 22, 7.5, 'F');
           doc.setTextColor(...colors.white);
-          doc.setFontSize(14);
+          doc.setFontSize(11);
           doc.setFont(undefined, 'bold');
-          doc.text('R', 25, 26, { align: 'center' });
+          // Fix R alignment with proper baseline adjustment
+          const rMetrics = doc.getTextDimensions('R');
+          doc.text('R', 25, 22 + (rMetrics.h / 3.5), { align: 'center' });
           
-          // Company name with refined typography
+          // Company name with modern, approachable typography
           doc.setTextColor(...colors.white);
-          doc.setFontSize(22);
+          doc.setFontSize(20);
+          doc.setFont(undefined, 'bold');
+          doc.text('Receptive', 38, 19);
+          doc.setFontSize(11);
           doc.setFont(undefined, 'normal');
-          doc.text('Receptive', 42, 19);
-          doc.setFontSize(12);
-          doc.setFont(undefined, 'light');
-          doc.text('Customer Success Report', 42, 27);
+          doc.text('Customer Success Report', 38, 27);
           
           // Elegant report type indicator
           if (options.presetName) {
@@ -3040,36 +3060,35 @@
           }), 195, 38, { align: 'right' });
         };
         
-        // Sophisticated section headers with refined styling
+        // Modern section headers with joyful touches
         const addSectionHeader = (title, yPos) => {
-          // Subtle background with accent color
+          // Light background with rounded edges effect
           doc.setFillColor(...colors.background);
-          doc.rect(0, yPos - 2, 210, 16, 'F');
+          doc.roundedRect(10, yPos - 2, 190, 16, 3, 3, 'F');
           
-          // Elegant accent line
-          doc.setFillColor(...colors.accent);
-          doc.rect(0, yPos + 10, 210, 0.5, 'F');
+          // Colorful accent dot
+          const sectionColors = {
+            'EXECUTIVE SUMMARY': colors.accent,
+            'MISSION GOALS': colors.success,
+            'CURRENT OBJECTIVES': colors.accentLight,
+            'VALUE REALIZED': colors.success,
+            'COMPLETED OBJECTIVES': colors.secondary,
+            'KEY STAKEHOLDERS': colors.accent
+          };
           
-          // Section number indicator
-          const sectionNumber = {
-            'EXECUTIVE SUMMARY': '01',
-            'MISSION GOALS': '02',
-            'CURRENT OBJECTIVES': '03',
-            'VALUE REALIZED': '04',
-            'COMPLETED OBJECTIVES': '05',
-            'KEY STAKEHOLDERS': '06'
-          }[title] || '00';
+          doc.setFillColor(...(sectionColors[title] || colors.accent));
+          doc.circle(20, yPos + 6, 2, 'F');
           
-          doc.setTextColor(...colors.accentLight);
-          doc.setFontSize(8);
-          doc.setFont(undefined, 'light');
-          doc.text(sectionNumber, 15, yPos + 7);
-          
-          // Section title with refined typography
+          // Section title with modern, friendly typography
           doc.setTextColor(...colors.text);
-          doc.setFontSize(11);
-          doc.setFont(undefined, 'normal');
-          doc.text(title, 30, yPos + 7);
+          doc.setFontSize(10);
+          doc.setFont(undefined, 'bold');
+          doc.text(title, 28, yPos + 7);
+          
+          // Subtle decorative line
+          doc.setDrawColor(...colors.borderLight);
+          doc.setLineWidth(0.3);
+          doc.line(15, yPos + 12, 195, yPos + 12);
           
           return yPos + 20;
         };
@@ -3173,11 +3192,13 @@
               y = 20;
             }
             
-            // Goal number with subtle styling
-            doc.setTextColor(...colors.accent);
-            doc.setFontSize(16);
-            doc.setFont(undefined, 'light');
-            doc.text((index + 1).toString().padStart(2, '0'), 22, y + 11);
+            // Goal number with modern, joyful styling
+            doc.setFillColor(...colors.accentLight);
+            doc.circle(22, y + 10, 6, 'F');
+            doc.setTextColor(...colors.white);
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'bold');
+            doc.text((index + 1).toString(), 22, y + 12, { align: 'center' });
             
             // Goal title
             doc.setTextColor(...colors.text);
@@ -3235,14 +3256,21 @@
             doc.setFont(undefined, 'bold');
             doc.text(obj.name, 20, y + 8);
             
-            // Status with perfect alignment
+            // Status with modern, friendly styling
             const statusColors = {
               'On Track': colors.success,
               'At Risk': colors.warning,
               'Off Track': colors.danger
             };
             const statusColor = statusColors[obj.status] || colors.success;
-            alignmentHelpers.drawStatusBox(155, y + 3, 35, 7, obj.status, statusColor, colors.white, 8);
+            
+            // Draw rounded status badge
+            doc.setFillColor(...statusColor);
+            doc.roundedRect(150, y + 3, 40, 7, 3.5, 3.5, 'F');
+            doc.setTextColor(...colors.white);
+            doc.setFontSize(7);
+            doc.setFont(undefined, 'bold');
+            doc.text(obj.status, 170, y + 7.5, { align: 'center' });
             
             y += 18;
             
@@ -3304,13 +3332,15 @@
             doc.setFillColor(...colors.background);
             doc.roundedRect(15, y, 180, valueHeight - 5, 3, 3, 'F');
             
-            // Success icon with smaller circle
+            // Success icon with modern checkmark design
             doc.setFillColor(...colors.success);
-            doc.circle(25, y + 12, 4, 'F');
-            doc.setTextColor(...colors.white);
-            doc.setFontSize(8);
-            doc.setFont(undefined, 'bold');
-            doc.text('v', 25, y + 14, { align: 'center' });
+            doc.circle(25, y + 12, 3, 'F');
+            
+            // Draw a proper checkmark using lines
+            doc.setDrawColor(...colors.white);
+            doc.setLineWidth(1.2);
+            doc.line(23, y + 12.5, 24.5, y + 14);
+            doc.line(24.5, y + 14, 27, y + 10);
             
             // Value type
             doc.setTextColor(...colors.text);
