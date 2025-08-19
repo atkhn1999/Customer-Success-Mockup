@@ -26,7 +26,7 @@
       --success-gradient: linear-gradient(135deg, #34d399 0%, #10b981 100%);
       --danger-gradient: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
       --warning-gradient: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-      --info-gradient: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+      --info-gradient: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
       
       /* Accent colors for variety */
       --accent-purple: #8b5cf6;
@@ -307,6 +307,16 @@
       box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
       transform: translateY(-2px);
     }
+    .btn-info {
+      background: var(--info-gradient);
+      color: #fff;
+      border: none;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+    }
+    .btn-info:hover:not(:disabled) {
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+      transform: translateY(-2px);
+    }
     .btn-outline { 
       background: var(--card-bg); 
       color: var(--text-primary); 
@@ -336,6 +346,38 @@
       background: rgba(255, 255, 255, 0.2);
       border-color: rgba(255, 255, 255, 0.4);
       transform: translateY(-1px);
+    }
+    
+    /* Custom gradient buttons for header actions */
+    .btn-excel {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      color: #fff;
+      border: none;
+      box-shadow: 0 4px 14px rgba(5, 150, 105, 0.3);
+    }
+    .btn-excel:hover:not(:disabled) {
+      box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
+      transform: translateY(-2px);
+    }
+    .btn-backup {
+      background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+      color: #fff;
+      border: none;
+      box-shadow: 0 4px 14px rgba(8, 145, 178, 0.3);
+    }
+    .btn-backup:hover:not(:disabled) {
+      box-shadow: 0 6px 20px rgba(8, 145, 178, 0.4);
+      transform: translateY(-2px);
+    }
+    .btn-restore {
+      background: linear-gradient(135deg, #047857 0%, #064e3b 100%);
+      color: #fff;
+      border: none;
+      box-shadow: 0 4px 14px rgba(4, 120, 87, 0.3);
+    }
+    .btn-restore:hover:not(:disabled) {
+      box-shadow: 0 6px 20px rgba(4, 120, 87, 0.4);
+      transform: translateY(-2px);
     }
 
     /* Read-only sections */
@@ -793,17 +835,18 @@
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>
               PDF Report
             </button>
-            <button id="export-excel-btn" class="btn bg-emerald-700 hover:bg-emerald-800 text-white flex items-center justify-center text-sm transform transition-all duration-200 hover:shadow-lg" style="transform: translateY(0px);" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0px)'" aria-label="Export to Excel">
+            <button id="export-excel-btn" class="btn btn-excel flex items-center justify-center text-sm transform transition-all duration-200" aria-label="Export to Excel">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/><path d="M8.5 12.5l1.5 3 1.5-3m-3 0h3m-4.5-1h6v5h-6z"/></svg>
               Excel
             </button>
-            <button id="export-data-btn" class="btn bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center text-sm transform transition-all duration-200 hover:shadow-lg" style="transform: translateY(0px);" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0px)'" aria-label="Export Data">
+            <!-- Backup button with gradient -->
+            <button id="export-data-btn" class="btn btn-backup flex items-center justify-center text-sm transform transition-all duration-200" aria-label="Export Data">
               <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
               </svg>
               Backup
             </button>
-            <button id="import-data-btn" class="btn bg-green-600 hover:bg-green-700 text-white flex items-center justify-center text-sm transform transition-all duration-200 hover:shadow-lg" style="transform: translateY(0px);" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0px)'" aria-label="Import Data">
+            <button id="import-data-btn" class="btn btn-restore flex items-center justify-center text-sm transform transition-all duration-200" aria-label="Import Data">
               <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
               </svg>
@@ -1507,7 +1550,7 @@
               <div class="flex gap-2">
                 <button class="btn btn-ghost btn-sm" onclick="editObjective(${obj.id}, ${isPast})">Edit</button>
                 ${!isPast ? `
-                  <button class="btn btn-primary btn-sm" onclick="showAddKPIModal(${obj.id})">+ Add KPI</button>
+                  <button class="btn btn-info btn-sm" onclick="showAddKPIModal(${obj.id})">+ Add KPI</button>
                 ` : ''}
               </div>
             </div>
@@ -1819,7 +1862,7 @@
         </div>
       `, [
         { label: 'Cancel', class: 'btn-ghost', action: () => closeModal() },
-        { label: 'Add KPI', class: 'btn-primary', action: () => {
+        { label: 'Add KPI', class: 'btn-info', action: () => {
           const typeKey = $('#kpi-type').value;
           const current = parseFloat($('#kpi-current').value) || 0;
           const previous = parseFloat($('#kpi-previous').value) || 0;
