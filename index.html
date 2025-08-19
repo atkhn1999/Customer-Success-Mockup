@@ -2928,14 +2928,14 @@
             const valueText = `${kpi.currentValue}${type.unit}`;
             doc.text(valueText, x + width/2, y + 20, { align: 'center' });
             
-            // Change indicator
+            // Change indicator with proper period label
             if (kpi.comparePrevious && kpi.previousValue) {
               const delta = calculateDelta(kpi.currentValue, kpi.previousValue);
               const color = delta >= 0 ? colors.success : colors.danger;
               doc.setTextColor(...color);
-              doc.setFontSize(10);
+              doc.setFontSize(9);
               doc.setFont(undefined, 'normal');
-              const deltaText = `${delta >= 0 ? '↑' : '↓'} ${Math.abs(delta)}%`;
+              const deltaText = `${delta >= 0 ? '+' : ''}${delta}% MoM`;
               doc.text(deltaText, x + width/2, y + 29, { align: 'center' });
             }
           }
@@ -2988,23 +2988,26 @@
         };
         
         // Enhanced section headers with better visual hierarchy
-        const addSectionHeader = (title, yPos, icon = null) => {
-          // Section background with subtle gradient
-          doc.setFillColor(...colors.accent);
-          doc.rect(0, yPos, 210, 12, 'F');
-          
-          // Icon if provided
-          if (icon) {
-            doc.setTextColor(...colors.white);
-            doc.setFontSize(10);
-            doc.text(icon, 15, yPos + 8);
+        const addSectionHeader = (title, yPos) => {
+          // Section background with gradient effect
+          for (let i = 0; i < 12; i++) {
+            const ratio = i / 12;
+            const r = Math.round(colors.accent[0] * (1 - ratio * 0.3));
+            const g = Math.round(colors.accent[1] * (1 - ratio * 0.3));
+            const b = Math.round(colors.accent[2] * (1 - ratio * 0.3));
+            doc.setFillColor(r, g, b);
+            doc.rect(0, yPos + i, 210, 1, 'F');
           }
+          
+          // White bar accent
+          doc.setFillColor(...colors.white);
+          doc.rect(0, yPos, 4, 12, 'F');
           
           // Section title
           doc.setTextColor(...colors.white);
           doc.setFontSize(13);
           doc.setFont(undefined, 'bold');
-          doc.text(title, icon ? 25 : 15, yPos + 8);
+          doc.text(title, 15, yPos + 8);
           
           return yPos + 18;
         };
@@ -3062,7 +3065,7 @@
         
         // Executive Summary with enhanced typography
         if (options.includeSummary && state.missionSummary) {
-          y = addSectionHeader('EXECUTIVE SUMMARY', y, '📋');
+          y = addSectionHeader('EXECUTIVE SUMMARY', y);
           
           // Summary content with proper spacing
           doc.setTextColor(...colors.text);
@@ -3091,7 +3094,7 @@
             y = 20;
           }
           
-          y = addSectionHeader('MISSION GOALS', y, '🎯');
+          y = addSectionHeader('MISSION GOALS', y);
           
           state.missionGoals.forEach((goal, index) => {
             const goalHeight = 25 + calculateContentHeight(goal.description, 155);
@@ -3102,7 +3105,7 @@
             }
             
             // Goal number with perfect circle alignment
-            alignmentHelpers.drawCenteredCircle(22, y + 10, 10, (index + 1).toString(), colors.accent, colors.white, 14);
+            alignmentHelpers.drawCenteredCircle(22, y + 10, 8, (index + 1).toString(), colors.accent, colors.white, 12);
             
             // Goal title
             doc.setTextColor(...colors.text);
@@ -3130,7 +3133,7 @@
             y = 20;
           }
           
-          y = addSectionHeader('CURRENT OBJECTIVES', y, '📊');
+          y = addSectionHeader('CURRENT OBJECTIVES', y);
           
           state.objectives.forEach(obj => {
             // Calculate total height needed
@@ -3215,7 +3218,7 @@
             y = 20;
           }
           
-          y = addSectionHeader('VALUE REALIZED', y, '✨');
+          y = addSectionHeader('VALUE REALIZED', y);
           
           state.valueRealized.forEach(value => {
             const valueHeight = 35 + calculateContentHeight(value.description, 155);
@@ -3229,8 +3232,13 @@
             doc.setFillColor(...colors.background);
             doc.roundedRect(15, y, 180, valueHeight - 5, 3, 3, 'F');
             
-            // Success icon with perfect circle
-            alignmentHelpers.drawCenteredCircle(25, y + 12, 6, '✓', colors.success, colors.white, 10);
+            // Success icon with smaller circle
+            doc.setFillColor(...colors.success);
+            doc.circle(25, y + 12, 4, 'F');
+            doc.setTextColor(...colors.white);
+            doc.setFontSize(8);
+            doc.setFont(undefined, 'bold');
+            doc.text('v', 25, y + 14, { align: 'center' });
             
             // Value type
             doc.setTextColor(...colors.text);
@@ -3261,7 +3269,7 @@
             y = 20;
           }
           
-          y = addSectionHeader('COMPLETED OBJECTIVES', y, '✅');
+          y = addSectionHeader('COMPLETED OBJECTIVES', y);
           
           state.pastObjectives.forEach((obj, index) => {
             if (y > 260) {
@@ -3297,7 +3305,7 @@
             y = 20;
           }
           
-          y = addSectionHeader('KEY STAKEHOLDERS', y, '👥');
+          y = addSectionHeader('KEY STAKEHOLDERS', y);
           
           // Table header with gradient
           doc.setFillColor(...colors.accent);
