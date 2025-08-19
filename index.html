@@ -3438,15 +3438,23 @@
           
           y = addSectionHeader('KEY STAKEHOLDERS', y);
           
-          // Table header with gradient
-          doc.setFillColor(...colors.accent);
+          // Table header with muted design
+          // Use a very light background instead of bold accent
+          doc.setFillColor(...colors.borderLight);
           doc.rect(15, y, 180, 10, 'F');
-          doc.setTextColor(...colors.white);
-          doc.setFontSize(10);
+          
+          // Add subtle accent line at bottom of header
+          doc.setDrawColor(...colors.accent);
+          doc.setLineWidth(0.5);
+          doc.line(15, y + 10, 195, y + 10);
+          
+          // Use dark text instead of white for better readability
+          doc.setTextColor(...colors.text);
+          doc.setFontSize(9);
           doc.setFont('helvetica', 'bold');
-          doc.text('Name', 20, y + 7);
-          doc.text('Title', 75, y + 7);
-          doc.text('Email', 130, y + 7);
+          doc.text('NAME', 20, y + 7);
+          doc.text('TITLE', 75, y + 7);
+          doc.text('EMAIL', 130, y + 7);
           
           y += 12;
           
@@ -3458,13 +3466,15 @@
               y = 20;
             }
             
-            // Alternating row background
+            // Very subtle alternating row background
             if (index % 2 === 0) {
-              doc.setFillColor(...colors.background);
+              // Calculate an even lighter shade
+              const veryLightBg = colors.background.map(c => Math.min(255, c + ((255 - c) * 0.5)));
+              doc.setFillColor(...veryLightBg);
               doc.rect(15, y - 3, 180, 8, 'F');
             }
             
-            doc.setTextColor(...colors.text);
+            doc.setTextColor(...colors.textLight);
             doc.setFontSize(9);
             doc.text(stakeholder.name, 20, y);
             doc.text(stakeholder.title, 75, y);
