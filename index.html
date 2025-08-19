@@ -2586,524 +2586,680 @@
       addDataBackupButtons();
     }
 
-    // ---------- Export Functions ----------
+    // ---------- Export Functions (Modernized PDF Generator) ----------
     async function exportToPDF() {
-      // Show export options modal
       showPDFExportModal();
     }
-    
+
+    // Preset definitions for consistent, perfectly-aligned layouts
+    function getPDFPresets() {
+      return {
+        Executive: {
+          includeSummary: true,
+          includeGoals: true,
+          includeObjectives: true,
+          includeValue: true,
+          includePast: false,
+          includeStakeholders: true,
+          headerStyle: 'bar',
+          kpiColumns: 3,
+          orientation: 'p',
+          pageSize: 'a4',
+          showPageNumbers: true,
+          showFooterNote: true
+        },
+        Board: {
+          includeSummary: true,
+          includeGoals: false,
+          includeObjectives: true,
+          includeValue: true,
+          includePast: true,
+          includeStakeholders: false,
+          headerStyle: 'minimal',
+          kpiColumns: 2,
+          orientation: 'p',
+          pageSize: 'a4',
+          showPageNumbers: true,
+          showFooterNote: true
+        },
+        Detailed: {
+          includeSummary: true,
+          includeGoals: true,
+          includeObjectives: true,
+          includeValue: true,
+          includePast: true,
+          includeStakeholders: true,
+          headerStyle: 'bar',
+          kpiColumns: 3,
+          orientation: 'p',
+          pageSize: 'a4',
+          showPageNumbers: true,
+          showFooterNote: true
+        },
+        Compact: {
+          includeSummary: true,
+          includeGoals: false,
+          includeObjectives: true,
+          includeValue: false,
+          includePast: false,
+          includeStakeholders: false,
+          headerStyle: 'minimal',
+          kpiColumns: 2,
+          orientation: 'p',
+          pageSize: 'a4',
+          showPageNumbers: true,
+          showFooterNote: false
+        }
+      };
+    }
+
+    function buildOptionsFromPreset(presetName) {
+      const presets = getPDFPresets();
+      const base = presets[presetName] || presets.Executive;
+      return { ...base };
+    }
+
     window.showPDFExportModal = function() {
       const modal = createModal('Export Report', `
         <div class="space-y-6">
-          <p class="text-gray-600">Select the sections to include in your report:</p>
-          
-          <div class="space-y-3">
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-summary" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Executive Summary</div>
-                <div class="text-sm text-gray-500">Mission statement and account health</div>
-              </div>
-            </label>
-            
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-goals" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Mission Goals</div>
-                <div class="text-sm text-gray-500">Strategic objectives and key initiatives</div>
-              </div>
-            </label>
-            
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-objectives" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Current Objectives</div>
-                <div class="text-sm text-gray-500">Active objectives with KPIs and metrics</div>
-              </div>
-            </label>
-            
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-value" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Value Realized</div>
-                <div class="text-sm text-gray-500">Business impact and ROI achieved</div>
-              </div>
-            </label>
-            
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-past" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Past Objectives</div>
-                <div class="text-sm text-gray-500">Completed milestones and achievements</div>
-              </div>
-            </label>
-            
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-stakeholders" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Key Stakeholders</div>
-                <div class="text-sm text-gray-500">Primary contacts and their roles</div>
-              </div>
-            </label>
+          <div>
+            <div class="text-sm text-gray-600 mb-2">Choose a preset or use Custom to configure sections</div>
+            <div class="grid grid-cols-5 gap-2">
+              <button id="preset-Executive" class="btn btn-ghost border">Executive</button>
+              <button id="preset-Board" class="btn btn-ghost border">Board</button>
+              <button id="preset-Detailed" class="btn btn-ghost border">Detailed</button>
+              <button id="preset-Compact" class="btn btn-ghost border">Compact</button>
+              <button id="preset-Custom" class="btn btn-primary">Custom</button>
+            </div>
+          </div>
+
+          <div id="custom-config" class="space-y-4">
+            <p class="text-gray-600">Select the sections to include in your report:</p>
+            <div class="grid grid-cols-2 gap-3">
+              <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" id="export-summary" checked class="w-5 h-5 text-teal-600">
+                <div>
+                  <div class="font-medium">Executive Summary</div>
+                  <div class="text-sm text-gray-500">Mission statement and account health</div>
+                </div>
+              </label>
+              <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" id="export-goals" checked class="w-5 h-5 text-teal-600">
+                <div>
+                  <div class="font-medium">Mission Goals</div>
+                  <div class="text-sm text-gray-500">Strategic objectives and key initiatives</div>
+                </div>
+              </label>
+              <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" id="export-objectives" checked class="w-5 h-5 text-teal-600">
+                <div>
+                  <div class="font-medium">Current Objectives</div>
+                  <div class="text-sm text-gray-500">Active objectives with KPIs and metrics</div>
+                </div>
+              </label>
+              <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" id="export-value" checked class="w-5 h-5 text-teal-600">
+                <div>
+                  <div class="font-medium">Value Realized</div>
+                  <div class="text-sm text-gray-500">Business impact and ROI achieved</div>
+                </div>
+              </label>
+              <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" id="export-past" checked class="w-5 h-5 text-teal-600">
+                <div>
+                  <div class="font-medium">Past Objectives</div>
+                  <div class="text-sm text-gray-500">Completed milestones and achievements</div>
+                </div>
+              </label>
+              <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" id="export-stakeholders" checked class="w-5 h-5 text-teal-600">
+                <div>
+                  <div class="font-medium">Key Stakeholders</div>
+                  <div class="text-sm text-gray-500">Primary contacts and their roles</div>
+                </div>
+              </label>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3">
+              <label class="flex items-center justify-between p-3 border rounded">
+                <span class="text-sm text-gray-600">KPI columns</span>
+                <select id="kpi-columns" class="text-zone p-1 text-sm">
+                  <option value="2">2</option>
+                  <option value="3" selected>3</option>
+                  <option value="4">4</option>
+                </select>
+              </label>
+              <label class="flex items-center justify-between p-3 border rounded">
+                <span class="text-sm text-gray-600">Header</span>
+                <select id="header-style" class="text-zone p-1 text-sm">
+                  <option value="minimal">Minimal</option>
+                  <option value="bar" selected>Accent Bar</option>
+                </select>
+              </label>
+              <label class="flex items-center justify-between p-3 border rounded">
+                <span class="text-sm text-gray-600">Orientation</span>
+                <select id="page-orientation" class="text-zone p-1 text-sm">
+                  <option value="p" selected>Portrait</option>
+                  <option value="l">Landscape</option>
+                </select>
+              </label>
+            </div>
+            <div class="flex items-center gap-6">
+              <label class="flex items-center gap-2">
+                <input id="opt-page-numbers" type="checkbox" checked>
+                <span class="text-sm text-gray-600">Show page numbers</span>
+              </label>
+              <label class="flex items-center gap-2">
+                <input id="opt-footer-note" type="checkbox" checked>
+                <span class="text-sm text-gray-600">Show footer note</span>
+              </label>
+            </div>
           </div>
         </div>
       `, [
         { label: 'Cancel', class: 'btn-ghost', action: () => closeModal() },
         { label: 'Export PDF', class: 'btn-primary', action: () => {
-          const options = {
-            includeSummary: $('#export-summary').checked,
-            includeGoals: $('#export-goals').checked,
-            includeObjectives: $('#export-objectives').checked,
-            includeValue: $('#export-value').checked,
-            includePast: $('#export-past').checked,
-            includeStakeholders: $('#export-stakeholders').checked
-          };
+          const isCustom = document.querySelector('#preset-Custom')?.classList.contains('btn-primary');
+          let options;
+          if (!isCustom) {
+            const active = Array.from(['Executive','Board','Detailed','Compact']).find(name => document.querySelector(`#preset-${name}`)?.classList.contains('btn-primary')) || 'Executive';
+            options = buildOptionsFromPreset(active);
+          } else {
+            options = {
+              includeSummary: $('#export-summary').checked,
+              includeGoals: $('#export-goals').checked,
+              includeObjectives: $('#export-objectives').checked,
+              includeValue: $('#export-value').checked,
+              includePast: $('#export-past').checked,
+              includeStakeholders: $('#export-stakeholders').checked,
+              kpiColumns: parseInt($('#kpi-columns').value, 10),
+              headerStyle: $('#header-style').value,
+              orientation: $('#page-orientation').value,
+              pageSize: 'a4',
+              showPageNumbers: $('#opt-page-numbers').checked,
+              showFooterNote: $('#opt-footer-note').checked
+            };
+          }
           closeModal();
-          generateCleanPDF(options);
+          generateModernPDF(options);
         }}
       ]);
+
+      // Preset interaction
+      const presetButtons = ['Executive','Board','Detailed','Compact','Custom'];
+      function activatePreset(name) {
+        presetButtons.forEach(n => {
+          const el = document.querySelector(`#preset-${n}`);
+          if (!el) return;
+          el.classList.toggle('btn-primary', n === name);
+          el.classList.toggle('btn-ghost', n !== name);
+        });
+        const isCustom = name === 'Custom';
+        document.querySelector('#custom-config').style.display = isCustom ? 'block' : 'none';
+        if (!isCustom) {
+          const p = buildOptionsFromPreset(name);
+          $('#export-summary').checked = p.includeSummary;
+          $('#export-goals').checked = p.includeGoals;
+          $('#export-objectives').checked = p.includeObjectives;
+          $('#export-value').checked = p.includeValue;
+          $('#export-past').checked = p.includePast;
+          $('#export-stakeholders').checked = p.includeStakeholders;
+          $('#kpi-columns').value = String(p.kpiColumns);
+          $('#header-style').value = p.headerStyle;
+          $('#page-orientation').value = p.orientation;
+          $('#opt-page-numbers').checked = p.showPageNumbers;
+          $('#opt-footer-note').checked = p.showFooterNote;
+        }
+      }
+      presetButtons.forEach(n => document.querySelector(`#preset-${n}`)?.addEventListener('click', () => activatePreset(n)));
+      activatePreset('Custom');
     };
-    
-    async function generateCleanPDF(options) {
+
+    // New, alignment-precise generator
+    async function generateModernPDF(options) {
       const btn = $('#export-pdf-btn');
       btn.disabled = true;
       btn.innerHTML = '<span class="animate-spin">⟳</span> Generating...';
-      
+
       try {
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p', 'mm', 'a4');
-        
-        // Professional color scheme
+        const doc = new jsPDF(options.orientation || 'p', 'mm', options.pageSize || 'a4');
+
+        // Layout constants
+        const page = { width: doc.internal.pageSize.getWidth(), height: doc.internal.pageSize.getHeight() };
+        const margin = { left: 15, right: 15, top: 18, bottom: 18 };
+        const content = { x: margin.left, y: margin.top, w: page.width - margin.left - margin.right };
+        const spacing = { xs: 3, sm: 6, md: 10, lg: 14 };
+
+        // Theme
         const colors = {
-          primary: [45, 55, 72],        // Dark navy
-          accent: [56, 178, 172],       // Teal
-          success: [72, 187, 120],      // Green
-          warning: [246, 173, 85],      // Orange
-          danger: [245, 101, 101],      // Red
-          text: [45, 55, 72],           // Dark text
-          textLight: [113, 128, 150],   // Gray text
-          border: [226, 232, 240],      // Light border
-          background: [247, 250, 252],  // Light background
-          white: [255, 255, 255],
-          purple: [139, 92, 246],       // Purple accent
-          blue: [59, 130, 246]          // Blue accent
+          primary: [32, 41, 57],
+          accent: [14, 165, 233],
+          success: [34, 197, 94],
+          warning: [245, 158, 11],
+          danger: [239, 68, 68],
+          text: [31, 41, 55],
+          textLight: [100, 116, 139],
+          border: [226, 232, 240],
+          background: [248, 250, 252],
+          white: [255, 255, 255]
         };
-        
-        // Helper functions
-        const addHeader = () => {
-          // Header background
-          doc.setFillColor(...colors.primary);
-          doc.rect(0, 0, 210, 40, 'F');
-          
-          // Logo area
-          doc.setFillColor(...colors.white);
-          doc.circle(25, 20, 10, 'F');
-          doc.setTextColor(...colors.primary);
-          doc.setFontSize(14);
+
+        // Helpers
+        function ensurePage(spaceNeeded) {
+          if (content.y + spaceNeeded <= page.height - margin.bottom) return;
+          doc.addPage();
+          content.y = margin.top;
+          drawHeader();
+          content.y += spacing.md;
+        }
+
+        function textBlock(text, x, y, w, fontSize, color, fontStyle = 'normal', leading = 1.4) {
+          doc.setTextColor(...color);
+          doc.setFontSize(fontSize);
+          doc.setFont(undefined, fontStyle);
+          const lines = doc.splitTextToSize(text, w);
+          doc.text(lines, x, y);
+          const height = lines.length * (fontSize * leading) * 0.3528; // px to mm approx factor for font metrics
+          return height;
+        }
+
+        function centeredTextInRect(text, x, y, w, h, fontSize, color, fontStyle = 'bold') {
+          doc.setFontSize(fontSize);
+          doc.setFont(undefined, fontStyle);
+          const dims = doc.getTextDimensions(text);
+          const textW = dims.w;
+          const textH = dims.h || fontSize * 0.3528; // fallback mm
+          const cx = x + (w / 2);
+          const cy = y + (h / 2);
+          doc.setTextColor(...color);
+          doc.text(text, cx, cy + (textH / 2) - 0.6, { align: 'center' });
+        }
+
+        function drawNumberCircle(numText, cx, cy, r, fill, textColor) {
+          doc.setFillColor(...fill);
+          doc.circle(cx, cy, r, 'F');
+          const fontSize = r * 1.6; // scale font to circle
           doc.setFont(undefined, 'bold');
-          doc.text('R', 25, 24, { align: 'center' });
-          
-          // Company name
-          doc.setTextColor(...colors.white);
-          doc.setFontSize(20);
-          doc.text('Receptive', 40, 18);
-          doc.setFontSize(12);
-          doc.setFont(undefined, 'normal');
-          doc.text('Customer Success Report', 40, 26);
-          
-          // Date
-          doc.setFontSize(10);
-          doc.text(new Date().toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          }), 190, 20, { align: 'right' });
-        };
-        
-        const addSection = (title, yPos) => {
-          // Section header with gradient effect
-          for (let i = 0; i < 10; i++) {
-            const ratio = i / 10;
-            const r = Math.round(colors.accent[0] + (colors.primary[0] - colors.accent[0]) * ratio * 0.3);
-            const g = Math.round(colors.accent[1] + (colors.primary[1] - colors.accent[1]) * ratio * 0.3);
-            const b = Math.round(colors.accent[2] + (colors.primary[2] - colors.accent[2]) * ratio * 0.3);
-            doc.setFillColor(r, g, b);
-            doc.rect(0, yPos + i, 210, 1, 'F');
-          }
-          
-          doc.setTextColor(...colors.white);
-          doc.setFontSize(12);
+          doc.setFontSize(fontSize);
+          const dims = doc.getTextDimensions(String(numText));
+          const textH = dims.h || fontSize * 0.3528;
+          doc.setTextColor(...textColor);
+          doc.text(String(numText), cx, cy + (textH / 2) - 0.6, { align: 'center' });
+        }
+
+        function drawStatusPill(text, x, y, fill, textColor) {
+          doc.setFontSize(9);
           doc.setFont(undefined, 'bold');
-          doc.text(title, 15, yPos + 7);
-          return yPos + 15;
-        };
-        
-        const drawKPICard = (kpi, x, y) => {
-          const w = 60;
-          const h = 32;
-          
-          // Card background with subtle shadow
-          doc.setFillColor(240, 240, 240);
-          doc.roundedRect(x + 1, y + 1, w, h, 2, 2, 'F');
-          
-          doc.setFillColor(...colors.white);
-          doc.setDrawColor(...colors.border);
-          doc.setLineWidth(0.5);
-          doc.roundedRect(x, y, w, h, 2, 2, 'FD');
-          
-          // KPI name
-          doc.setTextColor(...colors.textLight);
-          doc.setFontSize(8);
-          doc.setFont(undefined, 'normal');
-          const type = getKPIType(kpi.typeKey);
-          const labelX = x + (w / 2);
-          doc.text(type.label, labelX, y + 7, { align: 'center' });
-          
-          // KPI value
-          doc.setTextColor(...colors.text);
-          doc.setFontSize(18);
-          doc.setFont(undefined, 'bold');
-          const valueX = x + (w / 2);
-          doc.text(`${kpi.currentValue}${type.unit}`, valueX, y + 19, { align: 'center' });
-          
-          // Change indicator
-          if (kpi.comparePrevious && kpi.previousValue) {
-            const delta = calculateDelta(kpi.currentValue, kpi.previousValue);
-            const color = delta >= 0 ? colors.success : colors.danger;
-            doc.setTextColor(...color);
-            doc.setFontSize(9);
+          const dims = doc.getTextDimensions(text);
+          const padX = 3.8, padY = 2.6;
+          const w = dims.w + padX * 2;
+          const h = dims.h + padY * 2;
+          doc.setFillColor(...fill);
+          doc.roundedRect(x, y, w, h, 3, 3, 'F');
+          centeredTextInRect(text, x, y, w, h, 9, textColor, 'bold');
+          return { w, h };
+        }
+
+        function drawHeader() {
+          if ((options.headerStyle || 'bar') === 'bar') {
+            doc.setFillColor(...colors.primary);
+            doc.rect(0, 0, page.width, 18, 'F');
+            doc.setTextColor(...colors.white);
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.text('Receptive', margin.left, 12);
+            doc.setFontSize(10);
             doc.setFont(undefined, 'normal');
-            const deltaX = x + (w / 2);
-            doc.text(`${delta >= 0 ? '+' : ''}${delta}%`, deltaX, y + 27, { align: 'center' });
+            doc.text('Customer Success Report', margin.left + 35, 12);
+            doc.setFontSize(9);
+            doc.text(new Date().toLocaleDateString(), page.width - margin.right, 12, { align: 'right' });
+          } else {
+            doc.setTextColor(...colors.text);
+            doc.setFontSize(13);
+            doc.setFont(undefined, 'bold');
+            doc.text('Receptive • Customer Success Report', margin.left, 12);
           }
-        };
-        
-        // Start PDF generation
-        addHeader();
-        let y = 50;
-        
-        // Account Overview
+        }
+
+        function sectionHeading(title) {
+          const barH = 7;
+          const spaceNeeded = barH + spacing.sm;
+          ensurePage(spaceNeeded);
+          // Subtle accent bar
+          doc.setFillColor(...colors.accent);
+          doc.rect(0, content.y, page.width, barH, 'F');
+          doc.setTextColor(...colors.white);
+          doc.setFontSize(11);
+          doc.setFont(undefined, 'bold');
+          doc.text(title.toUpperCase(), margin.left, content.y + 4.8);
+          content.y += barH + spacing.sm;
+        }
+
+        function kpiGrid(kpis, columns) {
+          if (!kpis || kpis.length === 0) return;
+          const gap = spacing.md;
+          const cardW = (content.w - gap * (columns - 1)) / columns;
+          const cardH = 34;
+          let col = 0;
+          kpis.forEach((kpi, idx) => {
+            if (col === 0) ensurePage(cardH + spacing.sm);
+            const x = content.x + (cardW + gap) * col;
+            const y = content.y;
+            // Card
+            doc.setFillColor(...colors.white);
+            doc.setDrawColor(...colors.border);
+            doc.roundedRect(x, y, cardW, cardH, 2, 2, 'FD');
+            // Label
+            doc.setTextColor(...colors.textLight);
+            doc.setFontSize(8);
+            doc.setFont(undefined, 'normal');
+            const type = getKPIType(kpi.typeKey);
+            doc.text(type.label, x + cardW / 2, y + 7, { align: 'center' });
+            // Value
+            doc.setTextColor(...colors.text);
+            doc.setFontSize(17);
+            doc.setFont(undefined, 'bold');
+            doc.text(`${kpi.currentValue}${type.unit}`, x + cardW / 2, y + 19, { align: 'center' });
+            // Delta
+            if (kpi.comparePrevious && kpi.previousValue) {
+              const delta = calculateDelta(kpi.currentValue, kpi.previousValue);
+              const c = delta >= 0 ? colors.success : colors.danger;
+              doc.setTextColor(...c);
+              doc.setFontSize(9);
+              doc.setFont(undefined, 'bold');
+              doc.text(`${delta >= 0 ? '+' : ''}${delta}%`, x + cardW / 2, y + 27, { align: 'center' });
+            }
+            col++;
+            if (col >= columns) {
+              col = 0;
+              content.y += cardH + gap;
+            }
+          });
+          if (col !== 0) content.y += cardH + spacing.md;
+        }
+
+        // Build document
+        drawHeader();
+        content.y = 24;
+
+        // Account Overview strip
+        ensurePage(32);
         doc.setFillColor(...colors.background);
-        doc.rect(15, y, 180, 35, 'F');
-        
-        // Customer name
+        doc.rect(content.x, content.y, content.w, 28, 'F');
+        // Name
         doc.setTextColor(...colors.text);
-        doc.setFontSize(18);
+        doc.setFontSize(16);
         doc.setFont(undefined, 'bold');
-        doc.text(state.customerName, 25, y + 12);
-        
-        // Health status
-        const healthColors = {
-          green: colors.success,
-          yellow: colors.warning,
-          red: colors.danger
-        };
-        const healthLabels = {
-          green: 'Healthy',
-          yellow: 'At Risk',
-          red: 'Critical'
-        };
-        doc.setFillColor(...(healthColors[state.planHealth] || colors.success));
-        doc.roundedRect(25, y + 18, 30, 8, 2, 2, 'F');
-        doc.setTextColor(...colors.white);
-        doc.setFontSize(9);
-        doc.text(healthLabels[state.planHealth] || 'Healthy', 40, y + 24, { align: 'center' });
-        
+        doc.text(state.customerName, content.x + 10, content.y + 11);
+        // Health chip perfectly centered
+        const healthMap = { green: { label: 'Healthy', color: colors.success }, yellow: { label: 'At Risk', color: colors.warning }, red: { label: 'Critical', color: colors.danger } };
+        const hc = healthMap[state.planHealth] || healthMap.green;
+        const chip = drawStatusPill(hc.label, content.x + 10, content.y + 15, hc.color, colors.white);
         // Products
         doc.setTextColor(...colors.textLight);
-        doc.setFontSize(10);
+        doc.setFontSize(9);
         doc.setFont(undefined, 'normal');
-        doc.text(`Products: ${state.products.join(', ')}`, 65, y + 24);
-        
-        y = 95;
-        
+        doc.text(`Products: ${state.products.join(', ')}`, content.x + 10 + chip.w + 6, content.y + 19);
+        content.y += 32;
+
         // Executive Summary
         if (options.includeSummary && state.missionSummary) {
-          y = addSection('EXECUTIVE SUMMARY', y);
-          
-          doc.setTextColor(...colors.text);
-          doc.setFontSize(10);
-          doc.setFont(undefined, 'normal');
-          const summaryLines = doc.splitTextToSize(state.missionSummary, 180);
-          doc.text(summaryLines, 15, y);
-          y += summaryLines.length * 5 + 10;
+          sectionHeading('Executive Summary');
+          const h = textBlock(state.missionSummary, content.x, content.y, content.w, 10, colors.text, 'normal', 1.5);
+          content.y += h + spacing.md;
         }
-        
+
         // Mission Goals
         if (options.includeGoals && state.missionGoals.length > 0) {
-          if (y > 200) {
-            doc.addPage();
-            y = 20;
-          }
-          
-          y = addSection('MISSION GOALS', y);
-          
-          state.missionGoals.forEach((goal, index) => {
-            if (y > 250) {
-              doc.addPage();
-              y = 20;
-            }
-            
-            // Goal number
-            doc.setFillColor(...colors.accent);
-            doc.circle(20, y + 8, 8, 'F');
-            doc.setTextColor(...colors.white);
-            doc.setFontSize(12);
-            doc.setFont(undefined, 'bold');
-            // Fix vertical alignment for circle text
-            doc.text((index + 1).toString(), 20, y + 11, { align: 'center' });
-            
-            // Goal title
+          sectionHeading('Mission Goals');
+          state.missionGoals.forEach((goal, idx) => {
+            const est = 18; // estimated header block
+            const lines = doc.splitTextToSize(goal.description, content.w - 22);
+            const h = lines.length * (10 * 1.35) * 0.3528;
+            ensurePage(est + h + spacing.md);
+            // Badge
+            drawNumberCircle(idx + 1, content.x + 6, content.y + 7.5, 6.5, colors.accent, colors.white);
+            // Title
             doc.setTextColor(...colors.text);
             doc.setFontSize(11);
             doc.setFont(undefined, 'bold');
-            doc.text(goal.title, 35, y + 8);
-            
-            // Goal description
+            doc.text(goal.title, content.x + 22, content.y + 6);
+            // Description
             doc.setTextColor(...colors.textLight);
             doc.setFontSize(10);
             doc.setFont(undefined, 'normal');
-            const goalLines = doc.splitTextToSize(goal.description, 155);
-            doc.text(goalLines, 35, y + 15);
-            
-            y += 15 + goalLines.length * 5 + 5;
+            doc.text(lines, content.x + 22, content.y + 12);
+            content.y += est + h;
           });
-          y += 10;
+          content.y += spacing.sm;
         }
-        
-        // Current Objectives with KPIs
+
+        // Current Objectives
         if (options.includeObjectives && state.objectives.length > 0) {
-          if (y > 200) {
-            doc.addPage();
-            y = 20;
-          }
-          
-          y = addSection('CURRENT OBJECTIVES', y);
-          
+          sectionHeading('Current Objectives');
           state.objectives.forEach(obj => {
-            // Calculate space needed for this objective
-            let spaceNeeded = 15; // Header
-            spaceNeeded += 6; // Target date
-            if (obj.description) {
-              const descLines = doc.splitTextToSize(obj.description, 170);
-              spaceNeeded += descLines.length * 4 + 5;
-            }
-            if (obj.kpis && obj.kpis.length > 0) {
-              spaceNeeded += Math.ceil(obj.kpis.length / 3) * 40;
-            }
-            spaceNeeded += 10; // Bottom margin
-            
-            // Check if we need a new page
-            if (y + spaceNeeded > 270) {
-              doc.addPage();
-              y = 20;
-            }
-            
-            // Objective card
-            doc.setFillColor(...colors.background);
-            doc.roundedRect(15, y, 180, 10, 2, 2, 'F');
-            
-            // Objective name
+            // Header row
+            ensurePage(20);
+            doc.setFillColor(...colors.white);
+            doc.setDrawColor(...colors.border);
+            doc.roundedRect(content.x, content.y, content.w, 10, 2, 2, 'FD');
             doc.setTextColor(...colors.text);
-            doc.setFontSize(12);
+            doc.setFontSize(11);
             doc.setFont(undefined, 'bold');
-            doc.text(obj.name, 20, y + 7);
-            
-            // Status
-            const statusColor = obj.status === 'On Track' ? colors.success : 
-                              obj.status === 'At Risk' ? colors.warning : colors.danger;
-            doc.setTextColor(...statusColor);
-            doc.setFontSize(10);
-            doc.text(obj.status, 180, y + 7, { align: 'right' });
-            
-            y += 15;
-            
-            // Target date and description
+            doc.text(obj.name, content.x + 4, content.y + 7);
+            // Status right-aligned chip
+            const statusMap = { 'On Track': colors.success, 'At Risk': colors.warning, 'Completed': colors.success, 'Not Started': colors.text, 'In Progress': colors.accent };
+            const chipText = obj.status;
+            const dims = doc.getTextDimensions(chipText);
+            const padX = 3.2, padY = 2.2;
+            const w = dims.w + padX * 2;
+            const h = dims.h + padY * 2;
+            const chipX = content.x + content.w - w - 4;
+            const chipY = content.y + 2;
+            doc.setFillColor(...(statusMap[obj.status] || colors.textLight));
+            doc.roundedRect(chipX, chipY, w, h, 3, 3, 'F');
+            const chipTextColor = obj.status === 'Not Started' ? colors.white : colors.white;
+            centeredTextInRect(chipText, chipX, chipY, w, h, 9, chipTextColor, 'bold');
+            content.y += 14;
+
+            // Meta
             doc.setTextColor(...colors.textLight);
             doc.setFontSize(9);
             doc.setFont(undefined, 'normal');
-            doc.text(`Target: ${obj.targetDate || 'Not set'}`, 20, y);
-            y += 6;
-            
+            doc.text(`Target: ${obj.targetDate || 'Not set'}`, content.x + 2, content.y);
+            content.y += spacing.sm;
+
+            // Description
             if (obj.description) {
-              const descLines = doc.splitTextToSize(obj.description, 170);
-              doc.text(descLines, 20, y);
-              y += descLines.length * 4 + 5;
+              const h = textBlock(obj.description, content.x + 2, content.y, content.w - 4, 9.5, colors.text, 'normal', 1.5);
+              content.y += h + spacing.sm;
             }
-            
-            // KPIs
+
+            // KPIs grid
             if (obj.kpis && obj.kpis.length > 0) {
-              let kpiX = 15;
-              obj.kpis.forEach((kpi, index) => {
-                if (index > 0 && index % 3 === 0) {
-                  y += 35;
-                  kpiX = 15;
-                }
-                drawKPICard(kpi, kpiX, y);
-                kpiX += 65;
-              });
-              y += 40;
+              kpiGrid(obj.kpis, Math.max(2, Math.min(4, options.kpiColumns || 3)));
             }
-            
-            y += 10;
+
+            content.y += spacing.md;
           });
         }
-        
+
         // Value Realized
         if (options.includeValue && state.valueRealized.length > 0) {
-          if (y > 200) {
-            doc.addPage();
-            y = 20;
-          }
-          
-          y = addSection('VALUE REALIZED', y);
-          
+          sectionHeading('Value Realized');
           state.valueRealized.forEach(value => {
-            // Calculate space needed for this value item
-            const valueLines = doc.splitTextToSize(value.description, 155);
-            const spaceNeeded = 30 + (valueLines.length * 5);
-            
-            if (y + spaceNeeded > 270) {
-              doc.addPage();
-              y = 20;
-            }
-            
-            // Value card
-            doc.setFillColor(...colors.background);
-            doc.roundedRect(15, y, 180, 25, 2, 2, 'F');
-            
+            const lines = doc.splitTextToSize(value.description, content.w - 22);
+            const h = lines.length * (10 * 1.35) * 0.3528;
+            ensurePage(26 + h);
             // Icon
             doc.setFillColor(...colors.success);
-            doc.circle(25, y + 12, 5, 'F');
+            doc.circle(content.x + 5, content.y + 6, 4, 'F');
             doc.setTextColor(...colors.white);
-            doc.setFontSize(10);
-            doc.text('✓', 25, y + 15, { align: 'center' });
-            
-            // Value type
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'bold');
+            doc.text('✓', content.x + 5, content.y + 7.6, { align: 'center' });
+            // Title/date
             doc.setTextColor(...colors.text);
             doc.setFontSize(11);
             doc.setFont(undefined, 'bold');
-            doc.text(value.type, 35, y + 10);
-            
-            // Date
+            doc.text(value.type, content.x + 16, content.y + 6);
             doc.setTextColor(...colors.textLight);
             doc.setFontSize(9);
             doc.setFont(undefined, 'normal');
-            doc.text(value.date || 'Not specified', 180, y + 10, { align: 'right' });
-            
+            doc.text(value.date || 'Not specified', content.x + content.w, content.y + 6, { align: 'right' });
             // Description
-            const descLines = doc.splitTextToSize(value.description, 155);
-            doc.text(descLines, 35, y + 17);
-            
-            y += 30;
+            doc.setTextColor(...colors.text);
+            doc.setFontSize(10);
+            doc.text(lines, content.x + 16, content.y + 12);
+            content.y += 20 + h;
           });
-          y += 10;
+          content.y += spacing.sm;
         }
-        
+
         // Past Objectives
         if (options.includePast && state.pastObjectives.length > 0) {
-          if (y > 200) {
-            doc.addPage();
-            y = 20;
-          }
-          
-          y = addSection('COMPLETED OBJECTIVES', y);
-          
+          sectionHeading('Completed Objectives');
           state.pastObjectives.forEach(obj => {
-            if (y > 260) {
-              doc.addPage();
-              y = 20;
-            }
-            
-            // Checkmark
+            ensurePage(12);
             doc.setTextColor(...colors.success);
-            doc.setFontSize(12);
-            doc.text('✓', 20, y + 5);
-            
-            // Objective name
+            doc.setFontSize(11);
+            doc.setFont(undefined, 'bold');
+            doc.text('✓', content.x + 2, content.y + 3);
             doc.setTextColor(...colors.text);
             doc.setFontSize(10);
             doc.setFont(undefined, 'bold');
-            doc.text(obj.name, 30, y + 5);
-            
-            // Completion date
+            doc.text(obj.name, content.x + 8, content.y + 3);
             doc.setTextColor(...colors.textLight);
             doc.setFontSize(9);
             doc.setFont(undefined, 'normal');
-            doc.text(`Completed: ${obj.targetDate || 'Not specified'}`, 30, y + 10);
-            
-            y += 15;
+            doc.text(`Completed: ${obj.targetDate || 'Not specified'}`, content.x + 8, content.y + 8);
+            content.y += spacing.md;
           });
-          y += 10;
         }
-        
-        // Key Stakeholders
+
+        // Stakeholders
         if (options.includeStakeholders && state.stakeholders.length > 0) {
-          if (y > 200) {
-            doc.addPage();
-            y = 20;
-          }
-          
-          y = addSection('KEY STAKEHOLDERS', y);
-          
-          // Table header
+          sectionHeading('Key Stakeholders');
+          const cols = [
+            { label: 'Name', w: content.w * 0.33 },
+            { label: 'Title', w: content.w * 0.27 },
+            { label: 'Email', w: content.w * 0.40 }
+          ];
+          ensurePage(12);
+          // Header
           doc.setFillColor(...colors.background);
-          doc.rect(15, y, 180, 10, 'F');
+          doc.rect(content.x, content.y, content.w, 10, 'F');
           doc.setTextColor(...colors.text);
           doc.setFontSize(10);
           doc.setFont(undefined, 'bold');
-          doc.text('Name', 20, y + 7);
-          doc.text('Title', 80, y + 7);
-          doc.text('Email', 140, y + 7);
-          
-          y += 12;
-          
-          // Stakeholder rows
+          let cx = content.x + 2;
+          cols.forEach(c => { doc.text(c.label, cx, content.y + 7); cx += c.w; });
+          content.y += 12;
+          // Rows
           doc.setFont(undefined, 'normal');
-          state.stakeholders.forEach(stakeholder => {
-            if (y > 270) {
-              doc.addPage();
-              y = 20;
-            }
-            
-            doc.setTextColor(...colors.text);
-            doc.text(stakeholder.name, 20, y);
-            doc.text(stakeholder.title, 80, y);
-            doc.text(stakeholder.email, 140, y);
-            
-            // Divider line
+          doc.setTextColor(...colors.text);
+          state.stakeholders.forEach(st => {
+            ensurePage(10);
+            let x = content.x + 2;
+            doc.text(st.name, x, content.y + 4); x += cols[0].w;
+            doc.text(st.title, x, content.y + 4); x += cols[1].w;
+            doc.text(st.email, x, content.y + 4);
             doc.setDrawColor(...colors.border);
-            doc.line(15, y + 2, 195, y + 2);
-            
-            y += 8;
+            doc.line(content.x, content.y + 6, content.x + content.w, content.y + 6);
+            content.y += 8;
           });
         }
-        
-        // Footer on all pages
-        const pageCount = doc.internal.getNumberOfPages();
-        for (let i = 1; i <= pageCount; i++) {
-          doc.setPage(i);
-          doc.setDrawColor(...colors.border);
-          doc.line(15, 280, 195, 280);
-          doc.setTextColor(...colors.textLight);
-          doc.setFontSize(8);
-          doc.text('Confidential - Receptive Platform', 15, 288);
-          doc.text(`Page ${i} of ${pageCount}`, 195, 288, { align: 'right' });
+
+        // Footer
+        if (options.showPageNumbers || options.showFooterNote) {
+          const pageCount = doc.internal.getNumberOfPages();
+          for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            if (options.showFooterNote) {
+              doc.setDrawColor(...colors.border);
+              doc.line(margin.left, page.height - margin.bottom + 4, page.width - margin.right, page.height - margin.bottom + 4);
+              doc.setTextColor(...colors.textLight);
+              doc.setFontSize(8);
+              doc.text('Confidential - Receptive Platform', margin.left, page.height - margin.bottom + 10);
+            }
+            if (options.showPageNumbers) {
+              doc.setTextColor(...colors.textLight);
+              doc.setFontSize(8);
+              doc.text(`Page ${i} of ${pageCount}`, page.width - margin.right, page.height - margin.bottom + 10, { align: 'right' });
+            }
+          }
         }
-        
-        // Save PDF
+
         const fileName = `${state.customerName.toLowerCase().replace(/\s+/g, '-')}-success-report-${new Date().toISOString().split('T')[0]}.pdf`;
         doc.save(fileName);
         showNotification('Report exported successfully!', 'success');
-        
       } catch (error) {
-        showNotification('Failed to generate report. Please try again.', 'error');
         console.error('PDF export error:', error);
+        showNotification('Failed to generate report. Please try again.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>Generate PDF Report';
       }
-      
-      btn.disabled = false;
-      btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>Generate PDF Report';
     }
+
+    // Lightweight automated layout tests (run manually via console: runAutomatedPDFLayoutTests())
+    window.runAutomatedPDFLayoutTests = function() {
+      const presets = Object.keys(getPDFPresets());
+      const scenarios = [
+        () => ({ ...buildOptionsFromPreset(presets[0]), kpiColumns: 3 }),
+        () => ({ ...buildOptionsFromPreset(presets[1]), includeGoals: true, kpiColumns: 2 }),
+        () => ({ ...buildOptionsFromPreset(presets[2]), orientation: 'l', kpiColumns: 4 })
+      ];
+      let success = 0;
+      scenarios.forEach((make, i) => {
+        try { generateModernPDF(make()); success++; } catch(e) { console.error('Test failed', i+1, e); }
+      });
+      showNotification(`PDF layout tests executed: ${success}/${scenarios.length} succeeded`, success === scenarios.length ? 'success' : 'error');
+    };
+
+    // Scenario-based stress tests that mutate data counts and content safely
+    window.runPDFStressTests = function() {
+      const original = JSON.parse(JSON.stringify(state));
+      let success = 0, total = 0;
+
+      function withState(tempState, fn) {
+        Object.assign(state, tempState);
+        try { fn(); success++; } catch (e) { console.error('Stress test error:', e); }
+        Object.assign(state, original);
+      }
+
+      // Scenario 1: Minimal concise report with 2 objectives
+      total++;
+      withState({
+        objectives: original.objectives.slice(0, 2).map((o, i) => ({
+          ...o,
+          status: i % 2 === 0 ? 'In Progress' : 'Not Started',
+          kpis: (o.kpis || []).slice(0, 3)
+        })),
+        pastObjectives: original.pastObjectives.slice(0, 1)
+      }, () => generateModernPDF({ ...buildOptionsFromPreset('Compact'), includeGoals: true }));
+
+      // Scenario 2: Rich KPIs with 5 objectives and 2 rows of KPI grid
+      total++;
+      withState({
+        objectives: (original.objectives.concat(original.objectives)).slice(0, 5).map((o, i) => ({
+          ...o,
+          status: ['On Track','At Risk','Completed','In Progress','Not Started'][i % 5],
+          kpis: (o.kpis || []).concat(o.kpis || []).slice(0, 6)
+        })),
+        pastObjectives: original.pastObjectives.slice(0, 3)
+      }, () => generateModernPDF({ ...buildOptionsFromPreset('Executive'), kpiColumns: 3 }));
+
+      // Scenario 3: Heavy past objectives and landscape orientation
+      total++;
+      withState({
+        objectives: original.objectives.slice(0, 3),
+        pastObjectives: (original.pastObjectives.concat(original.pastObjectives).concat(original.pastObjectives)).slice(0, 10)
+      }, () => generateModernPDF({ ...buildOptionsFromPreset('Board'), orientation: 'l', includeGoals: true }));
+
+      showNotification(`PDF stress tests executed: ${success}/${total} scenarios succeeded`, success === total ? 'success' : 'error');
+    };
 
     function exportToExcel() {
       try {
