@@ -2881,20 +2881,20 @@
             white: [255, 255, 255]
           },
           joyful: {
-            // Modern, approachable palette with vibrant accents
-            primary: [79, 70, 229],       // Vibrant indigo
-            secondary: [99, 102, 241],    // Bright indigo
-            accent: [236, 72, 153],       // Pink accent
-            accentLight: [249, 168, 212], // Light pink
-            success: [52, 211, 153],      // Bright teal
-            warning: [251, 191, 36],      // Sunny yellow
-            danger: [248, 113, 113],      // Coral red
-            text: [30, 41, 59],           // Slate 800
-            textLight: [100, 116, 139],   // Slate 500
-            textMuted: [148, 163, 184],   // Slate 400
-            border: [226, 232, 240],      // Slate 200
-            borderLight: [241, 245, 249], // Slate 100
-            background: [248, 250, 252],  // Slate 50
+            // Website-aligned palette with teal focus
+            primary: [13, 148, 136],      // Teal-600 #0d9488
+            secondary: [20, 184, 166],    // Teal-500 #14b8a6
+            accent: [45, 212, 191],       // Teal-400 #2dd4bf
+            accentLight: [94, 234, 212],  // Teal-300 #5eead4
+            success: [16, 185, 129],      // Emerald-500 #10b981
+            warning: [251, 146, 60],      // Orange-400 #fb923c
+            danger: [239, 68, 68],        // Red-500 #ef4444
+            text: [15, 23, 42],           // Slate-900 #0f172a
+            textLight: [51, 65, 85],      // Slate-700 #334155
+            textMuted: [100, 116, 139],   // Slate-500 #64748b
+            border: [226, 232, 240],      // Slate-200 #e2e8f0
+            borderLight: [241, 245, 249], // Slate-100 #f1f5f9
+            background: [248, 250, 252],  // Slate-50 #f8fafc
             surface: [255, 255, 255],     // Pure white
             white: [255, 255, 255]
           }
@@ -2997,45 +2997,56 @@
           return lines.length * 5;
         };
         
-        // Sophisticated header with subtle gradient
+        // Modern header matching website gradient
         const addModernHeader = () => {
-          // Subtle gradient background using primary to secondary colors
+          // Website gradient: from-teal-950 via-teal-800 to-emerald-600
           const gradientSteps = 45;
+          const teal950 = [4, 47, 46];      // #042f2e
+          const teal800 = [19, 78, 74];     // #134e4a
+          const emerald600 = [5, 150, 105]; // #059669
+          
+          // Create gradient from teal-950 to teal-800 to emerald-600
           for (let i = 0; i < gradientSteps; i++) {
             const ratio = i / gradientSteps;
-            const r = Math.round(colors.primary[0] + (colors.secondary[0] - colors.primary[0]) * ratio * 0.7);
-            const g = Math.round(colors.primary[1] + (colors.secondary[1] - colors.primary[1]) * ratio * 0.7);
-            const b = Math.round(colors.primary[2] + (colors.secondary[2] - colors.primary[2]) * ratio * 0.7);
+            let r, g, b;
+            
+            if (ratio < 0.5) {
+              // First half: teal-950 to teal-800
+              const localRatio = ratio * 2;
+              r = Math.round(teal950[0] + (teal800[0] - teal950[0]) * localRatio);
+              g = Math.round(teal950[1] + (teal800[1] - teal950[1]) * localRatio);
+              b = Math.round(teal950[2] + (teal800[2] - teal950[2]) * localRatio);
+            } else {
+              // Second half: teal-800 to emerald-600
+              const localRatio = (ratio - 0.5) * 2;
+              r = Math.round(teal800[0] + (emerald600[0] - teal800[0]) * localRatio);
+              g = Math.round(teal800[1] + (emerald600[1] - teal800[1]) * localRatio);
+              b = Math.round(teal800[2] + (emerald600[2] - teal800[2]) * localRatio);
+            }
+            
             doc.setFillColor(r, g, b);
             doc.rect(0, i, 210, 1, 'F');
           }
           
-          // Subtle pattern overlay for premium feel
-          doc.setDrawColor(...colors.accentLight);
-          doc.setLineWidth(0.1);
-          for (let x = 0; x < 210; x += 20) {
-            doc.line(x, 0, x + 10, 45);
-          }
-          
-          // Company logo with modern, joyful styling
-          doc.setFillColor(...colors.accentLight);
-          doc.circle(25, 22, 8.5, 'F');
-          doc.setFillColor(...colors.accent);
-          doc.circle(25, 22, 7.5, 'F');
-          doc.setTextColor(...colors.white);
-          doc.setFontSize(11);
-          doc.setFont(undefined, 'bold');
+          // Company logo matching website style
+          doc.setFillColor(255, 255, 255, 30); // White with opacity
+          doc.circle(25, 22, 8, 'F');
+          doc.setFillColor(255, 255, 255);
+          doc.circle(25, 22, 7, 'F');
+          doc.setTextColor(19, 78, 74); // Teal-800
+          doc.setFontSize(12);
+          doc.setFont('helvetica', 'bold'); // Using helvetica as Inter equivalent
           // Fix R alignment with proper baseline adjustment
           const rMetrics = doc.getTextDimensions('R');
           doc.text('R', 25, 22 + (rMetrics.h / 3.5), { align: 'center' });
           
-          // Company name with modern, approachable typography
-          doc.setTextColor(...colors.white);
-          doc.setFontSize(20);
-          doc.setFont(undefined, 'bold');
+          // Company name with modern typography matching website
+          doc.setTextColor(255, 255, 255);
+          doc.setFontSize(22);
+          doc.setFont('helvetica', 'bold');
           doc.text('Receptive', 38, 19);
-          doc.setFontSize(11);
-          doc.setFont(undefined, 'normal');
+          doc.setFontSize(12);
+          doc.setFont('helvetica', 'normal');
           doc.text('Customer Success Report', 38, 27);
           
           // Elegant report type indicator
@@ -3060,37 +3071,24 @@
           }), 195, 38, { align: 'right' });
         };
         
-        // Modern section headers with joyful touches
+        // Modern section headers matching website style
         const addSectionHeader = (title, yPos) => {
-          // Light background with rounded edges effect
-          doc.setFillColor(...colors.background);
-          doc.roundedRect(10, yPos - 2, 190, 16, 3, 3, 'F');
+          // Teal gradient bar like website sections
+          doc.setFillColor(...colors.primary);
+          doc.rect(0, yPos, 210, 2, 'F');
           
-          // Colorful accent dot
-          const sectionColors = {
-            'EXECUTIVE SUMMARY': colors.accent,
-            'MISSION GOALS': colors.success,
-            'CURRENT OBJECTIVES': colors.accentLight,
-            'VALUE REALIZED': colors.success,
-            'COMPLETED OBJECTIVES': colors.secondary,
-            'KEY STAKEHOLDERS': colors.accent
-          };
-          
-          doc.setFillColor(...(sectionColors[title] || colors.accent));
-          doc.circle(20, yPos + 6, 2, 'F');
-          
-          // Section title with modern, friendly typography
+          // Section title with website typography
           doc.setTextColor(...colors.text);
-          doc.setFontSize(10);
-          doc.setFont(undefined, 'bold');
-          doc.text(title, 28, yPos + 7);
+          doc.setFontSize(11);
+          doc.setFont('helvetica', 'bold');
+          doc.text(title, 15, yPos + 10);
           
-          // Subtle decorative line
-          doc.setDrawColor(...colors.borderLight);
-          doc.setLineWidth(0.3);
-          doc.line(15, yPos + 12, 195, yPos + 12);
+          // Subtle underline
+          doc.setDrawColor(...colors.border);
+          doc.setLineWidth(0.5);
+          doc.line(15, yPos + 12, 60, yPos + 12);
           
-          return yPos + 20;
+          return yPos + 18;
         };
         
         // Start PDF generation
@@ -3109,17 +3107,26 @@
           doc.setLineWidth(0.3);
           doc.roundedRect(15, y, 180, 40, 6, 6, 'FD');
           
-          // Customer name with elegant typography
+          // Customer name with website typography
           doc.setTextColor(...colors.text);
           doc.setFontSize(18);
-          doc.setFont(undefined, 'normal');
+          doc.setFont('helvetica', 'bold');
           doc.text(state.customerName, 25, y + 14);
           
-          // Health status with subtle styling
-          const healthColors = {
-            green: colors.success,
-            yellow: colors.warning,
-            red: colors.danger
+          // Health status with website-style badge
+          const healthStyles = {
+            green: {
+              bg: [16, 185, 129],    // Emerald-500
+              text: [255, 255, 255]  // White
+            },
+            yellow: {
+              bg: [251, 146, 60],    // Orange-400
+              text: [255, 255, 255]  // White
+            },
+            red: {
+              bg: [239, 68, 68],     // Red-500
+              text: [255, 255, 255]  // White
+            }
           };
           const healthLabels = {
             green: 'Healthy',
@@ -3129,20 +3136,20 @@
           
           const healthStatus = state.planHealth || 'green';
           const healthLabel = healthLabels[healthStatus];
-          const healthColor = healthColors[healthStatus];
+          const healthStyle = healthStyles[healthStatus];
           
-          // Subtle health indicator
-          doc.setFillColor(...healthColor);
-          doc.circle(25, y + 25, 2, 'F');
-          doc.setTextColor(...colors.text);
-          doc.setFontSize(9);
-          doc.setFont(undefined, 'normal');
-          doc.text(healthLabel, 30, y + 26);
+          // Health badge
+          doc.setFillColor(...healthStyle.bg);
+          doc.roundedRect(25, y + 20, 35, 8, 4, 4, 'F');
+          doc.setTextColor(...healthStyle.text);
+          doc.setFontSize(8);
+          doc.setFont('helvetica', 'bold');
+          doc.text(healthLabel, 42.5, y + 25, { align: 'center' });
           
-          // Products with refined display
+          // Products with website styling
           doc.setTextColor(...colors.textMuted);
           doc.setFontSize(9);
-          doc.setFont(undefined, 'light');
+          doc.setFont('helvetica', 'normal');
           const productsText = state.products.join(' • ');
           const maxWidth = 120;
           const productLines = doc.splitTextToSize(productsText, maxWidth);
@@ -3158,7 +3165,7 @@
           // Summary content with proper spacing
           doc.setTextColor(...colors.text);
           doc.setFontSize(11);
-          doc.setFont(undefined, 'normal');
+          doc.setFont('helvetica', 'normal');
           
           const summaryLines = doc.splitTextToSize(state.missionSummary, 180);
           const lineHeight = 6;
@@ -3192,24 +3199,24 @@
               y = 20;
             }
             
-            // Goal number with modern, joyful styling
-            doc.setFillColor(...colors.accentLight);
-            doc.circle(22, y + 10, 6, 'F');
+            // Goal number with smaller circle for better alignment
+            doc.setFillColor(...colors.accent);
+            doc.circle(22, y + 10, 4, 'F');
             doc.setTextColor(...colors.white);
-            doc.setFontSize(10);
-            doc.setFont(undefined, 'bold');
-            doc.text((index + 1).toString(), 22, y + 12, { align: 'center' });
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'bold');
+            doc.text((index + 1).toString(), 22, y + 11.5, { align: 'center' });
             
             // Goal title
             doc.setTextColor(...colors.text);
             doc.setFontSize(12);
-            doc.setFont(undefined, 'bold');
-            doc.text(goal.title, 38, y + 10);
+            doc.setFont('helvetica', 'bold');
+            doc.text(goal.title, 32, y + 10);
             
             // Goal description with proper wrapping
             doc.setTextColor(...colors.textLight);
             doc.setFontSize(10);
-            doc.setFont(undefined, 'normal');
+            doc.setFont('helvetica', 'normal');
             const goalLines = doc.splitTextToSize(goal.description, 155);
             doc.text(goalLines, 38, y + 18);
             
@@ -3256,21 +3263,31 @@
             doc.setFont(undefined, 'bold');
             doc.text(obj.name, 20, y + 8);
             
-            // Status with modern, friendly styling
-            const statusColors = {
-              'On Track': colors.success,
-              'At Risk': colors.warning,
-              'Off Track': colors.danger
+            // Status with unique colors and better sizing
+            const statusStyles = {
+              'On Track': {
+                bg: [16, 185, 129],    // Emerald-500
+                text: [255, 255, 255]  // White
+              },
+              'At Risk': {
+                bg: [251, 146, 60],    // Orange-400
+                text: [255, 255, 255]  // White
+              },
+              'Off Track': {
+                bg: [239, 68, 68],     // Red-500
+                text: [255, 255, 255]  // White
+              }
             };
-            const statusColor = statusColors[obj.status] || colors.success;
+            const statusStyle = statusStyles[obj.status] || statusStyles['On Track'];
             
-            // Draw rounded status badge
-            doc.setFillColor(...statusColor);
-            doc.roundedRect(150, y + 3, 40, 7, 3.5, 3.5, 'F');
-            doc.setTextColor(...colors.white);
-            doc.setFontSize(7);
-            doc.setFont(undefined, 'bold');
-            doc.text(obj.status, 170, y + 7.5, { align: 'center' });
+            // Draw larger, properly sized status badge
+            const statusWidth = doc.getTextDimensions(obj.status).w + 16;
+            doc.setFillColor(...statusStyle.bg);
+            doc.roundedRect(190 - statusWidth, y + 2, statusWidth, 9, 4.5, 4.5, 'F');
+            doc.setTextColor(...statusStyle.text);
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'bold');
+            doc.text(obj.status, 190 - (statusWidth/2), y + 7.5, { align: 'center' });
             
             y += 18;
             
