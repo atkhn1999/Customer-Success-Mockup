@@ -307,6 +307,16 @@
       box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
       transform: translateY(-2px);
     }
+    .btn-info {
+      background: var(--info-gradient);
+      color: #fff;
+      border: none;
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.25);
+    }
+    .btn-info:hover:not(:disabled) {
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35);
+      transform: translateY(-2px);
+    }
     .btn-outline { 
       background: var(--card-bg); 
       color: var(--text-primary); 
@@ -1507,7 +1517,7 @@
               <div class="flex gap-2">
                 <button class="btn btn-ghost btn-sm" onclick="editObjective(${obj.id}, ${isPast})">Edit</button>
                 ${!isPast ? `
-                  <button class="btn btn-primary btn-sm" onclick="showAddKPIModal(${obj.id})">+ Add KPI</button>
+                  <button class="btn btn-info btn-sm" onclick="showAddKPIModal(${obj.id})">+ Add KPI</button>
                 ` : ''}
               </div>
             </div>
@@ -1819,7 +1829,7 @@
         </div>
       `, [
         { label: 'Cancel', class: 'btn-ghost', action: () => closeModal() },
-        { label: 'Add KPI', class: 'btn-primary', action: () => {
+        { label: 'Add KPI', class: 'btn-info', action: () => {
           const typeKey = $('#kpi-type').value;
           const current = parseFloat($('#kpi-current').value) || 0;
           const previous = parseFloat($('#kpi-previous').value) || 0;
