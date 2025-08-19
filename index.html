@@ -2588,83 +2588,216 @@
 
     // ---------- Export Functions ----------
     async function exportToPDF() {
-      // Show export options modal
-      showPDFExportModal();
+      // Show enhanced export options modal
+      showEnhancedPDFExportModal();
     }
     
+    // Legacy function redirect
     window.showPDFExportModal = function() {
-      const modal = createModal('Export Report', `
-        <div class="space-y-6">
-          <p class="text-gray-600">Select the sections to include in your report:</p>
-          
-          <div class="space-y-3">
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-summary" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Executive Summary</div>
-                <div class="text-sm text-gray-500">Mission statement and account health</div>
-              </div>
-            </label>
-            
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-goals" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Mission Goals</div>
-                <div class="text-sm text-gray-500">Strategic objectives and key initiatives</div>
-              </div>
-            </label>
-            
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-objectives" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Current Objectives</div>
-                <div class="text-sm text-gray-500">Active objectives with KPIs and metrics</div>
-              </div>
-            </label>
-            
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-value" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Value Realized</div>
-                <div class="text-sm text-gray-500">Business impact and ROI achieved</div>
-              </div>
-            </label>
-            
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-past" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Past Objectives</div>
-                <div class="text-sm text-gray-500">Completed milestones and achievements</div>
-              </div>
-            </label>
-            
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-stakeholders" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Key Stakeholders</div>
-                <div class="text-sm text-gray-500">Primary contacts and their roles</div>
-              </div>
-            </label>
-          </div>
-        </div>
-      `, [
-        { label: 'Cancel', class: 'btn-ghost', action: () => closeModal() },
-        { label: 'Export PDF', class: 'btn-primary', action: () => {
-          const options = {
-            includeSummary: $('#export-summary').checked,
-            includeGoals: $('#export-goals').checked,
-            includeObjectives: $('#export-objectives').checked,
-            includeValue: $('#export-value').checked,
-            includePast: $('#export-past').checked,
-            includeStakeholders: $('#export-stakeholders').checked
-          };
-          closeModal();
-          generateCleanPDF(options);
-        }}
-      ]);
+      showEnhancedPDFExportModal();
     };
     
+    // Modern PDF Report Configuration System
+    window.showEnhancedPDFExportModal = function() {
+      const presetTemplates = {
+        executive: {
+          name: 'Executive Summary',
+          description: 'High-level overview for C-suite stakeholders',
+          sections: ['summary', 'goals', 'objectives', 'value'],
+          theme: 'professional'
+        },
+        detailed: {
+          name: 'Detailed Report',
+          description: 'Comprehensive report with all sections',
+          sections: ['summary', 'goals', 'objectives', 'value', 'past', 'stakeholders'],
+          theme: 'modern'
+        },
+        progress: {
+          name: 'Progress Update',
+          description: 'Focus on current objectives and achievements',
+          sections: ['objectives', 'value', 'past'],
+          theme: 'minimal'
+        },
+        quarterly: {
+          name: 'Quarterly Review',
+          description: 'Perfect for QBRs with key metrics',
+          sections: ['summary', 'objectives', 'value'],
+          theme: 'corporate'
+        }
+      };
+
+      let selectedPreset = null;
+      let customSections = {
+        summary: true,
+        goals: true,
+        objectives: true,
+        value: true,
+        past: true,
+        stakeholders: true
+      };
+
+      const modalContent = `
+        <div class="space-y-6">
+          <!-- Step 1: Choose Format -->
+          <div id="format-selection" class="space-y-4">
+            <h3 class="text-lg font-semibold text-gray-900">Select Report Format</h3>
+            <p class="text-sm text-gray-600">Choose a preset template or create a custom report</p>
+            
+            <div class="grid grid-cols-2 gap-4">
+              ${Object.entries(presetTemplates).map(([key, preset]) => `
+                <button onclick="selectPreset('${key}')" class="preset-card p-4 border-2 border-gray-200 rounded-lg hover:border-teal-500 transition-all cursor-pointer text-left" data-preset="${key}">
+                  <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                      <h4 class="font-semibold text-gray-900">${preset.name}</h4>
+                      <p class="text-sm text-gray-600 mt-1">${preset.description}</p>
+                    </div>
+                    <svg class="w-5 h-5 text-teal-600 opacity-0 preset-check" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                  </div>
+                  <div class="mt-3 flex flex-wrap gap-1">
+                    ${preset.sections.map(s => `<span class="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded">${s}</span>`).join('')}
+                  </div>
+                </button>
+              `).join('')}
+            </div>
+            
+            <div class="pt-4 border-t">
+              <button onclick="showCustomOptions()" class="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-teal-500 transition-all text-center">
+                <svg class="w-6 h-6 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                </svg>
+                <p class="mt-2 font-medium text-gray-700">Custom Report</p>
+                <p class="text-sm text-gray-500">Select specific sections to include</p>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Step 2: Custom Options (hidden initially) -->
+          <div id="custom-options" class="space-y-4 hidden">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-semibold text-gray-900">Customize Your Report</h3>
+              <button onclick="backToPresets()" class="text-sm text-teal-600 hover:text-teal-700">← Back to presets</button>
+            </div>
+            
+            <div class="space-y-3">
+              <label class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition">
+                <input type="checkbox" id="export-summary" checked class="w-5 h-5 text-teal-600 rounded focus:ring-teal-500">
+                <span class="flex-1">
+                  <span class="font-medium">Executive Summary</span>
+                  <span class="text-sm text-gray-500 block">Overview and mission statement</span>
+                </span>
+              </label>
+              
+              <label class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition">
+                <input type="checkbox" id="export-goals" checked class="w-5 h-5 text-teal-600 rounded focus:ring-teal-500">
+                <span class="flex-1">
+                  <span class="font-medium">Mission Goals</span>
+                  <span class="text-sm text-gray-500 block">Long-term strategic objectives</span>
+                </span>
+              </label>
+              
+              <label class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition">
+                <input type="checkbox" id="export-objectives" checked class="w-5 h-5 text-teal-600 rounded focus:ring-teal-500">
+                <span class="flex-1">
+                  <span class="font-medium">Current Objectives</span>
+                  <span class="text-sm text-gray-500 block">Active initiatives with KPIs</span>
+                </span>
+              </label>
+              
+              <label class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition">
+                <input type="checkbox" id="export-value" checked class="w-5 h-5 text-teal-600 rounded focus:ring-teal-500">
+                <span class="flex-1">
+                  <span class="font-medium">Value Realized</span>
+                  <span class="text-sm text-gray-500 block">Achieved benefits and outcomes</span>
+                </span>
+              </label>
+              
+              <label class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition">
+                <input type="checkbox" id="export-past" checked class="w-5 h-5 text-teal-600 rounded focus:ring-teal-500">
+                <span class="flex-1">
+                  <span class="font-medium">Past Objectives</span>
+                  <span class="text-sm text-gray-500 block">Completed initiatives</span>
+                </span>
+              </label>
+              
+              <label class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition">
+                <input type="checkbox" id="export-stakeholders" checked class="w-5 h-5 text-teal-600 rounded focus:ring-teal-500">
+                <span class="flex-1">
+                  <span class="font-medium">Key Stakeholders</span>
+                  <span class="text-sm text-gray-500 block">Contact information</span>
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const modal = createModal('Export Report Configuration', modalContent, [
+        { label: 'Cancel', class: 'btn-ghost', action: () => closeModal() },
+        { label: 'Generate Report', class: 'btn-primary', action: () => {
+          let options;
+          if (selectedPreset) {
+            const preset = presetTemplates[selectedPreset];
+            options = {
+              includeSummary: preset.sections.includes('summary'),
+              includeGoals: preset.sections.includes('goals'),
+              includeObjectives: preset.sections.includes('objectives'),
+              includeValue: preset.sections.includes('value'),
+              includePast: preset.sections.includes('past'),
+              includeStakeholders: preset.sections.includes('stakeholders'),
+              theme: preset.theme,
+              presetName: preset.name
+            };
+          } else {
+            options = {
+              includeSummary: $('#export-summary').checked,
+              includeGoals: $('#export-goals').checked,
+              includeObjectives: $('#export-objectives').checked,
+              includeValue: $('#export-value').checked,
+              includePast: $('#export-past').checked,
+              includeStakeholders: $('#export-stakeholders').checked,
+              theme: 'modern',
+              presetName: 'Custom Report'
+            };
+          }
+          closeModal();
+          generateModernPDF(options);
+        }}
+      ]);
+
+      // Helper functions for modal interaction
+      window.selectPreset = function(key) {
+        selectedPreset = key;
+        document.querySelectorAll('.preset-card').forEach(card => {
+          card.classList.remove('border-teal-500', 'bg-teal-50');
+          card.querySelector('.preset-check').classList.add('opacity-0');
+        });
+        const selectedCard = document.querySelector(`[data-preset="${key}"]`);
+        selectedCard.classList.add('border-teal-500', 'bg-teal-50');
+        selectedCard.querySelector('.preset-check').classList.remove('opacity-0');
+      };
+
+      window.showCustomOptions = function() {
+        selectedPreset = null;
+        document.getElementById('format-selection').classList.add('hidden');
+        document.getElementById('custom-options').classList.remove('hidden');
+      };
+
+      window.backToPresets = function() {
+        document.getElementById('format-selection').classList.remove('hidden');
+        document.getElementById('custom-options').classList.add('hidden');
+      };
+    };
+    
+    // Legacy function for backward compatibility
     async function generateCleanPDF(options) {
+      // Redirect to modern PDF generator
+      return generateModernPDF(options);
+    }
+    
+    // Modern PDF Generation with Enhanced Design System
+    async function generateModernPDF(options) {
       const btn = $('#export-pdf-btn');
       btn.disabled = true;
       btn.innerHTML = '<span class="animate-spin">⟳</span> Generating...';
@@ -2673,428 +2806,556 @@
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
         
-        // Professional color scheme
-        const colors = {
-          primary: [45, 55, 72],        // Dark navy
-          accent: [56, 178, 172],       // Teal
-          success: [72, 187, 120],      // Green
-          warning: [246, 173, 85],      // Orange
-          danger: [245, 101, 101],      // Red
-          text: [45, 55, 72],           // Dark text
-          textLight: [113, 128, 150],   // Gray text
-          border: [226, 232, 240],      // Light border
-          background: [247, 250, 252],  // Light background
-          white: [255, 255, 255],
-          purple: [139, 92, 246],       // Purple accent
-          blue: [59, 130, 246]          // Blue accent
+        // Theme-based color schemes
+        const themes = {
+          professional: {
+            primary: [31, 41, 55],        // Gray-800
+            accent: [14, 165, 233],       // Sky-500
+            success: [34, 197, 94],       // Green-500
+            warning: [251, 146, 60],      // Orange-400
+            danger: [239, 68, 68],        // Red-500
+            text: [17, 24, 39],           // Gray-900
+            textLight: [107, 114, 128],   // Gray-500
+            border: [229, 231, 235],      // Gray-200
+            background: [249, 250, 251],  // Gray-50
+            white: [255, 255, 255]
+          },
+          modern: {
+            primary: [88, 28, 135],       // Purple-900
+            accent: [168, 85, 247],       // Purple-500
+            success: [34, 197, 94],       // Green-500
+            warning: [251, 191, 36],      // Amber-400
+            danger: [239, 68, 68],        // Red-500
+            text: [17, 24, 39],           // Gray-900
+            textLight: [107, 114, 128],   // Gray-500
+            border: [229, 231, 235],      // Gray-200
+            background: [250, 245, 255],  // Purple-50
+            white: [255, 255, 255]
+          },
+          minimal: {
+            primary: [0, 0, 0],           // Black
+            accent: [99, 102, 241],       // Indigo-500
+            success: [16, 185, 129],      // Emerald-500
+            warning: [245, 158, 11],      // Amber-500
+            danger: [220, 38, 38],        // Red-600
+            text: [0, 0, 0],              // Black
+            textLight: [107, 114, 128],   // Gray-500
+            border: [229, 231, 235],      // Gray-200
+            background: [255, 255, 255],  // White
+            white: [255, 255, 255]
+          },
+          corporate: {
+            primary: [30, 58, 138],       // Blue-900
+            accent: [59, 130, 246],       // Blue-500
+            success: [5, 150, 105],       // Emerald-600
+            warning: [217, 119, 6],       // Amber-600
+            danger: [185, 28, 28],        // Red-700
+            text: [17, 24, 39],           // Gray-900
+            textLight: [75, 85, 99],      // Gray-600
+            border: [209, 213, 219],      // Gray-300
+            background: [243, 244, 246],  // Gray-100
+            white: [255, 255, 255]
+          }
         };
         
-        // Helper functions
-        const addHeader = () => {
-          // Header background
-          doc.setFillColor(...colors.primary);
-          doc.rect(0, 0, 210, 40, 'F');
+        const colors = themes[options.theme] || themes.modern;
+        
+        // Enhanced alignment helper functions
+        const alignmentHelpers = {
+          centerText: (text, x, y, options = {}) => {
+            const metrics = doc.getTextDimensions(text);
+            const actualX = x - (metrics.w / 2);
+            doc.text(text, actualX, y, options);
+          },
           
-          // Logo area
-          doc.setFillColor(...colors.white);
-          doc.circle(25, 20, 10, 'F');
-          doc.setTextColor(...colors.primary);
-          doc.setFontSize(14);
-          doc.setFont(undefined, 'bold');
-          doc.text('R', 25, 24, { align: 'center' });
+          drawCenteredCircle: (x, y, radius, text, bgColor, textColor, fontSize = 12) => {
+            // Draw circle background
+            doc.setFillColor(...bgColor);
+            doc.circle(x, y, radius, 'F');
+            
+            // Draw text perfectly centered
+            doc.setTextColor(...textColor);
+            doc.setFontSize(fontSize);
+            doc.setFont(undefined, 'bold');
+            
+            // Calculate text position for perfect centering
+            const textMetrics = doc.getTextDimensions(text);
+            const textX = x;
+            const textY = y + (textMetrics.h / 4); // Adjust for baseline
+            
+            doc.text(text, textX, textY, { align: 'center' });
+          },
           
-          // Company name
+          drawStatusBox: (x, y, width, height, text, bgColor, textColor, fontSize = 9) => {
+            // Draw rounded rectangle
+            doc.setFillColor(...bgColor);
+            doc.roundedRect(x, y, width, height, height / 4, height / 4, 'F');
+            
+            // Draw text perfectly centered
+            doc.setTextColor(...textColor);
+            doc.setFontSize(fontSize);
+            doc.setFont(undefined, 'bold');
+            
+            const textMetrics = doc.getTextDimensions(text);
+            const textX = x + (width / 2);
+            const textY = y + (height / 2) + (textMetrics.h / 4);
+            
+            doc.text(text, textX, textY, { align: 'center' });
+          },
+          
+          drawKPICard: (kpi, x, y, width = 60, height = 35) => {
+            // Enhanced shadow effect
+            doc.setFillColor(200, 200, 200);
+            doc.roundedRect(x + 1, y + 1, width, height, 3, 3, 'F');
+            
+            // Card background
+            doc.setFillColor(...colors.white);
+            doc.setDrawColor(...colors.border);
+            doc.setLineWidth(0.5);
+            doc.roundedRect(x, y, width, height, 3, 3, 'FD');
+            
+            // KPI type label
+            const type = getKPIType(kpi.typeKey);
+            doc.setTextColor(...colors.textLight);
+            doc.setFontSize(8);
+            doc.setFont(undefined, 'normal');
+            doc.text(type.label, x + width/2, y + 8, { align: 'center' });
+            
+            // KPI value with perfect centering
+            doc.setTextColor(...colors.text);
+            doc.setFontSize(20);
+            doc.setFont(undefined, 'bold');
+            const valueText = `${kpi.currentValue}${type.unit}`;
+            doc.text(valueText, x + width/2, y + 20, { align: 'center' });
+            
+            // Change indicator
+            if (kpi.comparePrevious && kpi.previousValue) {
+              const delta = calculateDelta(kpi.currentValue, kpi.previousValue);
+              const color = delta >= 0 ? colors.success : colors.danger;
+              doc.setTextColor(...color);
+              doc.setFontSize(10);
+              doc.setFont(undefined, 'normal');
+              const deltaText = `${delta >= 0 ? '↑' : '↓'} ${Math.abs(delta)}%`;
+              doc.text(deltaText, x + width/2, y + 29, { align: 'center' });
+            }
+          }
+        };
+        
+        // Dynamic content sizing helper
+        const calculateContentHeight = (content, width = 180) => {
+          const lines = doc.splitTextToSize(content, width);
+          return lines.length * 5;
+        };
+        
+        // Enhanced header with gradient effect
+        const addModernHeader = () => {
+          // Gradient background
+          const gradientSteps = 40;
+          for (let i = 0; i < gradientSteps; i++) {
+            const ratio = i / gradientSteps;
+            const r = Math.round(colors.primary[0] + (colors.accent[0] - colors.primary[0]) * ratio * 0.5);
+            const g = Math.round(colors.primary[1] + (colors.accent[1] - colors.primary[1]) * ratio * 0.5);
+            const b = Math.round(colors.primary[2] + (colors.accent[2] - colors.primary[2]) * ratio * 0.5);
+            doc.setFillColor(r, g, b);
+            doc.rect(0, i, 210, 1, 'F');
+          }
+          
+          // Company logo with perfect circle
+          alignmentHelpers.drawCenteredCircle(25, 20, 12, 'R', colors.white, colors.primary, 16);
+          
+          // Company name and report title
           doc.setTextColor(...colors.white);
-          doc.setFontSize(20);
-          doc.text('Receptive', 40, 18);
-          doc.setFontSize(12);
+          doc.setFontSize(24);
+          doc.setFont(undefined, 'bold');
+          doc.text('Receptive', 42, 18);
+          doc.setFontSize(14);
           doc.setFont(undefined, 'normal');
-          doc.text('Customer Success Report', 40, 26);
+          doc.text('Customer Success Report', 42, 26);
+          
+          // Report type badge
+          if (options.presetName) {
+            alignmentHelpers.drawStatusBox(140, 15, 50, 10, options.presetName, colors.white, colors.primary, 8);
+          }
           
           // Date
+          doc.setTextColor(...colors.white);
           doc.setFontSize(10);
           doc.text(new Date().toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric'
-          }), 190, 20, { align: 'right' });
+          }), 195, 35, { align: 'right' });
         };
         
-        const addSection = (title, yPos) => {
-          // Section header with gradient effect
-          for (let i = 0; i < 10; i++) {
-            const ratio = i / 10;
-            const r = Math.round(colors.accent[0] + (colors.primary[0] - colors.accent[0]) * ratio * 0.3);
-            const g = Math.round(colors.accent[1] + (colors.primary[1] - colors.accent[1]) * ratio * 0.3);
-            const b = Math.round(colors.accent[2] + (colors.primary[2] - colors.accent[2]) * ratio * 0.3);
-            doc.setFillColor(r, g, b);
-            doc.rect(0, yPos + i, 210, 1, 'F');
+        // Enhanced section headers with better visual hierarchy
+        const addSectionHeader = (title, yPos, icon = null) => {
+          // Section background with subtle gradient
+          doc.setFillColor(...colors.accent);
+          doc.rect(0, yPos, 210, 12, 'F');
+          
+          // Icon if provided
+          if (icon) {
+            doc.setTextColor(...colors.white);
+            doc.setFontSize(10);
+            doc.text(icon, 15, yPos + 8);
           }
           
+          // Section title
           doc.setTextColor(...colors.white);
-          doc.setFontSize(12);
+          doc.setFontSize(13);
           doc.setFont(undefined, 'bold');
-          doc.text(title, 15, yPos + 7);
-          return yPos + 15;
-        };
-        
-        const drawKPICard = (kpi, x, y) => {
-          const w = 60;
-          const h = 32;
+          doc.text(title, icon ? 25 : 15, yPos + 8);
           
-          // Card background with subtle shadow
-          doc.setFillColor(240, 240, 240);
-          doc.roundedRect(x + 1, y + 1, w, h, 2, 2, 'F');
-          
-          doc.setFillColor(...colors.white);
-          doc.setDrawColor(...colors.border);
-          doc.setLineWidth(0.5);
-          doc.roundedRect(x, y, w, h, 2, 2, 'FD');
-          
-          // KPI name
-          doc.setTextColor(...colors.textLight);
-          doc.setFontSize(8);
-          doc.setFont(undefined, 'normal');
-          const type = getKPIType(kpi.typeKey);
-          const labelX = x + (w / 2);
-          doc.text(type.label, labelX, y + 7, { align: 'center' });
-          
-          // KPI value
-          doc.setTextColor(...colors.text);
-          doc.setFontSize(18);
-          doc.setFont(undefined, 'bold');
-          const valueX = x + (w / 2);
-          doc.text(`${kpi.currentValue}${type.unit}`, valueX, y + 19, { align: 'center' });
-          
-          // Change indicator
-          if (kpi.comparePrevious && kpi.previousValue) {
-            const delta = calculateDelta(kpi.currentValue, kpi.previousValue);
-            const color = delta >= 0 ? colors.success : colors.danger;
-            doc.setTextColor(...color);
-            doc.setFontSize(9);
-            doc.setFont(undefined, 'normal');
-            const deltaX = x + (w / 2);
-            doc.text(`${delta >= 0 ? '+' : ''}${delta}%`, deltaX, y + 27, { align: 'center' });
-          }
+          return yPos + 18;
         };
         
         // Start PDF generation
-        addHeader();
+        addModernHeader();
         let y = 50;
         
-        // Account Overview
-        doc.setFillColor(...colors.background);
-        doc.rect(15, y, 180, 35, 'F');
-        
-        // Customer name
-        doc.setTextColor(...colors.text);
-        doc.setFontSize(18);
-        doc.setFont(undefined, 'bold');
-        doc.text(state.customerName, 25, y + 12);
-        
-        // Health status
-        const healthColors = {
-          green: colors.success,
-          yellow: colors.warning,
-          red: colors.danger
-        };
-        const healthLabels = {
-          green: 'Healthy',
-          yellow: 'At Risk',
-          red: 'Critical'
-        };
-        doc.setFillColor(...(healthColors[state.planHealth] || colors.success));
-        doc.roundedRect(25, y + 18, 30, 8, 2, 2, 'F');
-        doc.setTextColor(...colors.white);
-        doc.setFontSize(9);
-        doc.text(healthLabels[state.planHealth] || 'Healthy', 40, y + 24, { align: 'center' });
-        
-        // Products
-        doc.setTextColor(...colors.textLight);
-        doc.setFontSize(10);
-        doc.setFont(undefined, 'normal');
-        doc.text(`Products: ${state.products.join(', ')}`, 65, y + 24);
-        
-        y = 95;
-        
-        // Executive Summary
-        if (options.includeSummary && state.missionSummary) {
-          y = addSection('EXECUTIVE SUMMARY', y);
+        // Customer overview with enhanced design
+        if (options.includeSummary) {
+          // Overview card with shadow
+          doc.setFillColor(240, 240, 240);
+          doc.roundedRect(16, y + 1, 178, 40, 5, 5, 'F');
           
+          doc.setFillColor(...colors.background);
+          doc.setDrawColor(...colors.border);
+          doc.setLineWidth(0.5);
+          doc.roundedRect(15, y, 180, 40, 5, 5, 'FD');
+          
+          // Customer name
           doc.setTextColor(...colors.text);
-          doc.setFontSize(10);
+          doc.setFontSize(20);
+          doc.setFont(undefined, 'bold');
+          doc.text(state.customerName, 25, y + 15);
+          
+          // Health status with perfect alignment
+          const healthColors = {
+            green: colors.success,
+            yellow: colors.warning,
+            red: colors.danger
+          };
+          const healthLabels = {
+            green: 'Healthy',
+            yellow: 'At Risk',
+            red: 'Critical'
+          };
+          
+          const healthStatus = state.planHealth || 'green';
+          const healthLabel = healthLabels[healthStatus];
+          const healthColor = healthColors[healthStatus];
+          
+          alignmentHelpers.drawStatusBox(25, y + 22, 40, 10, healthLabel, healthColor, colors.white);
+          
+          // Products with better formatting
+          doc.setTextColor(...colors.textLight);
+          doc.setFontSize(11);
           doc.setFont(undefined, 'normal');
-          const summaryLines = doc.splitTextToSize(state.missionSummary, 180);
-          doc.text(summaryLines, 15, y);
-          y += summaryLines.length * 5 + 10;
+          const productsText = `Products: ${state.products.join(', ')}`;
+          const maxWidth = 100;
+          const productLines = doc.splitTextToSize(productsText, maxWidth);
+          doc.text(productLines, 75, y + 28);
+          
+          y = 100;
         }
         
-        // Mission Goals
+        // Executive Summary with enhanced typography
+        if (options.includeSummary && state.missionSummary) {
+          y = addSectionHeader('EXECUTIVE SUMMARY', y, '📋');
+          
+          // Summary content with proper spacing
+          doc.setTextColor(...colors.text);
+          doc.setFontSize(11);
+          doc.setFont(undefined, 'normal');
+          
+          const summaryLines = doc.splitTextToSize(state.missionSummary, 180);
+          const lineHeight = 6;
+          
+          summaryLines.forEach((line, index) => {
+            if (y + lineHeight > 270) {
+              doc.addPage();
+              y = 20;
+            }
+            doc.text(line, 15, y);
+            y += lineHeight;
+          });
+          
+          y += 10;
+        }
+        
+        // Mission Goals with perfect circle alignment
         if (options.includeGoals && state.missionGoals.length > 0) {
           if (y > 200) {
             doc.addPage();
             y = 20;
           }
           
-          y = addSection('MISSION GOALS', y);
+          y = addSectionHeader('MISSION GOALS', y, '🎯');
           
           state.missionGoals.forEach((goal, index) => {
-            if (y > 250) {
+            const goalHeight = 25 + calculateContentHeight(goal.description, 155);
+            
+            if (y + goalHeight > 270) {
               doc.addPage();
               y = 20;
             }
             
-            // Goal number
-            doc.setFillColor(...colors.accent);
-            doc.circle(20, y + 8, 8, 'F');
-            doc.setTextColor(...colors.white);
-            doc.setFontSize(12);
-            doc.setFont(undefined, 'bold');
-            // Fix vertical alignment for circle text
-            doc.text((index + 1).toString(), 20, y + 11, { align: 'center' });
+            // Goal number with perfect circle alignment
+            alignmentHelpers.drawCenteredCircle(22, y + 10, 10, (index + 1).toString(), colors.accent, colors.white, 14);
             
             // Goal title
             doc.setTextColor(...colors.text);
-            doc.setFontSize(11);
+            doc.setFontSize(12);
             doc.setFont(undefined, 'bold');
-            doc.text(goal.title, 35, y + 8);
+            doc.text(goal.title, 38, y + 10);
             
-            // Goal description
+            // Goal description with proper wrapping
             doc.setTextColor(...colors.textLight);
             doc.setFontSize(10);
             doc.setFont(undefined, 'normal');
             const goalLines = doc.splitTextToSize(goal.description, 155);
-            doc.text(goalLines, 35, y + 15);
+            doc.text(goalLines, 38, y + 18);
             
-            y += 15 + goalLines.length * 5 + 5;
+            y += goalHeight;
           });
+          
           y += 10;
         }
         
-        // Current Objectives with KPIs
+        // Current Objectives with enhanced KPI cards
         if (options.includeObjectives && state.objectives.length > 0) {
           if (y > 200) {
             doc.addPage();
             y = 20;
           }
           
-          y = addSection('CURRENT OBJECTIVES', y);
+          y = addSectionHeader('CURRENT OBJECTIVES', y, '📊');
           
           state.objectives.forEach(obj => {
-            // Calculate space needed for this objective
-            let spaceNeeded = 15; // Header
-            spaceNeeded += 6; // Target date
+            // Calculate total height needed
+            let objHeight = 20;
             if (obj.description) {
-              const descLines = doc.splitTextToSize(obj.description, 170);
-              spaceNeeded += descLines.length * 4 + 5;
+              objHeight += calculateContentHeight(obj.description, 170);
             }
             if (obj.kpis && obj.kpis.length > 0) {
-              spaceNeeded += Math.ceil(obj.kpis.length / 3) * 40;
+              objHeight += Math.ceil(obj.kpis.length / 3) * 40;
             }
-            spaceNeeded += 10; // Bottom margin
             
-            // Check if we need a new page
-            if (y + spaceNeeded > 270) {
+            if (y + objHeight > 270) {
               doc.addPage();
               y = 20;
             }
             
-            // Objective card
+            // Objective card with shadow
+            doc.setFillColor(245, 245, 245);
+            doc.roundedRect(16, y + 1, 178, 14, 3, 3, 'F');
+            
             doc.setFillColor(...colors.background);
-            doc.roundedRect(15, y, 180, 10, 2, 2, 'F');
+            doc.roundedRect(15, y, 180, 13, 3, 3, 'F');
             
             // Objective name
             doc.setTextColor(...colors.text);
             doc.setFontSize(12);
             doc.setFont(undefined, 'bold');
-            doc.text(obj.name, 20, y + 7);
+            doc.text(obj.name, 20, y + 8);
             
-            // Status
-            const statusColor = obj.status === 'On Track' ? colors.success : 
-                              obj.status === 'At Risk' ? colors.warning : colors.danger;
-            doc.setTextColor(...statusColor);
-            doc.setFontSize(10);
-            doc.text(obj.status, 180, y + 7, { align: 'right' });
+            // Status with perfect alignment
+            const statusColors = {
+              'On Track': colors.success,
+              'At Risk': colors.warning,
+              'Off Track': colors.danger
+            };
+            const statusColor = statusColors[obj.status] || colors.success;
+            alignmentHelpers.drawStatusBox(155, y + 3, 35, 7, obj.status, statusColor, colors.white, 8);
             
-            y += 15;
+            y += 18;
             
-            // Target date and description
+            // Target date
             doc.setTextColor(...colors.textLight);
             doc.setFontSize(9);
             doc.setFont(undefined, 'normal');
             doc.text(`Target: ${obj.targetDate || 'Not set'}`, 20, y);
             y += 6;
             
+            // Description
             if (obj.description) {
               const descLines = doc.splitTextToSize(obj.description, 170);
               doc.text(descLines, 20, y);
-              y += descLines.length * 4 + 5;
+              y += descLines.length * 5 + 5;
             }
             
-            // KPIs
+            // KPIs with enhanced cards
             if (obj.kpis && obj.kpis.length > 0) {
               let kpiX = 15;
+              let kpiRow = 0;
+              
               obj.kpis.forEach((kpi, index) => {
                 if (index > 0 && index % 3 === 0) {
-                  y += 35;
+                  y += 38;
                   kpiX = 15;
+                  kpiRow++;
                 }
-                drawKPICard(kpi, kpiX, y);
+                
+                alignmentHelpers.drawKPICard(kpi, kpiX, y);
                 kpiX += 65;
               });
+              
               y += 40;
             }
             
-            y += 10;
+            y += 8;
           });
         }
         
-        // Value Realized
+        // Value Realized with improved icons
         if (options.includeValue && state.valueRealized.length > 0) {
           if (y > 200) {
             doc.addPage();
             y = 20;
           }
           
-          y = addSection('VALUE REALIZED', y);
+          y = addSectionHeader('VALUE REALIZED', y, '✨');
           
           state.valueRealized.forEach(value => {
-            // Calculate space needed for this value item
-            const valueLines = doc.splitTextToSize(value.description, 155);
-            const spaceNeeded = 30 + (valueLines.length * 5);
+            const valueHeight = 35 + calculateContentHeight(value.description, 155);
             
-            if (y + spaceNeeded > 270) {
+            if (y + valueHeight > 270) {
               doc.addPage();
               y = 20;
             }
             
-            // Value card
+            // Value card with gradient effect
             doc.setFillColor(...colors.background);
-            doc.roundedRect(15, y, 180, 25, 2, 2, 'F');
+            doc.roundedRect(15, y, 180, valueHeight - 5, 3, 3, 'F');
             
-            // Icon
-            doc.setFillColor(...colors.success);
-            doc.circle(25, y + 12, 5, 'F');
-            doc.setTextColor(...colors.white);
-            doc.setFontSize(10);
-            doc.text('✓', 25, y + 15, { align: 'center' });
+            // Success icon with perfect circle
+            alignmentHelpers.drawCenteredCircle(25, y + 12, 6, '✓', colors.success, colors.white, 10);
             
             // Value type
             doc.setTextColor(...colors.text);
             doc.setFontSize(11);
             doc.setFont(undefined, 'bold');
-            doc.text(value.type, 35, y + 10);
+            doc.text(value.type, 35, y + 12);
             
             // Date
             doc.setTextColor(...colors.textLight);
             doc.setFontSize(9);
             doc.setFont(undefined, 'normal');
-            doc.text(value.date || 'Not specified', 180, y + 10, { align: 'right' });
+            doc.text(value.date || 'Not specified', 180, y + 12, { align: 'right' });
             
             // Description
             const descLines = doc.splitTextToSize(value.description, 155);
-            doc.text(descLines, 35, y + 17);
+            doc.text(descLines, 35, y + 20);
             
-            y += 30;
+            y += valueHeight;
           });
+          
           y += 10;
         }
         
-        // Past Objectives
+        // Past Objectives with timeline design
         if (options.includePast && state.pastObjectives.length > 0) {
           if (y > 200) {
             doc.addPage();
             y = 20;
           }
           
-          y = addSection('COMPLETED OBJECTIVES', y);
+          y = addSectionHeader('COMPLETED OBJECTIVES', y, '✅');
           
-          state.pastObjectives.forEach(obj => {
+          state.pastObjectives.forEach((obj, index) => {
             if (y > 260) {
               doc.addPage();
               y = 20;
             }
             
-            // Checkmark
-            doc.setTextColor(...colors.success);
-            doc.setFontSize(12);
-            doc.text('✓', 20, y + 5);
+            // Timeline dot
+            doc.setFillColor(...colors.success);
+            doc.circle(20, y + 5, 3, 'F');
             
-            // Objective name
+            // Objective details
             doc.setTextColor(...colors.text);
             doc.setFontSize(10);
             doc.setFont(undefined, 'bold');
-            doc.text(obj.name, 30, y + 5);
+            doc.text(obj.name, 28, y + 7);
             
-            // Completion date
             doc.setTextColor(...colors.textLight);
             doc.setFontSize(9);
             doc.setFont(undefined, 'normal');
-            doc.text(`Completed: ${obj.targetDate || 'Not specified'}`, 30, y + 10);
+            doc.text(`Completed: ${obj.targetDate || 'Not specified'}`, 28, y + 13);
             
-            y += 15;
+            y += 18;
           });
+          
           y += 10;
         }
         
-        // Key Stakeholders
+        // Key Stakeholders with modern table design
         if (options.includeStakeholders && state.stakeholders.length > 0) {
           if (y > 200) {
             doc.addPage();
             y = 20;
           }
           
-          y = addSection('KEY STAKEHOLDERS', y);
+          y = addSectionHeader('KEY STAKEHOLDERS', y, '👥');
           
-          // Table header
-          doc.setFillColor(...colors.background);
+          // Table header with gradient
+          doc.setFillColor(...colors.accent);
           doc.rect(15, y, 180, 10, 'F');
-          doc.setTextColor(...colors.text);
+          doc.setTextColor(...colors.white);
           doc.setFontSize(10);
           doc.setFont(undefined, 'bold');
           doc.text('Name', 20, y + 7);
-          doc.text('Title', 80, y + 7);
-          doc.text('Email', 140, y + 7);
+          doc.text('Title', 75, y + 7);
+          doc.text('Email', 130, y + 7);
           
           y += 12;
           
-          // Stakeholder rows
+          // Stakeholder rows with alternating backgrounds
           doc.setFont(undefined, 'normal');
-          state.stakeholders.forEach(stakeholder => {
+          state.stakeholders.forEach((stakeholder, index) => {
             if (y > 270) {
               doc.addPage();
               y = 20;
             }
             
-            doc.setTextColor(...colors.text);
-            doc.text(stakeholder.name, 20, y);
-            doc.text(stakeholder.title, 80, y);
-            doc.text(stakeholder.email, 140, y);
+            // Alternating row background
+            if (index % 2 === 0) {
+              doc.setFillColor(...colors.background);
+              doc.rect(15, y - 3, 180, 8, 'F');
+            }
             
-            // Divider line
-            doc.setDrawColor(...colors.border);
-            doc.line(15, y + 2, 195, y + 2);
+            doc.setTextColor(...colors.text);
+            doc.setFontSize(9);
+            doc.text(stakeholder.name, 20, y);
+            doc.text(stakeholder.title, 75, y);
+            doc.text(stakeholder.email, 130, y);
             
             y += 8;
           });
         }
         
-        // Footer on all pages
+        // Modern footer on all pages
         const pageCount = doc.internal.getNumberOfPages();
         for (let i = 1; i <= pageCount; i++) {
           doc.setPage(i);
-          doc.setDrawColor(...colors.border);
+          
+          // Footer separator with gradient
+          doc.setDrawColor(...colors.accent);
+          doc.setLineWidth(2);
           doc.line(15, 280, 195, 280);
+          
+          // Footer text
           doc.setTextColor(...colors.textLight);
           doc.setFontSize(8);
           doc.text('Confidential - Receptive Platform', 15, 288);
           doc.text(`Page ${i} of ${pageCount}`, 195, 288, { align: 'right' });
         }
         
-        // Save PDF
-        const fileName = `${state.customerName.toLowerCase().replace(/\s+/g, '-')}-success-report-${new Date().toISOString().split('T')[0]}.pdf`;
+        // Save PDF with formatted filename
+        const fileName = `${state.customerName.toLowerCase().replace(/\s+/g, '-')}-${options.presetName.toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
         doc.save(fileName);
-        showNotification('Report exported successfully!', 'success');
+        showNotification(`${options.presetName} generated successfully!`, 'success');
         
       } catch (error) {
         showNotification('Failed to generate report. Please try again.', 'error');
@@ -3102,7 +3363,7 @@
       }
       
       btn.disabled = false;
-      btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>Generate PDF Report';
+      btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>PDF Report';
     }
 
     function exportToExcel() {
