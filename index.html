@@ -2918,7 +2918,7 @@
             // Draw text perfectly centered
             doc.setTextColor(...textColor);
             doc.setFontSize(fontSize);
-            doc.setFont(undefined, 'bold');
+            doc.setFont('helvetica', 'bold');
             
             // Calculate text position for perfect centering
             const textMetrics = doc.getTextDimensions(text);
@@ -2936,7 +2936,7 @@
             // Draw text perfectly centered
             doc.setTextColor(...textColor);
             doc.setFontSize(fontSize);
-            doc.setFont(undefined, 'bold');
+            doc.setFont('helvetica', 'bold');
             
             const textMetrics = doc.getTextDimensions(text);
             const textX = x + (width / 2);
@@ -3056,14 +3056,14 @@
             doc.line(140, 22, 190, 22);
             doc.setTextColor(...colors.white);
             doc.setFontSize(9);
-            doc.setFont(undefined, 'normal');
+            doc.setFont('helvetica', 'normal');
             doc.text(options.presetName.toUpperCase(), 165, 19, { align: 'center' });
           }
           
           // Date with refined formatting
           doc.setTextColor(...colors.white);
           doc.setFontSize(9);
-          doc.setFont(undefined, 'light');
+          doc.setFont('helvetica', 'normal');
           doc.text(new Date().toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
