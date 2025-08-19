@@ -7,53 +7,28 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root { 
-      /* Original colors preserved for compatibility */
       --ink: #0f172a; 
       --ink-2: #334155; 
       --ink-3: #64748b;
       --responsive-teal: #14b8a6;
       --responsive-teal-dark: #0d9488;
       --responsive-teal-light: #5eead4;
-      
-      /* Enhanced gradients with smoother transitions */
-      --primary-gradient: linear-gradient(135deg, #2dd4bf 0%, #0d9488 100%);
-      --success-gradient: linear-gradient(135deg, #34d399 0%, #10b981 100%);
-      --danger-gradient: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
-      --warning-gradient: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-      --info-gradient: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
-      
-      /* Accent colors for variety */
-      --accent-purple: #8b5cf6;
-      --accent-blue: #3b82f6;
-      --accent-indigo: #6366f1;
-      --accent-pink: #ec4899;
-      --accent-orange: #f97316;
-      
-      /* Enhanced neutrals */
-      --light-bg: #fafafa;
+      --primary-gradient: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+      --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      --danger-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      --light-bg: #f8fafc;
       --card-bg: #ffffff;
       --border-color: #e5e7eb;
       --text-primary: #111827;
       --text-secondary: #6b7280;
       --text-tertiary: #9ca3af;
-      
-      /* New shadow system */
-      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-      --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-      
-      /* Animation timing */
-      --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-      --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     * { 
@@ -69,8 +44,6 @@
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
-      scroll-behavior: smooth;
-      transition: background-color var(--transition-base);
     }
 
     /* Typography System */
@@ -138,35 +111,27 @@
       text-shadow: 0 10px 15px rgba(0, 0, 0, 0.3), 0 4px 6px rgba(0, 0, 0, 0.2);
     }
 
-    /* Enhanced Form Controls */
+    /* Form Controls */
     .text-zone { 
       width: 100%; 
-      border-radius: 8px; 
-      border: 1.5px solid var(--border-color); 
+      border-radius: 0; 
+      border: 1px solid var(--border-color); 
       background: var(--card-bg); 
-      box-shadow: var(--shadow-sm); 
-      transition: var(--transition-fast); 
+      box-shadow: none; 
+      transition: all .15s ease; 
       outline: none; 
       font-size: 0.875rem;
       line-height: 1.25rem;
       color: var(--text-primary);
-      padding: 0.625rem 0.875rem;
-    }
-    .text-zone:hover:not(:disabled) {
-      border-color: #d1d5db;
-      box-shadow: var(--shadow);
     }
     .text-zone:focus { 
       border-color: var(--responsive-teal); 
-      box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.15), var(--shadow-md); 
-      transform: translateY(-1px);
+      box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1); 
     }
     .text-zone:disabled {
       background: #f9fafb;
       color: var(--text-tertiary);
       cursor: not-allowed;
-      opacity: 0.7;
-      box-shadow: none;
     }
     .text-area { 
       resize: none; 
@@ -194,84 +159,44 @@
       display: none;
     }
 
-    /* Enhanced Cards */
+    /* Cards */
     .card { 
       background: var(--card-bg); 
-      border-radius: 12px; 
-      box-shadow: var(--shadow); 
+      border-radius: 0; 
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
       border: 1px solid var(--border-color); 
-      transition: var(--transition-base);
-      position: relative;
-      overflow: hidden;
+      transition: all 0.15s ease;
     }
     .card:hover {
-      box-shadow: var(--shadow-lg);
-      transform: translateY(-4px);
-      border-color: var(--responsive-teal-light);
-    }
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: var(--primary-gradient);
-      transform: scaleX(0);
-      transition: transform var(--transition-base);
-      transform-origin: left;
-    }
-    .card:hover::before {
-      transform: scaleX(1);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transform: translateY(-1px);
     }
 
-    /* Enhanced Buttons */
+    /* Buttons */
     .btn { 
       display: inline-flex; 
       align-items: center; 
       justify-content: center;
       gap: .5rem; 
       font-weight: 600; 
-      border-radius: 8px; 
+      border-radius: 0; 
       padding: .625rem 1.25rem; 
       border: 1px solid transparent; 
-      transition: var(--transition-fast); 
+      transition: all .15s ease; 
       cursor: pointer;
       font-size: 0.875rem;
       white-space: nowrap;
       text-decoration: none;
       position: relative;
       overflow: hidden;
-      transform-style: preserve-3d;
-      box-shadow: var(--shadow-sm);
-    }
-    .btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-      transform: translateX(-100%);
-      transition: transform 0.6s;
-    }
-    .btn:hover::before {
-      transform: translateX(100%);
     }
     .btn:disabled {
       opacity: 0.5;
       cursor: not-allowed;
-      transform: none !important;
-      box-shadow: none !important;
     }
     .btn:focus {
       outline: 2px solid var(--responsive-teal);
       outline-offset: 2px;
-    }
-    .btn:active:not(:disabled) {
-      transform: translateY(1px);
-      box-shadow: var(--shadow-sm);
     }
     .btn-sm { 
       padding: .375rem .875rem; 
@@ -281,31 +206,31 @@
       background: var(--primary-gradient);
       color: #fff; 
       border: none;
-      box-shadow: 0 4px 14px rgba(20, 184, 166, 0.25);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
     .btn-primary:hover:not(:disabled) { 
-      box-shadow: 0 6px 20px rgba(20, 184, 166, 0.35);
-      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+      transform: translateY(-1px);
     }
     .btn-success { 
       background: var(--success-gradient);
       color: #fff;
       border: none;
-      box-shadow: 0 4px 14px rgba(34, 197, 94, 0.25);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
     .btn-success:hover:not(:disabled) { 
-      box-shadow: 0 6px 20px rgba(34, 197, 94, 0.35);
-      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+      transform: translateY(-1px);
     }
     .btn-danger {
       background: var(--danger-gradient);
       color: #fff;
       border: none;
-      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.25);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
     .btn-danger:hover:not(:disabled) {
-      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
-      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+      transform: translateY(-1px);
     }
     .btn-outline { 
       background: var(--card-bg); 
@@ -360,36 +285,20 @@
       border-radius: 0;
     }
 
-    /* Enhanced Status Pills */
+    /* Status pills */
     .status-pill { 
       font-size: .75rem; 
       font-weight: 600; 
-      padding: .375rem .875rem; 
-      border-radius: 9999px; 
+      padding: .25rem .75rem; 
+      border-radius: 0; 
       display: inline-flex; 
       align-items: center; 
-      gap: 0.375rem;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      box-shadow: var(--shadow-sm);
-      transition: var(--transition-fast);
+      letter-spacing: 0.025em;
     }
-    .status-pill:hover {
-      transform: translateY(-1px);
-      box-shadow: var(--shadow-md);
-    }
-    .status-green { 
-      background: linear-gradient(135deg, #86efac 0%, #22c55e 100%); 
-      color: #fff; 
-    }
-    .status-yellow { 
-      background: linear-gradient(135deg, #fde047 0%, #eab308 100%); 
-      color: #fff; 
-    }
-    .status-red { 
-      background: linear-gradient(135deg, #fca5a5 0%, #ef4444 100%); 
-      color: #fff; 
-    }
+    .status-green { background: #10b981; color: #fff; }
+    .status-yellow { background: #f59e0b; color: #fff; }
+    .status-red { background: #ef4444; color: #fff; }
     .status-gray { background: #6b7280; color: #fff; }
     .status-cyan { background: #06b6d4; color: #fff; }
 
@@ -715,99 +624,29 @@
         min-width: 100%;
       }
     }
-    
-    .watermark {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(249, 250, 251, 0.95) 100%);
-      backdrop-filter: blur(10px);
-      color: var(--text-primary);
-      font-size: 14px;
-      font-weight: 600;
-      padding: 12px 20px;
-      border-radius: 50px;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06);
-      z-index: 50;
-      user-select: none;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      border: 1px solid rgba(229, 231, 235, 0.6);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      cursor: default;
-      opacity: 0.9;
-    }
-    
-    .watermark:hover {
-      opacity: 1;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08);
-      background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(249, 250, 251, 1) 100%);
-    }
-    
-    .watermark::before {
-      content: '✨';
-      font-size: 16px;
-      animation: sparkle 3s ease-in-out infinite;
-    }
-    
-    @keyframes sparkle {
-      0%, 100% { opacity: 0.6; transform: scale(1) rotate(0deg); }
-      50% { opacity: 1; transform: scale(1.2) rotate(180deg); }
-    }
   </style>
 </head>
 <body>
-  <div class="watermark">
-    <span style="background: linear-gradient(135deg, var(--responsive-teal) 0%, var(--responsive-teal-dark) 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700;">Created by</span>
-    <span style="font-weight: 700;">Atiq Azel Khan</span>
-  </div>
   <div id="app" class="max-w-screen-xl mx-auto p-4 sm:p-6 lg:p-8">
-    <!-- Enhanced Header with Modern Watermark -->
-    <header class="mb-10 p-6 md:p-8 lg:p-10 bg-gradient-to-r from-teal-950 via-teal-800 to-emerald-600 text-white shadow-xl relative overflow-hidden">
-      <!-- Animated Background Pattern -->
-      <div class="absolute inset-0 opacity-10">
-        <div class="absolute inset-0" style="background-image: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.05) 35px, rgba(255,255,255,.05) 70px); animation: slide 20s linear infinite;"></div>
-      </div>
-      
-
-      
-      <!-- Corner Accent -->
-      <div class="absolute top-0 right-0 w-32 h-32 md:w-48 md:h-48">
-        <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent transform rotate-45 translate-x-16 -translate-y-16"></div>
-      </div>
-      
-      <div class="flex flex-col lg:flex-row justify-between items-center gap-6 relative z-20">
-        <div class="flex-1 text-center lg:text-left">
-          <h1 id="main-title" class="font-extrabold text-white drop-shadow-lg flex flex-wrap items-baseline gap-3 justify-center lg:justify-start" style="font-size: 32px;">
+    <!-- Header -->
+    <header class="mb-10 p-6 md:p-8 lg:p-10 bg-gradient-to-r from-teal-950 via-teal-800 to-emerald-600 text-white shadow-xl">
+      <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6">
+        <div class="flex-1">
+          <h1 id="main-title" class="font-extrabold text-white drop-shadow-lg flex flex-wrap items-baseline gap-3" style="font-size: 28px;">
             <span id="customer-name-display" class="cursor-pointer hover:opacity-80 border-b-2 border-transparent hover:border-white/50 transition-all" title="Click to edit customer name">[Customer Name]</span>
             <span>Success Plan</span>
           </h1>
-          <p class="text-white/80 mt-2 text-lg">Strategic objectives and performance tracking</p>
         </div>
         <div class="flex flex-col md:flex-row items-start md:items-center gap-4">
           <p class="text-teal-50/90 text-sm font-light whitespace-nowrap">Last updated: <span id="last-updated-date"></span></p>
-          <div class="grid grid-cols-2 gap-2 max-w-md">
-            <button id="export-pdf-btn" class="btn btn-primary flex items-center justify-center text-sm transform transition-all duration-200 hover:shadow-lg" style="transform: translateY(0px);" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0px)'" aria-label="Export to PDF">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>
-              PDF Report
+          <div class="flex items-center gap-3">
+            <button id="export-excel-btn" class="btn bg-gray-900 hover:bg-gray-800 text-white" aria-label="Export to Excel">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M13 7h-2v4H9v2h2v4h2v-4h4v-2h-4V7zm-8 6h4v2H5v-2z"/></svg>
+              Export Excel
             </button>
-            <button id="export-excel-btn" class="btn bg-emerald-700 hover:bg-emerald-800 text-white flex items-center justify-center text-sm transform transition-all duration-200 hover:shadow-lg" style="transform: translateY(0px);" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0px)'" aria-label="Export to Excel">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/><path d="M8.5 12.5l1.5 3 1.5-3m-3 0h3m-4.5-1h6v5h-6z"/></svg>
-              Excel
-            </button>
-            <button id="export-data-btn" class="btn bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center text-sm transform transition-all duration-200 hover:shadow-lg" style="transform: translateY(0px);" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0px)'" aria-label="Export Data">
-              <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-              </svg>
-              Backup
-            </button>
-            <button id="import-data-btn" class="btn bg-green-600 hover:bg-green-700 text-white flex items-center justify-center text-sm transform transition-all duration-200 hover:shadow-lg" style="transform: translateY(0px);" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0px)'" aria-label="Import Data">
-              <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-              </svg>
-              Restore
+            <button id="export-pdf-btn" class="btn btn-primary flex items-center" aria-label="Export to PDF">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>
+              Export PDF
             </button>
           </div>
         </div>
@@ -821,7 +660,7 @@
       <div class="edit-overlay">
         <button class="btn btn-ghost btn-sm" data-edit="mission-summary">Edit</button>
       </div>
-      <h2 class="text-2xl font-bold mb-4">Executive Summary</h2>
+      <h2 class="text-2xl font-bold mb-4">Mission Summary</h2>
       <div id="mission-summary-display" class="readonly-content"></div>
       <div id="mission-summary-edit" class="hidden">
         <textarea id="mission-summary-input" class="text-zone text-area p-3" rows="3"></textarea>
@@ -980,12 +819,6 @@
   </div>
 
   <script>
-    // Immediate debug check
-    console.log('=== Script starting to execute ===');
-    document.addEventListener('DOMContentLoaded', function() {
-      console.log('=== DOMContentLoaded fired ===');
-    });
-    
     // ---------- Data Models ----------
     const PRODUCT_KPIS = {
       'Content Library': [
@@ -1024,7 +857,7 @@
     // Application State
     const state = {
       customerName: '[Customer Name]',
-      products: ['Content Library', 'AI', 'Projects'],
+      products: ['Content Library', 'AI Assistant', 'Analytics Suite'],
       missionSummary: 'Partner with [Customer Name] to revolutionize their global sales operations through Receptive\'s AI-powered revenue enablement platform. Our mission is to empower 500+ sales professionals across 12 regions to deliver personalized, data-driven customer experiences that accelerate deal velocity by 45% and increase average contract values by 30% within the next 12 months.',
       missionGoals: [
         { 
@@ -1298,7 +1131,7 @@
     function renderMissionSummary() {
       const display = $('#mission-summary-display');
       if (display) {
-        display.innerHTML = state.missionSummary || '<span class="text-gray-500 italic">No executive summary defined</span>';
+        display.innerHTML = state.missionSummary || '<span class="text-gray-500 italic">No mission summary defined</span>';
       }
     }
 
@@ -2581,9 +2414,6 @@
       // Export buttons
       $('#export-pdf-btn')?.addEventListener('click', exportToPDF);
       $('#export-excel-btn')?.addEventListener('click', exportToExcel);
-      
-      // Add data backup/restore functionality
-      addDataBackupButtons();
     }
 
     // ---------- Export Functions ----------
@@ -2595,74 +2425,446 @@
     window.showPDFExportModal = function() {
       const modal = createModal('Export Report', `
         <div class="space-y-6">
-          <p class="text-gray-600">Select the sections to include in your report:</p>
-          
-          <div class="space-y-3">
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-summary" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Executive Summary</div>
-                <div class="text-sm text-gray-500">Mission statement and account health</div>
-              </div>
-            </label>
-            
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-goals" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Mission Goals</div>
-                <div class="text-sm text-gray-500">Strategic objectives and key initiatives</div>
-              </div>
-            </label>
-            
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-objectives" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Current Objectives</div>
-                <div class="text-sm text-gray-500">Active objectives with KPIs and metrics</div>
-              </div>
-            </label>
-            
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-value" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Value Realized</div>
-                <div class="text-sm text-gray-500">Business impact and ROI achieved</div>
-              </div>
-            </label>
-            
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-past" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Past Objectives</div>
-                <div class="text-sm text-gray-500">Completed milestones and achievements</div>
-              </div>
-            </label>
-            
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-stakeholders" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Key Stakeholders</div>
-                <div class="text-sm text-gray-500">Primary contacts and their roles</div>
-              </div>
-            </label>
+          <div>
+            <div class="text-sm text-gray-600 mb-2">Choose a preset or use Custom to configure sections</div>
+            <div class="grid grid-cols-4 gap-2">
+              <button id="preset-Executive" class="btn btn-ghost border">Executive</button>
+              <button id="preset-Detailed" class="btn btn-ghost border">Detailed</button>
+              <button id="preset-Compact" class="btn btn-ghost border">Compact</button>
+              <button id="preset-Custom" class="btn btn-primary">Custom</button>
+            </div>
+            <div id="preset-preview" class="mt-3 text-xs text-gray-600"></div>
+          </div>
+
+          <div id="custom-config" class="space-y-4">
+            <p class="text-gray-600">Select the sections to include in your report:</p>
+            <div class="grid grid-cols-2 gap-3">
+              <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" id="export-summary" checked class="w-5 h-5 text-teal-600">
+                <div>
+                  <div class="font-medium">Executive Summary</div>
+                  <div class="text-sm text-gray-500">Mission statement and account health</div>
+                </div>
+              </label>
+              <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" id="export-goals" checked class="w-5 h-5 text-teal-600">
+                <div>
+                  <div class="font-medium">Mission Goals</div>
+                  <div class="text-sm text-gray-500">Strategic objectives and key initiatives</div>
+                </div>
+              </label>
+              <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" id="export-objectives" checked class="w-5 h-5 text-teal-600">
+                <div>
+                  <div class="font-medium">Current Objectives</div>
+                  <div class="text-sm text-gray-500">Active objectives with KPIs and metrics</div>
+                </div>
+              </label>
+              <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" id="export-value" checked class="w-5 h-5 text-teal-600">
+                <div>
+                  <div class="font-medium">Value Realized</div>
+                  <div class="text-sm text-gray-500">Business impact and ROI achieved</div>
+                </div>
+              </label>
+              <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" id="export-past" checked class="w-5 h-5 text-teal-600">
+                <div>
+                  <div class="font-medium">Past Objectives</div>
+                  <div class="text-sm text-gray-500">Completed milestones and achievements</div>
+                </div>
+              </label>
+              <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" id="export-stakeholders" checked class="w-5 h-5 text-teal-600">
+                <div>
+                  <div class="font-medium">Key Stakeholders</div>
+                  <div class="text-sm text-gray-500">Primary contacts and their roles</div>
+                </div>
+              </label>
+            </div>
           </div>
         </div>
       `, [
         { label: 'Cancel', class: 'btn-ghost', action: () => closeModal() },
         { label: 'Export PDF', class: 'btn-primary', action: () => {
-          const options = {
-            includeSummary: $('#export-summary').checked,
-            includeGoals: $('#export-goals').checked,
-            includeObjectives: $('#export-objectives').checked,
-            includeValue: $('#export-value').checked,
-            includePast: $('#export-past').checked,
-            includeStakeholders: $('#export-stakeholders').checked
+          const isCustom = document.querySelector('#preset-Custom')?.classList.contains('btn-primary');
+          let options;
+          const presets = {
+            Executive: { includeSummary: true, includeGoals: true, includeObjectives: true, includeValue: true, includePast: false, includeStakeholders: true },
+            Detailed: { includeSummary: true, includeGoals: true, includeObjectives: true, includeValue: true, includePast: true, includeStakeholders: true },
+            Compact: { includeSummary: true, includeGoals: false, includeObjectives: true, includeValue: false, includePast: false, includeStakeholders: false }
           };
+          if (!isCustom) {
+            const active = ['Executive','Detailed','Compact'].find(name => document.querySelector(`#preset-${name}`)?.classList.contains('btn-primary')) || 'Executive';
+            options = { ...presets[active] };
+          } else {
+            options = {
+              includeSummary: $('#export-summary').checked,
+              includeGoals: $('#export-goals').checked,
+              includeObjectives: $('#export-objectives').checked,
+              includeValue: $('#export-value').checked,
+              includePast: $('#export-past').checked,
+              includeStakeholders: $('#export-stakeholders').checked
+            };
+          }
           closeModal();
-          generateCleanPDF(options);
+          generateElegantPDF(options);
         }}
       ]);
+
+      // Live preset preview
+      const previewEl = document.querySelector('#preset-preview');
+      function renderPreviewFor(name) {
+        const map = {
+          Executive: ['Executive Summary','Mission Goals','Current Objectives','Value Realized','Stakeholders'],
+          Detailed: ['Executive Summary','Mission Goals','Current Objectives','Value Realized','Past Objectives','Stakeholders'],
+          Compact: ['Executive Summary','Current Objectives']
+        };
+        const items = map[name] || [];
+        previewEl.innerHTML = items.length ? `Included: ${items.join(' • ')}` : '';
+      }
+      function activatePreset(name) {
+        ['Executive','Detailed','Compact','Custom'].forEach(n => {
+          const el = document.querySelector(`#preset-${n}`);
+          if (!el) return;
+          el.classList.toggle('btn-primary', n === name);
+          el.classList.toggle('btn-ghost', n !== name);
+        });
+        const isCustom = name === 'Custom';
+        document.querySelector('#custom-config').style.display = isCustom ? 'block' : 'none';
+        if (!isCustom) renderPreviewFor(name); else previewEl.innerHTML = '';
+      }
+      ['Executive','Detailed','Compact','Custom'].forEach(n => document.querySelector(`#preset-${n}`)?.addEventListener('click', () => activatePreset(n)));
+      activatePreset('Custom');
     };
+
+    // Modern, research-inspired generator with cover, TOC, grid, and refined typography
+    async function generateElegantPDF(options) {
+      const btn = $('#export-pdf-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="animate-spin">⟳</span> Generating...';
+
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+
+        // Theme and layout
+        const page = { w: doc.internal.pageSize.getWidth(), h: doc.internal.pageSize.getHeight() };
+        const margin = { l: 16, r: 16, t: 18, b: 18 };
+        let y = margin.t;
+        const colors = {
+          ink: [15, 23, 42],
+          ink2: [51, 65, 85],
+          ink3: [100, 116, 139],
+          brand: [20, 184, 166],
+          brandDark: [13, 148, 136],
+          success: [16, 185, 129],
+          danger: [239, 68, 68],
+          warn: [245, 158, 11],
+          bg: [248, 250, 252],
+          border: [226, 232, 240],
+          white: [255, 255, 255]
+        };
+
+        function text(x, y, str, size = 10, color = colors.ink, style = 'normal', align = 'left', baseline = 'alphabetic') {
+          doc.setTextColor(...color);
+          doc.setFontSize(size);
+          doc.setFont(undefined, style);
+          doc.text(String(str), x, y, { align, baseline });
+        }
+
+        function ensureSpace(required) {
+          const bottom = page.h - margin.b;
+          if (y + required <= bottom) return;
+          doc.addPage();
+          y = margin.t;
+          drawRunningHeader();
+          y += 6;
+        }
+
+        function hRule(x1, x2, yy, color = colors.border) {
+          doc.setDrawColor(...color);
+          doc.line(x1, yy, x2, yy);
+        }
+
+        function drawRunningHeader() {
+          doc.setFillColor(...colors.brand);
+          doc.rect(0, 0, page.w, 10, 'F');
+          text(margin.l, 7, 'Receptive • Customer Success Report', 10, colors.white, 'bold', 'left', 'middle');
+          text(page.w - margin.r, 7, new Date().toLocaleDateString(), 9, colors.white, 'normal', 'right', 'middle');
+        }
+
+        function drawCover() {
+          // Brand band
+          doc.setFillColor(...colors.brand);
+          doc.rect(0, 0, page.w, 48, 'F');
+          // Logo mark
+          doc.setFillColor(...colors.white);
+          doc.circle(26, 24, 12, 'F');
+          text(26, 25.5, 'R', 16, colors.brand, 'bold', 'center', 'middle');
+          // Title
+          text(48, 22, 'Customer Success Report', 20, colors.white, 'bold');
+          text(48, 32, state.customerName, 12, colors.white, 'normal');
+          // Meta
+          y = 60;
+          doc.setFillColor(...colors.bg);
+          doc.rect(margin.l, y, page.w - margin.l - margin.r, 30, 'F');
+          text(margin.l + 8, y + 12, `Generated: ${new Date().toLocaleDateString()}`, 10, colors.ink3);
+          text(margin.l + 8, y + 20, `Health: ${state.planHealth}`, 10, colors.ink3);
+          y += 40;
+        }
+
+        // Start: Cover
+        drawCover();
+
+        // Reserve TOC page
+        doc.addPage();
+        const tocPage = doc.internal.getNumberOfPages();
+        doc.setPage(tocPage);
+        drawRunningHeader();
+        y = margin.t + 10;
+        text(margin.l, y, 'Table of Contents', 14, colors.ink, 'bold');
+        y += 6;
+        hRule(margin.l, page.w - margin.r, y, colors.border);
+        y += 8;
+        const tocEntries = [];
+
+        // Continue after TOC with content pages
+        doc.addPage();
+        drawRunningHeader();
+        y = margin.t + 8;
+
+        function section(title, minBody = 20) {
+          ensureSpace(14 + minBody);
+          // section bar
+          doc.setFillColor(...colors.brand);
+          doc.rect(0, y, page.w, 7, 'F');
+          text(margin.l, y + 4, title.toUpperCase(), 11, colors.white, 'bold', 'left', 'middle');
+          y += 11;
+          const pageNo = doc.internal.getCurrentPageInfo().pageNumber;
+          tocEntries.push({ title, page: pageNo });
+        }
+
+        // Executive Summary
+        if (options.includeSummary && state.missionSummary) {
+          section('Executive Summary', 26);
+          const parts = String(state.missionSummary).split(/\n\n+/).map(s => s.trim()).filter(Boolean);
+          const width = page.w - margin.l - margin.r;
+          parts.forEach((para, idx) => {
+            ensureSpace(12);
+            const lines = doc.splitTextToSize(para, width);
+            text(margin.l, y, lines, 10, colors.ink, 'normal');
+            y += lines.length * 5 + (idx < parts.length - 1 ? 3 : 6);
+          });
+        }
+
+        // Mission Goals
+        if (options.includeGoals && state.missionGoals.length > 0) {
+          section('Mission Goals', 22);
+          state.missionGoals.forEach((goal, idx) => {
+            const lines = doc.splitTextToSize(goal.description, page.w - margin.l - margin.r - 24);
+            const estimate = 16 + lines.length * 5 + 4;
+            ensureSpace(estimate);
+            // Numbered circle
+            doc.setFillColor(...colors.brand);
+            const cx = margin.l + 6, cy = y + 6.5;
+            doc.circle(cx, cy, 6.5, 'F');
+            text(cx, cy + 0.6, String(idx + 1), 11, colors.white, 'bold', 'center', 'middle');
+            // Title
+            text(margin.l + 20, y + 3.5, goal.title, 11, colors.ink, 'bold', 'left', 'middle');
+            // Desc
+            text(margin.l + 20, y + 10, lines, 10, colors.ink3, 'normal');
+            y += estimate;
+          });
+        }
+
+        // KPI Cards helper with basis legend
+        function drawKPICards(kpis, columns) {
+          if (!kpis || kpis.length === 0) return;
+          const gap = 8;
+          const cardW = (page.w - margin.l - margin.r - gap * (columns - 1)) / columns;
+          const cardH = 34;
+          function basisOf(kpi, typeLabel) {
+            const s = String(kpi.compareBasis || kpi.basis || kpi.period || '').toLowerCase();
+            if (s.includes('quarter') || s === 'qoq') return 'QoQ';
+            if (s.includes('year') || s === 'yoy') return 'YoY';
+            if (s.includes('week') || s === 'wow') return 'WoW';
+            if (s.includes('month') || s === 'mom') return 'MoM';
+            if (/quarter/i.test(typeLabel)) return 'QoQ';
+            if (/year/i.test(typeLabel)) return 'YoY';
+            return 'MoM';
+          }
+          let col = 0;
+          kpis.forEach((kpi) => {
+            if (col === 0) ensureSpace(cardH + 6);
+            const x = margin.l + (cardW + gap) * col;
+            const yy = y;
+            // card
+            doc.setFillColor(...colors.white);
+            doc.setDrawColor(...colors.border);
+            doc.roundedRect(x, yy, cardW, cardH, 2, 2, 'FD');
+            // label
+            const type = getKPIType(kpi.typeKey);
+            text(x + cardW / 2, yy + 7, type.label, 8, colors.ink3, 'normal', 'center', 'middle');
+            // value
+            text(x + cardW / 2, yy + 19, `${kpi.currentValue}${type.unit}`, 17, colors.ink, 'bold', 'center', 'middle');
+            // delta
+            if (kpi.comparePrevious && kpi.previousValue) {
+              const delta = Number(calculateDelta(kpi.currentValue, kpi.previousValue));
+              const up = delta >= 0;
+              const c = up ? colors.success : colors.danger;
+              const arrow = up ? '▲' : '▼';
+              const basis = basisOf(kpi, type.label);
+              text(x + cardW / 2, yy + 27, `${arrow} ${Math.abs(delta)}% ${basis}`, 9, c, 'bold', 'center', 'middle');
+            }
+            col++;
+            if (col >= columns) {
+              col = 0;
+              y += cardH + gap;
+            }
+          });
+          if (col !== 0) y += cardH + 6;
+          // Legend
+          text(margin.l, y, 'Legend: ▲ increase, ▼ decrease; Basis = MoM/QoQ/YoY/WoW', 8, colors.ink3);
+          y += 6;
+        }
+
+        // Current Objectives
+        if (options.includeObjectives && state.objectives.length > 0) {
+          section('Current Objectives', 26);
+          state.objectives.forEach((obj) => {
+            // preflight
+            const descLines = obj.description ? doc.splitTextToSize(String(obj.description), page.w - margin.l - margin.r - 4) : [];
+            const kpiCount = (obj.kpis || []).length;
+            const columns = 3;
+            const kpiRows = kpiCount > 0 ? Math.ceil(kpiCount / columns) : 0;
+            const need = 14 + (descLines.length ? descLines.length * 4 + 6 : 0) + (kpiRows ? (kpiRows * (34 + 8)) : 0) + 8;
+            ensureSpace(Math.min(need, 70));
+
+            // Header row
+            doc.setFillColor(...colors.bg);
+            doc.roundedRect(margin.l, y, page.w - margin.l - margin.r, 10, 2, 2, 'F');
+            text(margin.l + 4, y + 6, obj.name, 11, colors.ink, 'bold', 'left', 'middle');
+            const statusColor = obj.status === 'At Risk' ? colors.warn : (obj.status === 'Completed' ? colors.success : (obj.status === 'Not Started' ? colors.ink3 : colors.brand));
+            // status pill
+            doc.setFillColor(...statusColor);
+            const dims = doc.getTextDimensions(obj.status);
+            const sw = dims.w + 8, sh = dims.h + 5;
+            const sx = page.w - margin.r - sw - 4, sy = y + 2;
+            doc.roundedRect(sx, sy, sw, sh, 3, 3, 'F');
+            text(sx + sw / 2, sy + sh / 2 + 0.2, obj.status, 9, colors.white, 'bold', 'center', 'middle');
+            y += 14;
+
+            // meta
+            text(margin.l + 2, y, `Target: ${obj.targetDate || 'Not set'}`, 9, colors.ink3);
+            y += 6;
+
+            // description
+            if (descLines.length) {
+              text(margin.l + 2, y, descLines, 9.5, colors.ink, 'normal');
+              y += descLines.length * 4 + 6;
+            }
+
+            // KPIs
+            if (kpiCount) {
+              drawKPICards(obj.kpis, columns);
+            }
+            y += 6;
+          });
+        }
+
+        // Value Realized
+        if (options.includeValue && state.valueRealized.length > 0) {
+          section('Value Realized', 24);
+          state.valueRealized.forEach((value) => {
+            const lines = doc.splitTextToSize(value.description, page.w - margin.l - margin.r - 20);
+            const need = 20 + lines.length * 5;
+            ensureSpace(need);
+            // icon
+            doc.setFillColor(...colors.success);
+            const icx = margin.l + 6, icy = y + 6;
+            doc.circle(icx, icy, 4, 'F');
+            text(icx, icy + 0.8, '✓', 9, colors.white, 'bold', 'center', 'middle');
+            // title/date
+            text(margin.l + 16, y + 5, value.type, 11, colors.ink, 'bold', 'left', 'middle');
+            text(page.w - margin.r, y + 5, value.date || 'Not specified', 9, colors.ink3, 'normal', 'right', 'middle');
+            // desc
+            text(margin.l + 16, y + 12, lines, 10, colors.ink, 'normal');
+            y += 18 + lines.length * 5;
+          });
+        }
+
+        // Completed Objectives
+        if (options.includePast && state.pastObjectives.length > 0) {
+          section('Completed Objectives', 18);
+          state.pastObjectives.forEach((obj) => {
+            ensureSpace(12);
+            text(margin.l + 2, y + 3, '✓', 11, colors.success, 'bold', 'left', 'middle');
+            text(margin.l + 8, y + 3, obj.name, 10, colors.ink, 'bold', 'left', 'middle');
+            text(margin.l + 8, y + 8, `Completed: ${obj.targetDate || 'Not specified'}`, 9, colors.ink3);
+            y += 12;
+          });
+        }
+
+        // Stakeholders with AutoTable
+        if (options.includeStakeholders && state.stakeholders.length > 0) {
+          section('Key Stakeholders', 20);
+          ensureSpace(20);
+          const rows = state.stakeholders.map(s => [s.name, s.title, s.email]);
+          doc.autoTable({
+            head: [['Name', 'Title', 'Email']],
+            body: rows,
+            startY: y,
+            margin: { left: margin.l, right: margin.r },
+            styles: { fontSize: 9, textColor: colors.ink, lineColor: colors.border, lineWidth: 0.1 },
+            headStyles: { fillColor: colors.bg, textColor: colors.ink, fontStyle: 'bold' },
+            alternateRowStyles: { fillColor: [252, 252, 253] }
+          });
+          y = doc.lastAutoTable.finalY + 6;
+        }
+
+        // Fill TOC entries
+        const totalPages = doc.internal.getNumberOfPages();
+        doc.setPage(tocPage);
+        y = margin.t + 22;
+        tocEntries.forEach(entry => {
+          const dotsStart = margin.l + 2 + doc.getTextWidth(entry.title) + 2;
+          const pageStr = String(entry.page);
+          text(margin.l + 2, y, entry.title, 10, colors.ink);
+          // dotted leader
+          const leaderEnd = page.w - margin.r - doc.getTextWidth(pageStr) - 2;
+          let lx = dotsStart;
+          while (lx < leaderEnd) {
+            doc.text('.', lx, y);
+            lx += 2;
+          }
+          text(page.w - margin.r, y, pageStr, 10, colors.ink, 'normal', 'right');
+          y += 7;
+        });
+
+        // Add running footer to all pages
+        for (let i = 1; i <= totalPages; i++) {
+          doc.setPage(i);
+          hRule(margin.l, page.w - margin.r, page.h - margin.b + 4, colors.border);
+          text(margin.l, page.h - margin.b + 10, 'Confidential – Receptive Platform', 8, colors.ink3);
+          text(page.w - margin.r, page.h - margin.b + 10, `Page ${i} of ${totalPages}`, 8, colors.ink3, 'normal', 'right');
+        }
+
+        const fileName = `${state.customerName.toLowerCase().replace(/\s+/g, '-')}-success-report-${new Date().toISOString().split('T')[0]}.pdf`;
+        doc.save(fileName);
+        showNotification('Report exported successfully!', 'success');
+      } catch (error) {
+        console.error('PDF export error:', error);
+        showNotification('Failed to generate report. Please try again.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" />
+          </svg>
+          Export PDF`;
+      }
+    }
     
     async function generateCleanPDF(options) {
       const btn = $('#export-pdf-btn');
@@ -2738,6 +2940,15 @@
           return yPos + 15;
         };
         
+        // Ensure we don't start a section at the bottom of the page
+        const ensureSpace = (requiredHeight) => {
+          const pageBottom = 270; // keep footer space
+          if (y + requiredHeight > pageBottom) {
+            doc.addPage();
+            y = 20;
+          }
+        };
+        
         const drawKPICard = (kpi, x, y) => {
           const w = 60;
           const h = 32;
@@ -2770,11 +2981,22 @@
           if (kpi.comparePrevious && kpi.previousValue) {
             const delta = calculateDelta(kpi.currentValue, kpi.previousValue);
             const color = delta >= 0 ? colors.success : colors.danger;
+            const arrow = delta >= 0 ? '▲' : '▼';
+            const basis = (function normalizeBasis(raw, typeLabel){
+              const s = String(raw || '').trim().toLowerCase();
+              if (s === 'qoq' || s.includes('quarter')) return 'QoQ';
+              if (s === 'yoy' || s.includes('year')) return 'YoY';
+              if (s === 'wow' || s.includes('week')) return 'WoW';
+              if (s === 'mom' || s.includes('month')) return 'MoM';
+              if (typeLabel && /quarter/i.test(typeLabel)) return 'QoQ';
+              if (typeLabel && /year/i.test(typeLabel)) return 'YoY';
+              return 'MoM';
+            })(kpi.compareBasis || kpi.basis || kpi.period, type.label);
             doc.setTextColor(...color);
             doc.setFontSize(9);
-            doc.setFont(undefined, 'normal');
+            doc.setFont(undefined, 'bold');
             const deltaX = x + (w / 2);
-            doc.text(`${delta >= 0 ? '+' : ''}${delta}%`, deltaX, y + 27, { align: 'center' });
+            doc.text(`${arrow} ${Math.abs(delta)}% ${basis}`, deltaX, y + 27, { align: 'center' });
           }
         };
         
@@ -2819,30 +3041,27 @@
         
         // Executive Summary
         if (options.includeSummary && state.missionSummary) {
+          const summaryLines = doc.splitTextToSize(state.missionSummary, 180);
+          const projected = 15 /*header*/ + (summaryLines.length * 5) + 10;
+          ensureSpace(projected);
           y = addSection('EXECUTIVE SUMMARY', y);
-          
           doc.setTextColor(...colors.text);
           doc.setFontSize(10);
           doc.setFont(undefined, 'normal');
-          const summaryLines = doc.splitTextToSize(state.missionSummary, 180);
           doc.text(summaryLines, 15, y);
           y += summaryLines.length * 5 + 10;
         }
         
         // Mission Goals
         if (options.includeGoals && state.missionGoals.length > 0) {
-          if (y > 200) {
-            doc.addPage();
-            y = 20;
-          }
-          
+          // Ensure header + at least one goal fits
+          ensureSpace(15 + 25);
           y = addSection('MISSION GOALS', y);
           
           state.missionGoals.forEach((goal, index) => {
-            if (y > 250) {
-              doc.addPage();
-              y = 20;
-            }
+            const goalLines = doc.splitTextToSize(goal.description, 155);
+            const est = 15 + goalLines.length * 5 + 5;
+            ensureSpace(est);
             
             // Goal number
             doc.setFillColor(...colors.accent);
@@ -2863,7 +3082,6 @@
             doc.setTextColor(...colors.textLight);
             doc.setFontSize(10);
             doc.setFont(undefined, 'normal');
-            const goalLines = doc.splitTextToSize(goal.description, 155);
             doc.text(goalLines, 35, y + 15);
             
             y += 15 + goalLines.length * 5 + 5;
@@ -2873,11 +3091,8 @@
         
         // Current Objectives with KPIs
         if (options.includeObjectives && state.objectives.length > 0) {
-          if (y > 200) {
-            doc.addPage();
-            y = 20;
-          }
-          
+          // Ensure header + minimal objective header fits
+          ensureSpace(15 + 25);
           y = addSection('CURRENT OBJECTIVES', y);
           
           state.objectives.forEach(obj => {
@@ -2894,10 +3109,7 @@
             spaceNeeded += 10; // Bottom margin
             
             // Check if we need a new page
-            if (y + spaceNeeded > 270) {
-              doc.addPage();
-              y = 20;
-            }
+            ensureSpace(spaceNeeded);
             
             // Objective card
             doc.setFillColor(...colors.background);
@@ -2951,11 +3163,8 @@
         
         // Value Realized
         if (options.includeValue && state.valueRealized.length > 0) {
-          if (y > 200) {
-            doc.addPage();
-            y = 20;
-          }
-          
+          // Ensure header + first value card fits
+          ensureSpace(15 + 30);
           y = addSection('VALUE REALIZED', y);
           
           state.valueRealized.forEach(value => {
@@ -2963,21 +3172,19 @@
             const valueLines = doc.splitTextToSize(value.description, 155);
             const spaceNeeded = 30 + (valueLines.length * 5);
             
-            if (y + spaceNeeded > 270) {
-              doc.addPage();
-              y = 20;
-            }
+            ensureSpace(spaceNeeded);
             
             // Value card
             doc.setFillColor(...colors.background);
             doc.roundedRect(15, y, 180, 25, 2, 2, 'F');
             
-            // Icon
+            // Icon (perfectly centered)
             doc.setFillColor(...colors.success);
-            doc.circle(25, y + 12, 5, 'F');
+            const icx = 25, icy = y + 12; // circle center
+            doc.circle(icx, icy, 5, 'F');
             doc.setTextColor(...colors.white);
             doc.setFontSize(10);
-            doc.text('✓', 25, y + 15, { align: 'center' });
+            doc.text('✓', icx, icy + 0.8, { align: 'center' });
             
             // Value type
             doc.setTextColor(...colors.text);
@@ -2992,8 +3199,8 @@
             doc.text(value.date || 'Not specified', 180, y + 10, { align: 'right' });
             
             // Description
-            const descLines = doc.splitTextToSize(value.description, 155);
-            doc.text(descLines, 35, y + 17);
+            const valueLines = doc.splitTextToSize(value.description, 155);
+            doc.text(valueLines, 35, y + 17);
             
             y += 30;
           });
@@ -3002,18 +3209,12 @@
         
         // Past Objectives
         if (options.includePast && state.pastObjectives.length > 0) {
-          if (y > 200) {
-            doc.addPage();
-            y = 20;
-          }
-          
+          // Ensure header + at least one past objective fits
+          ensureSpace(15 + 12);
           y = addSection('COMPLETED OBJECTIVES', y);
           
           state.pastObjectives.forEach(obj => {
-            if (y > 260) {
-              doc.addPage();
-              y = 20;
-            }
+            ensureSpace(15);
             
             // Checkmark
             doc.setTextColor(...colors.success);
@@ -3039,11 +3240,8 @@
         
         // Key Stakeholders
         if (options.includeStakeholders && state.stakeholders.length > 0) {
-          if (y > 200) {
-            doc.addPage();
-            y = 20;
-          }
-          
+          // Ensure header + header row fits
+          ensureSpace(15 + 22);
           y = addSection('KEY STAKEHOLDERS', y);
           
           // Table header
@@ -3102,7 +3300,7 @@
       }
       
       btn.disabled = false;
-      btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>Generate PDF Report';
+      btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" /></svg>Export PDF';
     }
 
     function exportToExcel() {
@@ -3118,7 +3316,7 @@
         
         // Plan Overview
         const overview = [{
-          'Executive Summary': state.missionSummary,
+          'Mission Summary': state.missionSummary,
           'Health Status': state.planHealth,
           'Active Products': state.products.join(', ')
         }];
@@ -3156,166 +3354,6 @@
         showNotification('Excel exported successfully', 'success');
       } catch (error) {
         showNotification('Excel export failed. Please try again.', 'error');
-      }
-    }
-
-    // ---------- Data Backup and Restore Functions ----------
-    function addDataBackupButtons() {
-      // Create hidden file input for import
-      const fileInput = document.createElement('input');
-      fileInput.type = 'file';
-      fileInput.id = 'import-file-input';
-      fileInput.accept = '.json';
-      fileInput.style.display = 'none';
-      document.body.appendChild(fileInput);
-      
-      // Add event listeners to the buttons
-      const exportBtn = document.getElementById('export-data-btn');
-      const importBtn = document.getElementById('import-data-btn');
-      
-      if (exportBtn) {
-        exportBtn.addEventListener('click', exportDataBackup);
-      }
-      
-      if (importBtn) {
-        importBtn.addEventListener('click', () => fileInput.click());
-      }
-      
-      fileInput.addEventListener('change', importDataBackup);
-    }
-
-    function exportDataBackup() {
-      try {
-        const savedData = localStorage.getItem('responsiveCustomerSuccess');
-        if (!savedData) {
-          showNotification('No data to export. Please save your changes first.', 'warning');
-          return;
-        }
-        
-        const exportData = {
-          version: '1.0',
-          exportDate: new Date().toISOString(),
-          platform: 'Receptive Customer Success Platform',
-          data: JSON.parse(savedData)
-        };
-        
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
-        const filename = `customer-success-backup-${timestamp}.json`;
-        
-        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        showNotification(`Data backed up as ${filename}`, 'success');
-      } catch (error) {
-        console.error('Export error:', error);
-        showNotification('Failed to export data', 'error');
-      }
-    }
-
-    function importDataBackup(event) {
-      const file = event.target.files?.[0];
-      if (!file) return;
-      
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const importedData = JSON.parse(e.target.result);
-          const data = importedData.data || importedData;
-          
-          // Validate data structure
-          if (!data.customerName && !data.objectives && !data.missionSummary) {
-            throw new Error('Invalid data format');
-          }
-          
-          // Show import confirmation modal
-          showImportConfirmModal(importedData, file.name);
-          
-        } catch (error) {
-          console.error('Import error:', error);
-          showNotification('Failed to import file. Please ensure it\'s a valid backup file.', 'error');
-        }
-        
-        // Reset file input
-        event.target.value = '';
-      };
-      
-      reader.readAsText(file);
-    }
-
-    function showImportConfirmModal(importedData, filename) {
-      const data = importedData.data || importedData;
-      const exportDate = importedData.exportDate ? new Date(importedData.exportDate).toLocaleString() : 'Unknown';
-      
-      const modal = document.createElement('div');
-      modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-      modal.innerHTML = `
-        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
-          <h3 class="text-xl font-bold mb-4">Confirm Data Import</h3>
-          <div class="mb-4 space-y-2">
-            <p class="text-sm text-gray-600">File: <span class="font-medium">${filename}</span></p>
-            <p class="text-sm text-gray-600">Export Date: <span class="font-medium">${exportDate}</span></p>
-            <p class="text-sm text-gray-600">Customer: <span class="font-medium">${data.customerName || '[Not Set]'}</span></p>
-            <p class="text-sm text-gray-600">Objectives: <span class="font-medium">${data.objectives?.length || 0}</span></p>
-            <p class="text-sm text-gray-600">Stakeholders: <span class="font-medium">${data.stakeholders?.length || 0}</span></p>
-          </div>
-          <div class="bg-yellow-50 border border-yellow-200 rounded p-3 mb-4">
-            <p class="text-sm text-yellow-800">
-              <strong>Warning:</strong> Importing this file will replace all current data. 
-              This action cannot be undone. Make sure to export your current data first if needed.
-            </p>
-          </div>
-          <div class="flex gap-3 justify-end">
-            <button class="btn bg-gray-300 hover:bg-gray-400 text-gray-800" onclick="this.closest('.fixed').remove()">
-              Cancel
-            </button>
-            <button class="btn bg-red-600 hover:bg-red-700 text-white" id="confirm-import-btn">
-              Import and Replace Data
-            </button>
-          </div>
-        </div>
-      `;
-      
-      document.body.appendChild(modal);
-      
-      // Add event listener for confirm button
-      document.getElementById('confirm-import-btn').addEventListener('click', () => {
-        performImport(data);
-        modal.remove();
-      });
-      
-      // Close modal on backdrop click
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-          modal.remove();
-        }
-      });
-    }
-
-    function performImport(data) {
-      try {
-        // Save to localStorage
-        localStorage.setItem('responsiveCustomerSuccess', JSON.stringify(data));
-        
-        // Update the current state
-        Object.assign(state, data);
-        
-        showNotification('Data imported successfully! Refreshing page...', 'success');
-        
-        // Reload the page to apply changes
-        setTimeout(() => {
-          window.location.reload();
-        }, 1500);
-        
-      } catch (error) {
-        console.error('Import error:', error);
-        showNotification('Failed to import data. Please try again.', 'error');
       }
     }
 
@@ -3443,7 +3481,7 @@
             if (modal) closeModal();
           }
         });
-    }
+      }
 
     // Add a global function to reset data if needed
     window.resetToDefaultData = function() {
@@ -3463,34 +3501,24 @@
     };
 
     // Ensure DOM is ready before initializing
-    console.log('Setting up initialization...');
-    
-    function safeInit() {
-      try {
-        console.log('Calling init function...');
-        // Clear any corrupted localStorage
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        // Clear any corrupted localStorage on load (remove this after fixing)
         try {
           localStorage.removeItem('responsiveCustomerSuccess');
-          console.log('Cleared localStorage');
         } catch (e) {
-          console.warn('Could not clear localStorage:', e);
+          // Ignore errors
         }
-        
         init();
-        console.log('Init completed successfully!');
-      } catch (error) {
-        console.error('ERROR in init:', error);
-        console.error('Stack trace:', error.stack);
-        alert('Application failed to initialize. Check console for errors.\n\nError: ' + error.message);
-      }
-    }
-    
-    if (document.readyState === 'loading') {
-      console.log('DOM still loading, waiting for DOMContentLoaded...');
-      document.addEventListener('DOMContentLoaded', safeInit);
+      });
     } else {
-      console.log('DOM already loaded, initializing now...');
-      setTimeout(safeInit, 100); // Small delay to ensure everything is ready
+      // Clear any corrupted localStorage on load (remove this after fixing)
+      try {
+        localStorage.removeItem('responsiveCustomerSuccess');
+      } catch (e) {
+        // Ignore errors
+      }
+      init();
     }
   </script>
 </body>

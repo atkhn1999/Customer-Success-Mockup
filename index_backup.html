@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2424,74 +2425,446 @@
     window.showPDFExportModal = function() {
       const modal = createModal('Export Report', `
         <div class="space-y-6">
-          <p class="text-gray-600">Select the sections to include in your report:</p>
-          
-          <div class="space-y-3">
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-summary" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Executive Summary</div>
-                <div class="text-sm text-gray-500">Mission statement and account health</div>
-              </div>
-            </label>
-            
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-goals" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Mission Goals</div>
-                <div class="text-sm text-gray-500">Strategic objectives and key initiatives</div>
-              </div>
-            </label>
-            
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-objectives" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Current Objectives</div>
-                <div class="text-sm text-gray-500">Active objectives with KPIs and metrics</div>
-              </div>
-            </label>
-            
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-value" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Value Realized</div>
-                <div class="text-sm text-gray-500">Business impact and ROI achieved</div>
-              </div>
-            </label>
-            
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-past" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Past Objectives</div>
-                <div class="text-sm text-gray-500">Completed milestones and achievements</div>
-              </div>
-            </label>
-            
-            <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
-              <input type="checkbox" id="export-stakeholders" checked class="w-5 h-5 text-teal-600">
-              <div>
-                <div class="font-medium">Key Stakeholders</div>
-                <div class="text-sm text-gray-500">Primary contacts and their roles</div>
-              </div>
-            </label>
+          <div>
+            <div class="text-sm text-gray-600 mb-2">Choose a preset or use Custom to configure sections</div>
+            <div class="grid grid-cols-4 gap-2">
+              <button id="preset-Executive" class="btn btn-ghost border">Executive</button>
+              <button id="preset-Detailed" class="btn btn-ghost border">Detailed</button>
+              <button id="preset-Compact" class="btn btn-ghost border">Compact</button>
+              <button id="preset-Custom" class="btn btn-primary">Custom</button>
+            </div>
+            <div id="preset-preview" class="mt-3 text-xs text-gray-600"></div>
+          </div>
+
+          <div id="custom-config" class="space-y-4">
+            <p class="text-gray-600">Select the sections to include in your report:</p>
+            <div class="grid grid-cols-2 gap-3">
+              <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" id="export-summary" checked class="w-5 h-5 text-teal-600">
+                <div>
+                  <div class="font-medium">Executive Summary</div>
+                  <div class="text-sm text-gray-500">Mission statement and account health</div>
+                </div>
+              </label>
+              <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" id="export-goals" checked class="w-5 h-5 text-teal-600">
+                <div>
+                  <div class="font-medium">Mission Goals</div>
+                  <div class="text-sm text-gray-500">Strategic objectives and key initiatives</div>
+                </div>
+              </label>
+              <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" id="export-objectives" checked class="w-5 h-5 text-teal-600">
+                <div>
+                  <div class="font-medium">Current Objectives</div>
+                  <div class="text-sm text-gray-500">Active objectives with KPIs and metrics</div>
+                </div>
+              </label>
+              <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" id="export-value" checked class="w-5 h-5 text-teal-600">
+                <div>
+                  <div class="font-medium">Value Realized</div>
+                  <div class="text-sm text-gray-500">Business impact and ROI achieved</div>
+                </div>
+              </label>
+              <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" id="export-past" checked class="w-5 h-5 text-teal-600">
+                <div>
+                  <div class="font-medium">Past Objectives</div>
+                  <div class="text-sm text-gray-500">Completed milestones and achievements</div>
+                </div>
+              </label>
+              <label class="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" id="export-stakeholders" checked class="w-5 h-5 text-teal-600">
+                <div>
+                  <div class="font-medium">Key Stakeholders</div>
+                  <div class="text-sm text-gray-500">Primary contacts and their roles</div>
+                </div>
+              </label>
+            </div>
           </div>
         </div>
       `, [
         { label: 'Cancel', class: 'btn-ghost', action: () => closeModal() },
         { label: 'Export PDF', class: 'btn-primary', action: () => {
-          const options = {
-            includeSummary: $('#export-summary').checked,
-            includeGoals: $('#export-goals').checked,
-            includeObjectives: $('#export-objectives').checked,
-            includeValue: $('#export-value').checked,
-            includePast: $('#export-past').checked,
-            includeStakeholders: $('#export-stakeholders').checked
+          const isCustom = document.querySelector('#preset-Custom')?.classList.contains('btn-primary');
+          let options;
+          const presets = {
+            Executive: { includeSummary: true, includeGoals: true, includeObjectives: true, includeValue: true, includePast: false, includeStakeholders: true },
+            Detailed: { includeSummary: true, includeGoals: true, includeObjectives: true, includeValue: true, includePast: true, includeStakeholders: true },
+            Compact: { includeSummary: true, includeGoals: false, includeObjectives: true, includeValue: false, includePast: false, includeStakeholders: false }
           };
+          if (!isCustom) {
+            const active = ['Executive','Detailed','Compact'].find(name => document.querySelector(`#preset-${name}`)?.classList.contains('btn-primary')) || 'Executive';
+            options = { ...presets[active] };
+          } else {
+            options = {
+              includeSummary: $('#export-summary').checked,
+              includeGoals: $('#export-goals').checked,
+              includeObjectives: $('#export-objectives').checked,
+              includeValue: $('#export-value').checked,
+              includePast: $('#export-past').checked,
+              includeStakeholders: $('#export-stakeholders').checked
+            };
+          }
           closeModal();
-          generateCleanPDF(options);
+          generateElegantPDF(options);
         }}
       ]);
+
+      // Live preset preview
+      const previewEl = document.querySelector('#preset-preview');
+      function renderPreviewFor(name) {
+        const map = {
+          Executive: ['Executive Summary','Mission Goals','Current Objectives','Value Realized','Stakeholders'],
+          Detailed: ['Executive Summary','Mission Goals','Current Objectives','Value Realized','Past Objectives','Stakeholders'],
+          Compact: ['Executive Summary','Current Objectives']
+        };
+        const items = map[name] || [];
+        previewEl.innerHTML = items.length ? `Included: ${items.join(' • ')}` : '';
+      }
+      function activatePreset(name) {
+        ['Executive','Detailed','Compact','Custom'].forEach(n => {
+          const el = document.querySelector(`#preset-${n}`);
+          if (!el) return;
+          el.classList.toggle('btn-primary', n === name);
+          el.classList.toggle('btn-ghost', n !== name);
+        });
+        const isCustom = name === 'Custom';
+        document.querySelector('#custom-config').style.display = isCustom ? 'block' : 'none';
+        if (!isCustom) renderPreviewFor(name); else previewEl.innerHTML = '';
+      }
+      ['Executive','Detailed','Compact','Custom'].forEach(n => document.querySelector(`#preset-${n}`)?.addEventListener('click', () => activatePreset(n)));
+      activatePreset('Custom');
     };
+
+    // Modern, research-inspired generator with cover, TOC, grid, and refined typography
+    async function generateElegantPDF(options) {
+      const btn = $('#export-pdf-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="animate-spin">⟳</span> Generating...';
+
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+
+        // Theme and layout
+        const page = { w: doc.internal.pageSize.getWidth(), h: doc.internal.pageSize.getHeight() };
+        const margin = { l: 16, r: 16, t: 18, b: 18 };
+        let y = margin.t;
+        const colors = {
+          ink: [15, 23, 42],
+          ink2: [51, 65, 85],
+          ink3: [100, 116, 139],
+          brand: [20, 184, 166],
+          brandDark: [13, 148, 136],
+          success: [16, 185, 129],
+          danger: [239, 68, 68],
+          warn: [245, 158, 11],
+          bg: [248, 250, 252],
+          border: [226, 232, 240],
+          white: [255, 255, 255]
+        };
+
+        function text(x, y, str, size = 10, color = colors.ink, style = 'normal', align = 'left', baseline = 'alphabetic') {
+          doc.setTextColor(...color);
+          doc.setFontSize(size);
+          doc.setFont(undefined, style);
+          doc.text(String(str), x, y, { align, baseline });
+        }
+
+        function ensureSpace(required) {
+          const bottom = page.h - margin.b;
+          if (y + required <= bottom) return;
+          doc.addPage();
+          y = margin.t;
+          drawRunningHeader();
+          y += 6;
+        }
+
+        function hRule(x1, x2, yy, color = colors.border) {
+          doc.setDrawColor(...color);
+          doc.line(x1, yy, x2, yy);
+        }
+
+        function drawRunningHeader() {
+          doc.setFillColor(...colors.brand);
+          doc.rect(0, 0, page.w, 10, 'F');
+          text(margin.l, 7, 'Receptive • Customer Success Report', 10, colors.white, 'bold', 'left', 'middle');
+          text(page.w - margin.r, 7, new Date().toLocaleDateString(), 9, colors.white, 'normal', 'right', 'middle');
+        }
+
+        function drawCover() {
+          // Brand band
+          doc.setFillColor(...colors.brand);
+          doc.rect(0, 0, page.w, 48, 'F');
+          // Logo mark
+          doc.setFillColor(...colors.white);
+          doc.circle(26, 24, 12, 'F');
+          text(26, 25.5, 'R', 16, colors.brand, 'bold', 'center', 'middle');
+          // Title
+          text(48, 22, 'Customer Success Report', 20, colors.white, 'bold');
+          text(48, 32, state.customerName, 12, colors.white, 'normal');
+          // Meta
+          y = 60;
+          doc.setFillColor(...colors.bg);
+          doc.rect(margin.l, y, page.w - margin.l - margin.r, 30, 'F');
+          text(margin.l + 8, y + 12, `Generated: ${new Date().toLocaleDateString()}`, 10, colors.ink3);
+          text(margin.l + 8, y + 20, `Health: ${state.planHealth}`, 10, colors.ink3);
+          y += 40;
+        }
+
+        // Start: Cover
+        drawCover();
+
+        // Reserve TOC page
+        doc.addPage();
+        const tocPage = doc.internal.getNumberOfPages();
+        doc.setPage(tocPage);
+        drawRunningHeader();
+        y = margin.t + 10;
+        text(margin.l, y, 'Table of Contents', 14, colors.ink, 'bold');
+        y += 6;
+        hRule(margin.l, page.w - margin.r, y, colors.border);
+        y += 8;
+        const tocEntries = [];
+
+        // Continue after TOC with content pages
+        doc.addPage();
+        drawRunningHeader();
+        y = margin.t + 8;
+
+        function section(title, minBody = 20) {
+          ensureSpace(14 + minBody);
+          // section bar
+          doc.setFillColor(...colors.brand);
+          doc.rect(0, y, page.w, 7, 'F');
+          text(margin.l, y + 4, title.toUpperCase(), 11, colors.white, 'bold', 'left', 'middle');
+          y += 11;
+          const pageNo = doc.internal.getCurrentPageInfo().pageNumber;
+          tocEntries.push({ title, page: pageNo });
+        }
+
+        // Executive Summary
+        if (options.includeSummary && state.missionSummary) {
+          section('Executive Summary', 26);
+          const parts = String(state.missionSummary).split(/\n\n+/).map(s => s.trim()).filter(Boolean);
+          const width = page.w - margin.l - margin.r;
+          parts.forEach((para, idx) => {
+            ensureSpace(12);
+            const lines = doc.splitTextToSize(para, width);
+            text(margin.l, y, lines, 10, colors.ink, 'normal');
+            y += lines.length * 5 + (idx < parts.length - 1 ? 3 : 6);
+          });
+        }
+
+        // Mission Goals
+        if (options.includeGoals && state.missionGoals.length > 0) {
+          section('Mission Goals', 22);
+          state.missionGoals.forEach((goal, idx) => {
+            const lines = doc.splitTextToSize(goal.description, page.w - margin.l - margin.r - 24);
+            const estimate = 16 + lines.length * 5 + 4;
+            ensureSpace(estimate);
+            // Numbered circle
+            doc.setFillColor(...colors.brand);
+            const cx = margin.l + 6, cy = y + 6.5;
+            doc.circle(cx, cy, 6.5, 'F');
+            text(cx, cy + 0.6, String(idx + 1), 11, colors.white, 'bold', 'center', 'middle');
+            // Title
+            text(margin.l + 20, y + 3.5, goal.title, 11, colors.ink, 'bold', 'left', 'middle');
+            // Desc
+            text(margin.l + 20, y + 10, lines, 10, colors.ink3, 'normal');
+            y += estimate;
+          });
+        }
+
+        // KPI Cards helper with basis legend
+        function drawKPICards(kpis, columns) {
+          if (!kpis || kpis.length === 0) return;
+          const gap = 8;
+          const cardW = (page.w - margin.l - margin.r - gap * (columns - 1)) / columns;
+          const cardH = 34;
+          function basisOf(kpi, typeLabel) {
+            const s = String(kpi.compareBasis || kpi.basis || kpi.period || '').toLowerCase();
+            if (s.includes('quarter') || s === 'qoq') return 'QoQ';
+            if (s.includes('year') || s === 'yoy') return 'YoY';
+            if (s.includes('week') || s === 'wow') return 'WoW';
+            if (s.includes('month') || s === 'mom') return 'MoM';
+            if (/quarter/i.test(typeLabel)) return 'QoQ';
+            if (/year/i.test(typeLabel)) return 'YoY';
+            return 'MoM';
+          }
+          let col = 0;
+          kpis.forEach((kpi) => {
+            if (col === 0) ensureSpace(cardH + 6);
+            const x = margin.l + (cardW + gap) * col;
+            const yy = y;
+            // card
+            doc.setFillColor(...colors.white);
+            doc.setDrawColor(...colors.border);
+            doc.roundedRect(x, yy, cardW, cardH, 2, 2, 'FD');
+            // label
+            const type = getKPIType(kpi.typeKey);
+            text(x + cardW / 2, yy + 7, type.label, 8, colors.ink3, 'normal', 'center', 'middle');
+            // value
+            text(x + cardW / 2, yy + 19, `${kpi.currentValue}${type.unit}`, 17, colors.ink, 'bold', 'center', 'middle');
+            // delta
+            if (kpi.comparePrevious && kpi.previousValue) {
+              const delta = Number(calculateDelta(kpi.currentValue, kpi.previousValue));
+              const up = delta >= 0;
+              const c = up ? colors.success : colors.danger;
+              const arrow = up ? '▲' : '▼';
+              const basis = basisOf(kpi, type.label);
+              text(x + cardW / 2, yy + 27, `${arrow} ${Math.abs(delta)}% ${basis}`, 9, c, 'bold', 'center', 'middle');
+            }
+            col++;
+            if (col >= columns) {
+              col = 0;
+              y += cardH + gap;
+            }
+          });
+          if (col !== 0) y += cardH + 6;
+          // Legend
+          text(margin.l, y, 'Legend: ▲ increase, ▼ decrease; Basis = MoM/QoQ/YoY/WoW', 8, colors.ink3);
+          y += 6;
+        }
+
+        // Current Objectives
+        if (options.includeObjectives && state.objectives.length > 0) {
+          section('Current Objectives', 26);
+          state.objectives.forEach((obj) => {
+            // preflight
+            const descLines = obj.description ? doc.splitTextToSize(String(obj.description), page.w - margin.l - margin.r - 4) : [];
+            const kpiCount = (obj.kpis || []).length;
+            const columns = 3;
+            const kpiRows = kpiCount > 0 ? Math.ceil(kpiCount / columns) : 0;
+            const need = 14 + (descLines.length ? descLines.length * 4 + 6 : 0) + (kpiRows ? (kpiRows * (34 + 8)) : 0) + 8;
+            ensureSpace(Math.min(need, 70));
+
+            // Header row
+            doc.setFillColor(...colors.bg);
+            doc.roundedRect(margin.l, y, page.w - margin.l - margin.r, 10, 2, 2, 'F');
+            text(margin.l + 4, y + 6, obj.name, 11, colors.ink, 'bold', 'left', 'middle');
+            const statusColor = obj.status === 'At Risk' ? colors.warn : (obj.status === 'Completed' ? colors.success : (obj.status === 'Not Started' ? colors.ink3 : colors.brand));
+            // status pill
+            doc.setFillColor(...statusColor);
+            const dims = doc.getTextDimensions(obj.status);
+            const sw = dims.w + 8, sh = dims.h + 5;
+            const sx = page.w - margin.r - sw - 4, sy = y + 2;
+            doc.roundedRect(sx, sy, sw, sh, 3, 3, 'F');
+            text(sx + sw / 2, sy + sh / 2 + 0.2, obj.status, 9, colors.white, 'bold', 'center', 'middle');
+            y += 14;
+
+            // meta
+            text(margin.l + 2, y, `Target: ${obj.targetDate || 'Not set'}`, 9, colors.ink3);
+            y += 6;
+
+            // description
+            if (descLines.length) {
+              text(margin.l + 2, y, descLines, 9.5, colors.ink, 'normal');
+              y += descLines.length * 4 + 6;
+            }
+
+            // KPIs
+            if (kpiCount) {
+              drawKPICards(obj.kpis, columns);
+            }
+            y += 6;
+          });
+        }
+
+        // Value Realized
+        if (options.includeValue && state.valueRealized.length > 0) {
+          section('Value Realized', 24);
+          state.valueRealized.forEach((value) => {
+            const lines = doc.splitTextToSize(value.description, page.w - margin.l - margin.r - 20);
+            const need = 20 + lines.length * 5;
+            ensureSpace(need);
+            // icon
+            doc.setFillColor(...colors.success);
+            const icx = margin.l + 6, icy = y + 6;
+            doc.circle(icx, icy, 4, 'F');
+            text(icx, icy + 0.8, '✓', 9, colors.white, 'bold', 'center', 'middle');
+            // title/date
+            text(margin.l + 16, y + 5, value.type, 11, colors.ink, 'bold', 'left', 'middle');
+            text(page.w - margin.r, y + 5, value.date || 'Not specified', 9, colors.ink3, 'normal', 'right', 'middle');
+            // desc
+            text(margin.l + 16, y + 12, lines, 10, colors.ink, 'normal');
+            y += 18 + lines.length * 5;
+          });
+        }
+
+        // Completed Objectives
+        if (options.includePast && state.pastObjectives.length > 0) {
+          section('Completed Objectives', 18);
+          state.pastObjectives.forEach((obj) => {
+            ensureSpace(12);
+            text(margin.l + 2, y + 3, '✓', 11, colors.success, 'bold', 'left', 'middle');
+            text(margin.l + 8, y + 3, obj.name, 10, colors.ink, 'bold', 'left', 'middle');
+            text(margin.l + 8, y + 8, `Completed: ${obj.targetDate || 'Not specified'}`, 9, colors.ink3);
+            y += 12;
+          });
+        }
+
+        // Stakeholders with AutoTable
+        if (options.includeStakeholders && state.stakeholders.length > 0) {
+          section('Key Stakeholders', 20);
+          ensureSpace(20);
+          const rows = state.stakeholders.map(s => [s.name, s.title, s.email]);
+          doc.autoTable({
+            head: [['Name', 'Title', 'Email']],
+            body: rows,
+            startY: y,
+            margin: { left: margin.l, right: margin.r },
+            styles: { fontSize: 9, textColor: colors.ink, lineColor: colors.border, lineWidth: 0.1 },
+            headStyles: { fillColor: colors.bg, textColor: colors.ink, fontStyle: 'bold' },
+            alternateRowStyles: { fillColor: [252, 252, 253] }
+          });
+          y = doc.lastAutoTable.finalY + 6;
+        }
+
+        // Fill TOC entries
+        const totalPages = doc.internal.getNumberOfPages();
+        doc.setPage(tocPage);
+        y = margin.t + 22;
+        tocEntries.forEach(entry => {
+          const dotsStart = margin.l + 2 + doc.getTextWidth(entry.title) + 2;
+          const pageStr = String(entry.page);
+          text(margin.l + 2, y, entry.title, 10, colors.ink);
+          // dotted leader
+          const leaderEnd = page.w - margin.r - doc.getTextWidth(pageStr) - 2;
+          let lx = dotsStart;
+          while (lx < leaderEnd) {
+            doc.text('.', lx, y);
+            lx += 2;
+          }
+          text(page.w - margin.r, y, pageStr, 10, colors.ink, 'normal', 'right');
+          y += 7;
+        });
+
+        // Add running footer to all pages
+        for (let i = 1; i <= totalPages; i++) {
+          doc.setPage(i);
+          hRule(margin.l, page.w - margin.r, page.h - margin.b + 4, colors.border);
+          text(margin.l, page.h - margin.b + 10, 'Confidential – Receptive Platform', 8, colors.ink3);
+          text(page.w - margin.r, page.h - margin.b + 10, `Page ${i} of ${totalPages}`, 8, colors.ink3, 'normal', 'right');
+        }
+
+        const fileName = `${state.customerName.toLowerCase().replace(/\s+/g, '-')}-success-report-${new Date().toISOString().split('T')[0]}.pdf`;
+        doc.save(fileName);
+        showNotification('Report exported successfully!', 'success');
+      } catch (error) {
+        console.error('PDF export error:', error);
+        showNotification('Failed to generate report. Please try again.', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" />
+          </svg>
+          Export PDF`;
+      }
+    }
     
     async function generateCleanPDF(options) {
       const btn = $('#export-pdf-btn');
@@ -2567,6 +2940,15 @@
           return yPos + 15;
         };
         
+        // Ensure we don't start a section at the bottom of the page
+        const ensureSpace = (requiredHeight) => {
+          const pageBottom = 270; // keep footer space
+          if (y + requiredHeight > pageBottom) {
+            doc.addPage();
+            y = 20;
+          }
+        };
+        
         const drawKPICard = (kpi, x, y) => {
           const w = 60;
           const h = 32;
@@ -2599,11 +2981,22 @@
           if (kpi.comparePrevious && kpi.previousValue) {
             const delta = calculateDelta(kpi.currentValue, kpi.previousValue);
             const color = delta >= 0 ? colors.success : colors.danger;
+            const arrow = delta >= 0 ? '▲' : '▼';
+            const basis = (function normalizeBasis(raw, typeLabel){
+              const s = String(raw || '').trim().toLowerCase();
+              if (s === 'qoq' || s.includes('quarter')) return 'QoQ';
+              if (s === 'yoy' || s.includes('year')) return 'YoY';
+              if (s === 'wow' || s.includes('week')) return 'WoW';
+              if (s === 'mom' || s.includes('month')) return 'MoM';
+              if (typeLabel && /quarter/i.test(typeLabel)) return 'QoQ';
+              if (typeLabel && /year/i.test(typeLabel)) return 'YoY';
+              return 'MoM';
+            })(kpi.compareBasis || kpi.basis || kpi.period, type.label);
             doc.setTextColor(...color);
             doc.setFontSize(9);
-            doc.setFont(undefined, 'normal');
+            doc.setFont(undefined, 'bold');
             const deltaX = x + (w / 2);
-            doc.text(`${delta >= 0 ? '+' : ''}${delta}%`, deltaX, y + 27, { align: 'center' });
+            doc.text(`${arrow} ${Math.abs(delta)}% ${basis}`, deltaX, y + 27, { align: 'center' });
           }
         };
         
@@ -2648,30 +3041,27 @@
         
         // Executive Summary
         if (options.includeSummary && state.missionSummary) {
+          const summaryLines = doc.splitTextToSize(state.missionSummary, 180);
+          const projected = 15 /*header*/ + (summaryLines.length * 5) + 10;
+          ensureSpace(projected);
           y = addSection('EXECUTIVE SUMMARY', y);
-          
           doc.setTextColor(...colors.text);
           doc.setFontSize(10);
           doc.setFont(undefined, 'normal');
-          const summaryLines = doc.splitTextToSize(state.missionSummary, 180);
           doc.text(summaryLines, 15, y);
           y += summaryLines.length * 5 + 10;
         }
         
         // Mission Goals
         if (options.includeGoals && state.missionGoals.length > 0) {
-          if (y > 200) {
-            doc.addPage();
-            y = 20;
-          }
-          
+          // Ensure header + at least one goal fits
+          ensureSpace(15 + 25);
           y = addSection('MISSION GOALS', y);
           
           state.missionGoals.forEach((goal, index) => {
-            if (y > 250) {
-              doc.addPage();
-              y = 20;
-            }
+            const goalLines = doc.splitTextToSize(goal.description, 155);
+            const est = 15 + goalLines.length * 5 + 5;
+            ensureSpace(est);
             
             // Goal number
             doc.setFillColor(...colors.accent);
@@ -2692,7 +3082,6 @@
             doc.setTextColor(...colors.textLight);
             doc.setFontSize(10);
             doc.setFont(undefined, 'normal');
-            const goalLines = doc.splitTextToSize(goal.description, 155);
             doc.text(goalLines, 35, y + 15);
             
             y += 15 + goalLines.length * 5 + 5;
@@ -2702,11 +3091,8 @@
         
         // Current Objectives with KPIs
         if (options.includeObjectives && state.objectives.length > 0) {
-          if (y > 200) {
-            doc.addPage();
-            y = 20;
-          }
-          
+          // Ensure header + minimal objective header fits
+          ensureSpace(15 + 25);
           y = addSection('CURRENT OBJECTIVES', y);
           
           state.objectives.forEach(obj => {
@@ -2723,10 +3109,7 @@
             spaceNeeded += 10; // Bottom margin
             
             // Check if we need a new page
-            if (y + spaceNeeded > 270) {
-              doc.addPage();
-              y = 20;
-            }
+            ensureSpace(spaceNeeded);
             
             // Objective card
             doc.setFillColor(...colors.background);
@@ -2780,11 +3163,8 @@
         
         // Value Realized
         if (options.includeValue && state.valueRealized.length > 0) {
-          if (y > 200) {
-            doc.addPage();
-            y = 20;
-          }
-          
+          // Ensure header + first value card fits
+          ensureSpace(15 + 30);
           y = addSection('VALUE REALIZED', y);
           
           state.valueRealized.forEach(value => {
@@ -2792,21 +3172,19 @@
             const valueLines = doc.splitTextToSize(value.description, 155);
             const spaceNeeded = 30 + (valueLines.length * 5);
             
-            if (y + spaceNeeded > 270) {
-              doc.addPage();
-              y = 20;
-            }
+            ensureSpace(spaceNeeded);
             
             // Value card
             doc.setFillColor(...colors.background);
             doc.roundedRect(15, y, 180, 25, 2, 2, 'F');
             
-            // Icon
+            // Icon (perfectly centered)
             doc.setFillColor(...colors.success);
-            doc.circle(25, y + 12, 5, 'F');
+            const icx = 25, icy = y + 12; // circle center
+            doc.circle(icx, icy, 5, 'F');
             doc.setTextColor(...colors.white);
             doc.setFontSize(10);
-            doc.text('✓', 25, y + 15, { align: 'center' });
+            doc.text('✓', icx, icy + 0.8, { align: 'center' });
             
             // Value type
             doc.setTextColor(...colors.text);
@@ -2831,18 +3209,12 @@
         
         // Past Objectives
         if (options.includePast && state.pastObjectives.length > 0) {
-          if (y > 200) {
-            doc.addPage();
-            y = 20;
-          }
-          
+          // Ensure header + at least one past objective fits
+          ensureSpace(15 + 12);
           y = addSection('COMPLETED OBJECTIVES', y);
           
           state.pastObjectives.forEach(obj => {
-            if (y > 260) {
-              doc.addPage();
-              y = 20;
-            }
+            ensureSpace(15);
             
             // Checkmark
             doc.setTextColor(...colors.success);
@@ -2868,11 +3240,8 @@
         
         // Key Stakeholders
         if (options.includeStakeholders && state.stakeholders.length > 0) {
-          if (y > 200) {
-            doc.addPage();
-            y = 20;
-          }
-          
+          // Ensure header + header row fits
+          ensureSpace(15 + 22);
           y = addSection('KEY STAKEHOLDERS', y);
           
           // Table header
