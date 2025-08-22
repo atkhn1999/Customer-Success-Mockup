@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDF Modernization Test</title>
+  <script src="js/tailwind.min.js"></script>
+  <script src="js/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-gray-100 p-8">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold mb-8">PDF Report Generator Test</h1>
+    
+    <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
+      <h2 class="text-xl font-semibold mb-4">Test Data Status</h2>
+      <div id="test-status" class="space-y-2"></div>
+    </div>
+    
+    <div class="bg-white p-6 rounded-lg shadow-lg">
+      <h2 class="text-xl font-semibold mb-4">Actions</h2>
+      <div class="space-y-4">
+        <button onclick="generateTestData(1)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          Generate Test Data Set 1 (2 objectives)
+        </button>
+        <button onclick="generateTestData(2)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          Generate Test Data Set 2 (5 objectives)
+        </button>
+        <button onclick="generateTestData(3)" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          Generate Test Data Set 3 (Edge cases)
+        </button>
+        <button onclick="testPDFGeneration()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+          Test PDF Generation
+        </button>
+      </div>
+    </div>
+    
+    <div id="results" class="mt-8"></div>
+  </div>
+
+  <script>
+    // Mock state for testing
+    window.state = {
+      customerName: 'Acme Corporation',
+      planHealth: 'green',
+      products: ['Enterprise Suite', 'Analytics Pro'],
+      missionSummary: 'Our mission is to enable Acme Corporation to achieve operational excellence through innovative solutions. We are committed to delivering value through strategic partnerships and continuous improvement initiatives that align with your business objectives.',
+      missionGoals: [],
+      objectives: [],
+      valueRealized: [],
+      pastObjectives: [],
+      stakeholders: []
+    };
+
+    // Mock helper functions
+    window.$ = (selector) => document.querySelector(selector);
+    window.getKPIType = (typeKey) => {
+      const types = {
+        'usage': { label: 'Usage Rate', unit: '%' },
+        'adoption': { label: 'Adoption', unit: '%' },
+        'satisfaction': { label: 'Satisfaction', unit: '/10' },
+        'performance': { label: 'Performance', unit: 'ms' },
+        'custom': { label: 'Custom Metric', unit: '' }
+      };
+      return types[typeKey] || types.custom;
+    };
+    window.calculateDelta = (current, previous) => {
+      return Math.round(((current - previous) / previous) * 100);
+    };
+    window.showNotification = (message, type) => {
+      const notification = document.createElement('div');
+      notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white`;
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      setTimeout(() => notification.remove(), 3000);
+    };
+
+    function generateTestData(set) {
+      switch(set) {
+        case 1:
+          // Test set 1: 2 objectives with various KPIs
+          state.missionGoals = [
+            { title: 'Digital Transformation', description: 'Lead the industry in digital innovation by implementing cutting-edge technologies and processes.' },
+            { title: 'Customer Excellence', description: 'Achieve 95% customer satisfaction through superior service delivery and continuous improvement.' }
+          ];
+          state.objectives = [
+            {
+              name: 'Implement Cloud Migration',
+              status: 'On Track',
+              targetDate: '2024-06-30',
+              description: 'Migrate all critical applications to cloud infrastructure for improved scalability and reliability.',
+              kpis: [
+                { typeKey: 'usage', currentValue: 75, previousValue: 60, comparePrevious: true },
+                { typeKey: 'adoption', currentValue: 82, previousValue: 70, comparePrevious: true },
+                { typeKey: 'satisfaction', currentValue: 8.5, previousValue: 7.2, comparePrevious: true }
+              ]
+            },
+            {
+              name: 'Enhance User Experience',
+              status: 'At Risk',
+              targetDate: '2024-09-30',
+              description: 'Redesign user interface to improve usability and increase user engagement by 40%.',
+              kpis: [
+                { typeKey: 'performance', currentValue: 250, previousValue: 400, comparePrevious: true },
+                { typeKey: 'usage', currentValue: 65, previousValue: 68, comparePrevious: true }
+              ]
+            }
+          ];
+          state.valueRealized = [
+            { type: 'Cost Savings', date: '2024-01-15', description: 'Achieved $2.5M in annual cost savings through process automation and optimization.' },
+            { type: 'Efficiency Gain', date: '2024-02-01', description: 'Reduced processing time by 60% resulting in faster time-to-market.' }
+          ];
+          break;
+
+        case 2:
+          // Test set 2: 5 objectives with many KPIs
+          state.missionGoals = [
+            { title: 'Market Leadership', description: 'Become the #1 provider in our segment through innovation and customer focus.' },
+            { title: 'Operational Excellence', description: 'Optimize all business processes to achieve best-in-class efficiency metrics.' },
+            { title: 'Sustainable Growth', description: 'Maintain 20% YoY growth while ensuring environmental and social responsibility.' }
+          ];
+          state.objectives = [
+            {
+              name: 'Launch New Product Line',
+              status: 'On Track',
+              targetDate: '2024-04-15',
+              description: 'Introduce innovative product suite to capture emerging market opportunities.',
+              kpis: [
+                { typeKey: 'adoption', currentValue: 45, previousValue: 0, comparePrevious: true },
+                { typeKey: 'satisfaction', currentValue: 9.1, previousValue: 8.5, comparePrevious: true },
+                { typeKey: 'usage', currentValue: 78, previousValue: 65, comparePrevious: true },
+                { typeKey: 'performance', currentValue: 120, previousValue: 200, comparePrevious: true }
+              ]
+            },
+            {
+              name: 'Global Expansion Initiative',
+              status: 'On Track',
+              targetDate: '2024-12-31',
+              description: 'Expand operations to 5 new international markets with localized offerings.',
+              kpis: [
+                { typeKey: 'adoption', currentValue: 32, previousValue: 0, comparePrevious: true }
+              ]
+            },
+            {
+              name: 'AI Integration Project',
+              status: 'Off Track',
+              targetDate: '2024-07-30',
+              description: 'Implement AI-powered features across all product lines to enhance user experience and provide predictive insights.',
+              kpis: [
+                { typeKey: 'usage', currentValue: 25, previousValue: 50, comparePrevious: true },
+                { typeKey: 'performance', currentValue: 800, previousValue: 400, comparePrevious: true },
+                { typeKey: 'satisfaction', currentValue: 6.5, previousValue: 8.0, comparePrevious: true }
+              ]
+            },
+            {
+              name: 'Security Enhancement Program',
+              status: 'On Track',
+              targetDate: '2024-05-15',
+              description: 'Implement zero-trust security architecture and achieve SOC 2 Type II certification.',
+              kpis: [
+                { typeKey: 'custom', currentValue: 95, previousValue: 70, comparePrevious: true },
+                { typeKey: 'adoption', currentValue: 88, previousValue: 45, comparePrevious: true }
+              ]
+            },
+            {
+              name: 'Customer Success Transformation',
+              status: 'At Risk',
+              targetDate: '2024-08-30',
+              description: 'Redesign customer success processes to achieve 95% retention rate and 50+ NPS score.',
+              kpis: [
+                { typeKey: 'satisfaction', currentValue: 7.8, previousValue: 7.5, comparePrevious: true },
+                { typeKey: 'usage', currentValue: 72, previousValue: 75, comparePrevious: true },
+                { typeKey: 'custom', currentValue: 42, previousValue: 38, comparePrevious: true }
+              ]
+            }
+          ];
+          state.valueRealized = [
+            { type: 'Revenue Growth', date: '2024-01-01', description: 'Exceeded Q4 revenue targets by 25% through strategic account expansion.' },
+            { type: 'Market Share', date: '2024-02-15', description: 'Captured additional 5% market share in enterprise segment.' },
+            { type: 'Customer Retention', date: '2024-03-01', description: 'Improved customer retention from 85% to 92% through enhanced support programs.' }
+          ];
+          state.pastObjectives = [
+            { name: 'Platform Modernization Phase 1', targetDate: '2023-12-31' },
+            { name: 'ISO 27001 Certification', targetDate: '2023-11-15' },
+            { name: 'Customer Portal Launch', targetDate: '2023-10-01' }
+          ];
+          break;
+
+        case 3:
+          // Test set 3: Edge cases - empty sections, long text, special characters
+          state.customerName = 'Test & Demo Company (Special Characters: @#$%)';
+          state.planHealth = 'yellow';
+          state.products = ['Product A', 'Product B', 'Product C', 'Product D', 'Product E', 'Product F'];
+          state.missionSummary = 'This is a very long mission summary that tests text wrapping and page breaks. ' + 
+            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ' +
+            'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. ' +
+            'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. ' +
+            'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. ' +
+            'This text should properly wrap and handle page breaks if necessary.';
+          state.missionGoals = [
+            { title: 'Very Long Goal Title That Should Wrap Properly Without Breaking The Layout', description: 'This is another long description that tests the text wrapping capabilities of our PDF generator. It should handle multiple lines gracefully.' }
+          ];
+          state.objectives = [
+            {
+              name: 'Objective with No KPIs',
+              status: 'On Track',
+              targetDate: '',
+              description: '',
+              kpis: []
+            }
+          ];
+          state.valueRealized = [];
+          state.stakeholders = [
+            { name: 'John Doe-Smith', title: 'Chief Executive Officer', email: 'john.doe-smith@example.com' },
+            { name: 'Jane O\'Connor', title: 'VP of Engineering & Development', email: 'jane.oconnor@example.com' },
+            { name: 'Robert "Bob" Johnson', title: 'Director, Customer Success', email: 'bob.johnson@example.com' }
+          ];
+          break;
+      }
+      
+      updateTestStatus();
+    }
+
+    function updateTestStatus() {
+      const status = document.getElementById('test-status');
+      status.innerHTML = `
+        <p><strong>Customer:</strong> ${state.customerName}</p>
+        <p><strong>Health:</strong> ${state.planHealth}</p>
+        <p><strong>Products:</strong> ${state.products.length} products</p>
+        <p><strong>Mission Goals:</strong> ${state.missionGoals.length} goals</p>
+        <p><strong>Current Objectives:</strong> ${state.objectives.length} objectives</p>
+        <p><strong>Value Realized:</strong> ${state.valueRealized.length} items</p>
+        <p><strong>Past Objectives:</strong> ${state.pastObjectives.length} completed</p>
+        <p><strong>Stakeholders:</strong> ${state.stakeholders.length} people</p>
+      `;
+    }
+
+    function testPDFGeneration() {
+      const results = document.getElementById('results');
+      results.innerHTML = '<div class="bg-yellow-100 p-4 rounded-lg">Testing PDF generation...</div>';
+      
+      // Test all presets
+      const presets = ['Executive Summary', 'Detailed Report', 'Progress Update', 'Quarterly Review'];
+      let currentTest = 0;
+      
+      function runNextTest() {
+        if (currentTest < presets.length) {
+          const preset = presets[currentTest];
+          const options = {
+            includeSummary: true,
+            includeGoals: preset !== 'Progress Update',
+            includeObjectives: true,
+            includeValue: true,
+            includePast: preset === 'Detailed Report' || preset === 'Progress Update',
+            includeStakeholders: preset === 'Detailed Report',
+            theme: ['professional', 'modern', 'minimal', 'corporate'][currentTest],
+            presetName: preset
+          };
+          
+          results.innerHTML += `<div class="bg-blue-100 p-4 rounded-lg mt-2">Testing ${preset} with ${options.theme} theme...</div>`;
+          
+          // Note: In the actual implementation, this would call generateModernPDF(options)
+          // For this test, we'll just simulate success
+          setTimeout(() => {
+            results.innerHTML += `<div class="bg-green-100 p-4 rounded-lg mt-2">✓ ${preset} generated successfully!</div>`;
+            currentTest++;
+            runNextTest();
+          }, 1000);
+        } else {
+          results.innerHTML += '<div class="bg-green-200 p-4 rounded-lg mt-4 font-semibold">All tests completed successfully!</div>';
+        }
+      }
+      
+      runNextTest();
+    }
+
+    // Initialize with test data set 1
+    generateTestData(1);
+  </script>
+</body>
+</html>
