@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test Muted Stakeholders Design</title>
+  <script src="js/tailwind.min.js"></script>
+  <script src="js/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-gray-100 p-8">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold mb-8">Muted Stakeholders Section Test</h1>
+    
+    <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+      <h2 class="text-xl font-semibold mb-4">Changes Applied:</h2>
+      <ul class="space-y-2 text-sm">
+        <li class="flex items-start">
+          <span class="text-green-500 mr-2">✓</span>
+          <span><strong>Header Background:</strong> Changed from bold accent color to very light borderLight color</span>
+        </li>
+        <li class="flex items-start">
+          <span class="text-green-500 mr-2">✓</span>
+          <span><strong>Header Text:</strong> Changed from white text to dark text for better contrast on light background</span>
+        </li>
+        <li class="flex items-start">
+          <span class="text-green-500 mr-2">✓</span>
+          <span><strong>Accent Line:</strong> Added subtle accent line at bottom of header instead of full colored background</span>
+        </li>
+        <li class="flex items-start">
+          <span class="text-green-500 mr-2">✓</span>
+          <span><strong>Row Text:</strong> Changed from regular text color to lighter textLight color for softer appearance</span>
+        </li>
+        <li class="flex items-start">
+          <span class="text-green-500 mr-2">✓</span>
+          <span><strong>Alternating Rows:</strong> Made the alternating row backgrounds even more subtle</span>
+        </li>
+      </ul>
+    </div>
+    
+    <div class="bg-white p-6 rounded-lg shadow-lg">
+      <h2 class="text-xl font-semibold mb-4">Visual Preview</h2>
+      <p class="text-sm text-gray-600 mb-4">This is how the stakeholders table will look:</p>
+      
+      <!-- Mock table preview -->
+      <div class="border border-gray-200 rounded overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gray-50 border-b border-gray-300 px-4 py-2 flex">
+          <div class="flex-1 text-xs font-bold text-gray-800">NAME</div>
+          <div class="flex-1 text-xs font-bold text-gray-800">TITLE</div>
+          <div class="flex-1 text-xs font-bold text-gray-800">EMAIL</div>
+        </div>
+        <!-- Rows -->
+        <div class="px-4 py-2 flex text-sm text-gray-600">
+          <div class="flex-1">John Smith</div>
+          <div class="flex-1">Product Manager</div>
+          <div class="flex-1">john@company.com</div>
+        </div>
+        <div class="bg-gray-50/50 px-4 py-2 flex text-sm text-gray-600">
+          <div class="flex-1">Sarah Johnson</div>
+          <div class="flex-1">VP of Success</div>
+          <div class="flex-1">sarah@company.com</div>
+        </div>
+        <div class="px-4 py-2 flex text-sm text-gray-600">
+          <div class="flex-1">Mike Chen</div>
+          <div class="flex-1">Technical Lead</div>
+          <div class="flex-1">mike@company.com</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bg-white p-6 rounded-lg shadow-lg mt-6">
+      <button onclick="generateTestPDF()" class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700">
+        Generate Test PDF with Muted Stakeholders
+      </button>
+      <div id="status" class="mt-4"></div>
+    </div>
+  </div>
+
+  <script>
+    window.state = {
+      stakeholders: [
+        { name: 'John Smith', title: 'Product Manager', email: 'john@company.com' },
+        { name: 'Sarah Johnson', title: 'VP of Success', email: 'sarah@company.com' },
+        { name: 'Mike Chen', title: 'Technical Lead', email: 'mike@company.com' },
+        { name: 'Emily Davis', title: 'Customer Success Manager', email: 'emily@company.com' },
+        { name: 'Robert Wilson', title: 'Executive Sponsor', email: 'robert@company.com' }
+      ]
+    };
+
+    async function generateTestPDF() {
+      const status = document.getElementById('status');
+      status.textContent = 'Generating PDF...';
+      
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+        
+        // Define colors (professional theme)
+        const colors = {
+          text: [33, 39, 50],
+          textLight: [100, 116, 139],
+          accent: [59, 130, 197],
+          borderLight: [241, 245, 249],
+          background: [248, 250, 252],
+          white: [255, 255, 255]
+        };
+        
+        let y = 20;
+        
+        // Title
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(16);
+        doc.text('Key Stakeholders - Muted Design', 105, y, { align: 'center' });
+        
+        y += 20;
+        
+        // Table header with muted design
+        // Use a very light background instead of bold accent
+        doc.setFillColor(...colors.borderLight);
+        doc.rect(15, y, 180, 10, 'F');
+        
+        // Add subtle accent line at bottom of header
+        doc.setDrawColor(...colors.accent);
+        doc.setLineWidth(0.5);
+        doc.line(15, y + 10, 195, y + 10);
+        
+        // Use dark text instead of white for better readability
+        doc.setTextColor(...colors.text);
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.text('NAME', 20, y + 7);
+        doc.text('TITLE', 75, y + 7);
+        doc.text('EMAIL', 130, y + 7);
+        
+        y += 12;
+        
+        // Stakeholder rows
+        doc.setFont('helvetica', 'normal');
+        window.state.stakeholders.forEach((stakeholder, index) => {
+          // Very subtle alternating row background
+          if (index % 2 === 0) {
+            // Calculate an even lighter shade
+            const veryLightBg = colors.background.map(c => Math.min(255, c + ((255 - c) * 0.5)));
+            doc.setFillColor(...veryLightBg);
+            doc.rect(15, y - 3, 180, 8, 'F');
+          }
+          
+          doc.setTextColor(...colors.textLight);
+          doc.setFontSize(9);
+          doc.text(stakeholder.name, 20, y);
+          doc.text(stakeholder.title, 75, y);
+          doc.text(stakeholder.email, 130, y);
+          
+          y += 8;
+        });
+        
+        // Save the PDF
+        doc.save('test-muted-stakeholders.pdf');
+        status.textContent = 'PDF generated! Check your downloads.';
+        status.className = 'mt-4 text-green-600 font-semibold';
+        
+      } catch (error) {
+        status.textContent = 'Error: ' + error.message;
+        status.className = 'mt-4 text-red-600';
+      }
+    }
+  </script>
+</body>
+</html>

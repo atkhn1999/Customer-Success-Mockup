@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDF Output Test</title>
+  <script src="js/tailwind.min.js"></script>
+  <script src="js/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-gray-100 p-8">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold mb-8">PDF Generator Test - Verify Changes</h1>
+    
+    <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+      <h2 class="text-xl font-semibold mb-4">Changes to Verify:</h2>
+      <ul class="space-y-2 text-sm">
+        <li class="flex items-start">
+          <span class="text-green-500 mr-2">✓</span>
+          <span><strong>Status Colors:</strong> Not Started (Gray), In Progress (Cyan), On Track (Green), At Risk (Orange), Off Track (Red)</span>
+        </li>
+        <li class="flex items-start">
+          <span class="text-green-500 mr-2">✓</span>
+          <span><strong>Fonts:</strong> All text should use Helvetica font consistently</span>
+        </li>
+        <li class="flex items-start">
+          <span class="text-green-500 mr-2">✓</span>
+          <span><strong>Checkmarks:</strong> Black color, thinner lines (0.7 width)</span>
+        </li>
+      </ul>
+    </div>
+    
+    <div class="bg-white p-6 rounded-lg shadow-lg">
+      <h2 class="text-xl font-semibold mb-4">Test Controls</h2>
+      <button onclick="generateTestPDF()" class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700">
+        Generate Test PDF
+      </button>
+      <div id="status" class="mt-4 text-gray-600"></div>
+    </div>
+  </div>
+
+  <script>
+    // Mock functions for testing
+    window.$ = (selector) => document.querySelector(selector);
+    window.getKPIType = (typeKey) => {
+      const types = {
+        'usage': { label: 'Usage Rate', unit: '%' },
+        'adoption': { label: 'Adoption', unit: '%' },
+        'satisfaction': { label: 'Satisfaction', unit: '/10' }
+      };
+      return types[typeKey] || types.usage;
+    };
+    window.calculateDelta = (current, previous) => {
+      return Math.round(((current - previous) / previous) * 100);
+    };
+
+    // Test state
+    window.state = {
+      customerName: 'Test Company Inc',
+      planHealth: 'green',
+      products: ['Product A', 'Product B'],
+      missionSummary: 'Testing PDF generation with updated styling.',
+      missionGoals: [
+        { title: 'Goal 1', description: 'Test goal with updated styling' }
+      ],
+      objectives: [
+        {
+          name: 'Test Not Started',
+          status: 'Not Started',
+          targetDate: '2024-03-15',
+          description: 'This should have gray status',
+          kpis: [
+            { typeKey: 'usage', currentValue: 75, previousValue: 60, comparePrevious: true }
+          ]
+        },
+        {
+          name: 'Test In Progress',
+          status: 'In Progress',
+          targetDate: '2024-04-15',
+          description: 'This should have cyan status',
+          kpis: [
+            { typeKey: 'adoption', currentValue: 82, previousValue: 70, comparePrevious: true }
+          ]
+        },
+        {
+          name: 'Test On Track',
+          status: 'On Track',
+          targetDate: '2024-05-15',
+          description: 'This should have green status',
+          kpis: []
+        }
+      ],
+      valueRealized: [
+        { type: 'Cost Savings', date: '2024-01-15', description: 'Testing checkmark styling' }
+      ],
+      pastObjectives: [],
+      stakeholders: []
+    };
+
+    async function generateTestPDF() {
+      const status = document.getElementById('status');
+      status.textContent = 'Generating PDF...';
+      
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+        
+        // Test 1: Font consistency
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(16);
+        doc.text('PDF Style Test', 105, 20, { align: 'center' });
+        
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.text('Testing font consistency - all text should be Helvetica', 20, 35);
+        
+        // Test 2: Status colors
+        let y = 50;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text('Status Color Test:', 20, y);
+        
+        y += 10;
+        const statuses = [
+          { name: 'Not Started', color: [107, 114, 128] },  // Gray
+          { name: 'In Progress', color: [6, 182, 212] },    // Cyan
+          { name: 'On Track', color: [16, 185, 129] },      // Green
+          { name: 'At Risk', color: [251, 146, 60] },       // Orange
+          { name: 'Off Track', color: [239, 68, 68] }       // Red
+        ];
+        
+        statuses.forEach(status => {
+          // Draw status badge
+          doc.setFillColor(...status.color);
+          doc.roundedRect(20, y, 40, 8, 4, 4, 'F');
+          doc.setTextColor(255, 255, 255);
+          doc.setFontSize(8);
+          doc.setFont('helvetica', 'bold');
+          doc.text(status.name, 40, y + 5.5, { align: 'center' });
+          
+          // Label
+          doc.setTextColor(0, 0, 0);
+          doc.setFont('helvetica', 'normal');
+          doc.text(`← Should be ${status.name.includes('Gray') ? 'gray' : status.name.includes('Cyan') ? 'cyan' : status.name.toLowerCase()} color`, 65, y + 5);
+          
+          y += 12;
+        });
+        
+        // Test 3: Checkmark
+        y += 10;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text('Checkmark Test:', 20, y);
+        
+        y += 10;
+        // Success circle with checkmark
+        doc.setFillColor(16, 185, 129); // Green
+        doc.circle(30, y, 3, 'F');
+        
+        // Black checkmark with thin lines
+        doc.setDrawColor(0, 0, 0); // Black
+        doc.setLineWidth(0.7); // Thin line
+        doc.line(28.5, y + 0.5, 29.5, y + 1.5);
+        doc.line(29.5, y + 1.5, 31.5, y - 1.5);
+        
+        doc.setTextColor(0, 0, 0);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.text('← Black checkmark with 0.7 line width', 40, y + 1);
+        
+        // Test 4: KPI Card
+        y += 20;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text('KPI Card Font Test:', 20, y);
+        
+        y += 10;
+        // Draw KPI card
+        doc.setFillColor(255, 255, 255);
+        doc.setDrawColor(226, 232, 240);
+        doc.setLineWidth(0.3);
+        doc.roundedRect(20, y, 60, 35, 4, 4, 'FD');
+        
+        // KPI label
+        doc.setTextColor(100, 116, 139);
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.text('USAGE RATE', 50, y + 7, { align: 'center' });
+        
+        // KPI value
+        doc.setTextColor(30, 41, 59);
+        doc.setFontSize(18);
+        doc.setFont('helvetica', 'bold');
+        doc.text('75%', 50, y + 19, { align: 'center' });
+        
+        // Change indicator
+        doc.setFillColor(240, 253, 244);
+        doc.roundedRect(30, y + 24, 40, 8, 2, 2, 'F');
+        doc.setTextColor(16, 185, 129);
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.text('+25% MoM', 50, y + 29, { align: 'center' });
+        
+        // Save the PDF
+        doc.save('test-pdf-output.pdf');
+        status.textContent = 'PDF generated! Check your downloads.';
+        status.className = 'mt-4 text-green-600 font-semibold';
+        
+      } catch (error) {
+        status.textContent = 'Error: ' + error.message;
+        status.className = 'mt-4 text-red-600';
+      }
+    }
+  </script>
+</body>
+</html>

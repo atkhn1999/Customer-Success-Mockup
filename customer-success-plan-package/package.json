@@ -1,0 +1,36 @@
+{
+  "name": "customer-success-plan-local",
+  "version": "1.0.0",
+  "description": "Customer Success Plan - Local Deployment Package",
+  "main": "index.html",
+  "scripts": {
+    "start": "node server.js",
+    "start:python": "python server.py",
+    "serve": "node server.js",
+    "serve:python": "python server.py",
+    "test": "echo \"No tests configured\" && exit 0"
+  },
+  "keywords": [
+    "customer-success",
+    "planning",
+    "local-hosting",
+    "offline"
+  ],
+  "author": "Your Organization",
+  "license": "UNLICENSED",
+  "private": true,
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "devDependencies": {},
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "internal"
+  },
+  "browserslist": [
+    "last 2 versions",
+    "not dead",
+    "> 0.2%"
+  ]
+}

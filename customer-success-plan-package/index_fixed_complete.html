@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Success Plan - Receptive Platform</title>
+  <script src="js/tailwind.min.js"></script>
+  <script src="js/jspdf.umd.min.js"></script>
+  <script src="js/xlsx.full.min.js"></script>
+  
+  
+  <link href="css/inter-font.css" rel="stylesheet">
+  <style>
+    :root { 
+      --ink: #0f172a; 
+      --ink-2: #334155; 
+      --ink-3: #64748b;
+      --responsive-teal: #14b8a6;
+      --responsive-teal-dark: #0d9488;
+      --responsive-teal-light: #5eead4;
+      --primary-gradient: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+      --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      --danger-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      --light-bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border-color: #e5e7eb;
+      --text-primary: #111827;
+      --text-secondary: #6b7280;
+      --text-tertiary: #9ca3af;
+    }
+    
+    * { 
+      box-sizing: border-box; 
+      margin: 0;
+      padding: 0;
+    }
+    
+    body { 
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
+      background: var(--light-bg); 
+      color: var(--text-primary); 
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Card styles */
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Button styles */
+    .btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn-primary {
+      background: var(--primary-gradient);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+    }
+    
+    .btn-secondary {
+      background: #f3f4f6;
+      color: var(--text-primary);
+    }
+    
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+    }
+    
+    .btn-danger {
+      background: var(--danger-gradient);
+      color: white;
+    }
+
+    /* Modal styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    /* Input styles */
+    .text-zone {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    
+    .text-zone:focus {
+      outline: none;
+      border-color: var(--responsive-teal);
+      box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+    }
+    
+    .text-area {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    /* Status badges */
+    .status-badge {
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    .status-green {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    .status-yellow {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    
+    .status-red {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    /* Checkbox styles */
+    input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    /* Edit mode styles */
+    .edit-mode-banner {
+      background: #f3f4f6;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .edit-mode-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .edit-mode-item:hover {
+      background: #f9fafb;
+    }
+
+    /* Toast styles */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1f2937;
+      color: white;
+      padding: 16px 24px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      z-index: 1100;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="max-w-screen-xl mx-auto p-4 sm:p-6 lg:p-8">
+    <!-- Header -->
+    <header class="mb-10 p-6 md:p-8 lg:p-10 bg-gradient-to-r from-teal-950 via-teal-800 to-emerald-600 text-white shadow-xl">
+      <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6">
+        <div class="flex-1">
+          <h1 id="main-title" class="font-extrabold text-white drop-shadow-lg flex flex-wrap items-baseline gap-3" style="font-size: 28px;">
+            <span id="customer-name-display" class="cursor-pointer hover:opacity-80 border-b-2 border-transparent hover:border-white/50 transition-all" title="Click to edit customer name">[Customer Name]</span>
+            <span>Success Plan</span>
+          </h1>
+        </div>
+        <div class="flex flex-col md:flex-row items-start md:items-center gap-4">
+          <p class="text-teal-50/90 text-sm font-light whitespace-nowrap">Last updated: <span id="last-updated-date"></span></p>
+          <select id="health-score-select" class="px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-lg cursor-pointer">
+            <option value="green" class="bg-green-500 text-white">🟢 Healthy</option>
+            <option value="yellow" class="bg-yellow-500 text-white">🟡 At Risk</option>
+            <option value="red" class="bg-red-500 text-white">🔴 Critical</option>
+          </select>
+        </div>
+      </div>
+    </header>
+
+    <main class="space-y-8">
+      <!-- Mission Summary -->
+      <section class="card">
+        <div class="flex justify-between items-start mb-4">
+          <h2 class="text-xl font-bold text-gray-900">Mission Summary</h2>
+          <button data-edit="mission-summary" class="btn btn-ghost btn-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+            </svg>
+            Edit
+          </button>
+        </div>
+        <div id="mission-summary-display" class="text-gray-700"></div>
+        <div id="mission-summary-edit" class="hidden">
+          <textarea id="mission-summary-input" class="text-area text-zone mb-4"></textarea>
+          <div class="flex gap-2">
+            <button data-save="mission-summary" class="btn btn-primary btn-sm">Save</button>
+            <button data-cancel="mission-summary" class="btn btn-ghost btn-sm">Cancel</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Mission Goals -->
+      <section class="card">
+        <div class="flex justify-between items-start mb-4">
+          <h2 class="text-xl font-bold text-gray-900">Mission Goals</h2>
+          <button onclick="showAddGoalModal()" class="btn btn-primary btn-sm">+ Add Goal</button>
+        </div>
+        <div id="mission-goals-container" class="space-y-3"></div>
+      </section>
+
+      <!-- Current Objectives -->
+      <section class="card">
+        <div class="flex justify-between items-start mb-4">
+          <h2 class="text-xl font-bold text-gray-900">Current Objectives</h2>
+          <div class="flex gap-2">
+            <button onclick="showAddObjectiveModal()" class="btn btn-primary btn-sm">+ Add Objective</button>
+            <button onclick="toggleEditMode('objectives')" class="btn btn-ghost btn-sm" id="edit-objectives-btn">Edit</button>
+          </div>
+        </div>
+        <div id="objectives-edit-banner" class="edit-mode-banner hidden">
+          <input type="checkbox" id="objectives-select-all" onchange="toggleSelectAll('objectives')">
+          <label for="objectives-select-all">Select all</label>
+          <button onclick="deleteSelected('objectives')" class="btn btn-danger btn-sm" id="objectives-delete-btn" disabled>Delete selected</button>
+          <a href="#" onclick="cancelEditMode('objectives'); return false;" class="text-gray-600 hover:text-gray-800">Cancel</a>
+        </div>
+        <div id="objectives-container"></div>
+        <div id="no-objectives" class="text-gray-500 italic hidden">No objectives defined yet</div>
+      </section>
+
+      <!-- Value Realized -->
+      <section class="card">
+        <div class="flex justify-between items-start mb-4">
+          <h2 class="text-xl font-bold text-gray-900">Value Realized</h2>
+          <div class="flex gap-2">
+            <button onclick="showAddValueModal()" class="btn btn-primary btn-sm">+ Add Value</button>
+            <button onclick="toggleEditMode('valueRealized')" class="btn btn-ghost btn-sm" id="edit-value-realized-btn">Edit</button>
+          </div>
+        </div>
+        <div id="value-realized-edit-banner" class="edit-mode-banner hidden">
+          <input type="checkbox" id="value-realized-select-all" onchange="toggleSelectAll('valueRealized')">
+          <label for="value-realized-select-all">Select all</label>
+          <button onclick="deleteSelected('valueRealized')" class="btn btn-danger btn-sm" id="value-realized-delete-btn" disabled>Delete selected</button>
+          <a href="#" onclick="cancelEditMode('valueRealized'); return false;" class="text-gray-600 hover:text-gray-800">Cancel</a>
+        </div>
+        <div id="value-container" class="space-y-3"></div>
+        <div id="no-value" class="text-gray-500 italic hidden">No value items added yet</div>
+      </section>
+
+      <!-- Export Buttons -->
+      <div class="flex gap-4 justify-center">
+        <button id="export-pdf-btn" onclick="exportToPDF()" class="btn btn-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" />
+          </svg>
+          Export PDF
+        </button>
+        <button onclick="exportToExcel()" class="btn bg-indigo-600 hover:bg-indigo-700 text-white">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+          Export Excel
+        </button>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // State management
+    const state = {
+      customerName: '[Customer Name]',
+      products: ['Content Library', 'AI Assistant', 'Analytics Suite'],
+      missionSummary: 'Partner with [Customer Name] to revolutionize their global sales operations through Receptive\'s AI-powered revenue enablement platform. Our mission is to empower 500+ sales professionals across 12 regions to deliver personalized, data-driven customer experiences that accelerate deal velocity by 45% and increase average contract values by 30% within the next 12 months.',
+      missionGoals: [
+        { 
+          id: 1, 
+          title: 'Content Excellence Initiative', 
+          description: 'Achieve 95% content accuracy and reduce obsolete content to less than 5% through AI-powered content management and automated review workflows.',
+          customFields: []
+        },
+        { 
+          id: 2, 
+          title: 'AI Adoption Program', 
+          description: 'Drive 80% adoption of AI-powered responses across all sales teams, reducing average response time from 45 minutes to under 5 minutes.',
+          customFields: []
+        }
+      ],
+      objectives: [
+        {
+          id: 1,
+          name: 'Q4 Platform Rollout',
+          status: 'On Track',
+          targetDate: '2025-03-31',
+          kpis: []
+        },
+        {
+          id: 2,
+          name: 'Sales Team Enablement',
+          status: 'On Track',
+          targetDate: '2025-02-28',
+          kpis: []
+        }
+      ],
+      valueRealized: [
+        {
+          id: 1,
+          type: 'Time Savings',
+          description: 'Sales team saves average 8 hours/week per rep through instant content discovery and AI-powered responses.',
+          date: '2025-01-15',
+          link: ''
+        },
+        {
+          id: 2,
+          type: 'Response Time Reduction',
+          description: 'Average time per customer response decreased from 45 minutes to 7 minutes using AI assistance.',
+          date: '2025-01-22',
+          link: ''
+        }
+      ],
+      planHealth: 'green',
+      editModes: {
+        objectives: false,
+        valueRealized: false,
+        pastObjectives: false
+      },
+      selectedItems: {
+        objectives: new Set(),
+        valueRealized: new Set(),
+        pastObjectives: new Set()
+      }
+    };
+
+    // Utility functions
+    const $ = (selector) => document.querySelector(selector);
+    const $$ = (selector) => document.querySelectorAll(selector);
+
+    function showNotification(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerHTML = `
+        <span>${message}</span>
+        <button onclick="this.parentElement.remove()" class="text-white hover:text-gray-300">✕</button>
+      `;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 5000);
+    }
+
+    function createModal(title, content, buttons = []) {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.innerHTML = `
+        <div class="modal-content">
+          <h3 class="text-xl font-bold mb-4">${title}</h3>
+          <div class="mb-6">${content}</div>
+          <div class="flex gap-2 justify-end">
+            ${buttons.map(btn => 
+              `<button class="btn ${btn.class}" onclick="${btn.action}">${btn.label}</button>`
+            ).join('')}
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      return modal;
+    }
+
+    function closeModal() {
+      $('.modal-overlay')?.remove();
+    }
+
+    // Render functions
+    function renderAll() {
+      renderCustomerName();
+      renderMissionSummary();
+      renderMissionGoals();
+      renderObjectives();
+      renderValueRealized();
+      renderHealthScore();
+    }
+
+    function renderCustomerName() {
+      const display = $('#customer-name-display');
+      if (display) {
+        display.textContent = state.customerName;
+      }
+    }
+
+    function renderMissionSummary() {
+      const display = $('#mission-summary-display');
+      if (display) {
+        display.textContent = state.missionSummary;
+      }
+    }
+
+    function renderMissionGoals() {
+      const container = $('#mission-goals-container');
+      if (!container) return;
+      
+      container.innerHTML = state.missionGoals.map(goal => `
+        <div class="border rounded-lg p-4">
+          <h4 class="font-semibold mb-2">${goal.title}</h4>
+          <p class="text-gray-600 text-sm">${goal.description}</p>
+        </div>
+      `).join('');
+    }
+
+    function renderObjectives() {
+      const container = $('#objectives-container');
+      const noObjectivesMsg = $('#no-objectives');
+      
+      if (!container) return;
+      
+      if (state.objectives.length === 0) {
+        container.innerHTML = '';
+        noObjectivesMsg?.classList.remove('hidden');
+      } else {
+        noObjectivesMsg?.classList.add('hidden');
+        
+        if (state.editModes.objectives) {
+          container.innerHTML = state.objectives.map(obj => `
+            <div class="edit-mode-item border rounded-lg p-4">
+              <input type="checkbox" 
+                     id="obj-checkbox-${obj.id}" 
+                     ${state.selectedItems.objectives.has(obj.id) ? 'checked' : ''}
+                     onchange="toggleItemSelection('objectives', ${obj.id})">
+              <label for="obj-checkbox-${obj.id}" class="flex-1 cursor-pointer">
+                <h4 class="font-semibold">${obj.name}</h4>
+                <p class="text-sm text-gray-600">Target: ${obj.targetDate || 'Not set'}</p>
+              </label>
+              <span class="status-badge status-${obj.status === 'On Track' ? 'green' : obj.status === 'At Risk' ? 'yellow' : 'red'}">
+                ${obj.status}
+              </span>
+            </div>
+          `).join('');
+        } else {
+          container.innerHTML = state.objectives.map(obj => `
+            <div class="border rounded-lg p-4 mb-3">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h4 class="font-semibold">${obj.name}</h4>
+                  <p class="text-sm text-gray-600">Target: ${obj.targetDate || 'Not set'}</p>
+                </div>
+                <span class="status-badge status-${obj.status === 'On Track' ? 'green' : obj.status === 'At Risk' ? 'yellow' : 'red'}">
+                  ${obj.status}
+                </span>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+    }
+
+    function renderValueRealized() {
+      const container = $('#value-container');
+      const noValueMsg = $('#no-value');
+      
+      if (!container) return;
+      
+      if (state.valueRealized.length === 0) {
+        container.innerHTML = '';
+        noValueMsg?.classList.remove('hidden');
+      } else {
+        noValueMsg?.classList.add('hidden');
+        
+        if (state.editModes.valueRealized) {
+          container.innerHTML = state.valueRealized.map(value => `
+            <div class="edit-mode-item border rounded-lg p-4">
+              <input type="checkbox" 
+                     id="value-checkbox-${value.id}" 
+                     ${state.selectedItems.valueRealized.has(value.id) ? 'checked' : ''}
+                     onchange="toggleItemSelection('valueRealized', ${value.id})">
+              <label for="value-checkbox-${value.id}" class="flex-1 cursor-pointer">
+                <h4 class="font-semibold text-green-700">${value.type}</h4>
+                <p class="text-sm text-gray-600">${value.description}</p>
+                <p class="text-xs text-gray-500 mt-1">${value.date}</p>
+              </label>
+            </div>
+          `).join('');
+        } else {
+          container.innerHTML = state.valueRealized.map(value => `
+            <div class="border-l-4 border-green-500 pl-4 py-2">
+              <h4 class="font-semibold text-green-700">${value.type}</h4>
+              <p class="text-sm text-gray-600">${value.description}</p>
+              <p class="text-xs text-gray-500 mt-1">${value.date}</p>
+            </div>
+          `).join('');
+        }
+      }
+    }
+
+    function renderHealthScore() {
+      const select = $('#health-score-select');
+      if (select) {
+        select.value = state.planHealth;
+        select.className = `px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-lg cursor-pointer ${
+          state.planHealth === 'green' ? 'bg-green-500 text-white' :
+          state.planHealth === 'yellow' ? 'bg-yellow-500 text-white' :
+          'bg-red-500 text-white'
+        }`;
+      }
+    }
+
+    // Edit mode functions
+    window.toggleEditMode = function(section) {
+      state.editModes[section] = !state.editModes[section];
+      
+      const sectionIdMap = {
+        objectives: 'objectives',
+        valueRealized: 'value-realized',
+        pastObjectives: 'past-objectives'
+      };
+      
+      const sectionId = sectionIdMap[section];
+      const banner = $(`#${sectionId}-edit-banner`);
+      const editBtn = $(`#edit-${sectionId}-btn`);
+      
+      if (state.editModes[section]) {
+        banner?.classList.remove('hidden');
+        if (editBtn) editBtn.textContent = 'Done';
+        state.selectedItems[section].clear();
+      } else {
+        banner?.classList.add('hidden');
+        if (editBtn) editBtn.textContent = 'Edit';
+        state.selectedItems[section].clear();
+      }
+      
+      if (section === 'objectives') renderObjectives();
+      else if (section === 'valueRealized') renderValueRealized();
+      
+      updateDeleteButtonState(section);
+    };
+
+    window.toggleItemSelection = function(section, itemId) {
+      if (state.selectedItems[section].has(itemId)) {
+        state.selectedItems[section].delete(itemId);
+      } else {
+        state.selectedItems[section].add(itemId);
+      }
+      updateDeleteButtonState(section);
+      updateSelectAllCheckbox(section);
+    };
+
+    window.toggleSelectAll = function(section) {
+      const sectionIdMap = {
+        objectives: 'objectives',
+        valueRealized: 'value-realized'
+      };
+      
+      const sectionId = sectionIdMap[section];
+      const checkbox = $(`#${sectionId}-select-all`);
+      
+      if (!checkbox) return;
+      
+      const items = state[section];
+      
+      if (checkbox.checked) {
+        items.forEach(item => state.selectedItems[section].add(item.id));
+      } else {
+        state.selectedItems[section].clear();
+      }
+      
+      if (section === 'objectives') renderObjectives();
+      else if (section === 'valueRealized') renderValueRealized();
+      
+      updateDeleteButtonState(section);
+    };
+
+    function updateDeleteButtonState(section) {
+      const sectionIdMap = {
+        objectives: 'objectives',
+        valueRealized: 'value-realized'
+      };
+      
+      const sectionId = sectionIdMap[section];
+      const deleteBtn = $(`#${sectionId}-delete-btn`);
+      
+      if (deleteBtn) {
+        deleteBtn.disabled = state.selectedItems[section].size === 0;
+      }
+    }
+
+    function updateSelectAllCheckbox(section) {
+      const sectionIdMap = {
+        objectives: 'objectives',
+        valueRealized: 'value-realized'
+      };
+      
+      const sectionId = sectionIdMap[section];
+      const checkbox = $(`#${sectionId}-select-all`);
+      
+      if (!checkbox) return;
+      
+      const items = state[section];
+      const allSelected = items.length > 0 && 
+                         items.every(item => state.selectedItems[section].has(item.id));
+      
+      checkbox.checked = allSelected;
+    }
+
+    window.cancelEditMode = function(section) {
+      state.editModes[section] = false;
+      state.selectedItems[section].clear();
+      toggleEditMode(section);
+    };
+
+    window.deleteSelected = function(section) {
+      const selectedIds = Array.from(state.selectedItems[section]);
+      
+      if (selectedIds.length === 0) return;
+      
+      if (confirm(`Remove ${selectedIds.length} selected items? This action can't be undone.`)) {
+        if (section === 'objectives') {
+          state.objectives = state.objectives.filter(o => !selectedIds.includes(o.id));
+        } else if (section === 'valueRealized') {
+          state.valueRealized = state.valueRealized.filter(v => !selectedIds.includes(v.id));
+        }
+        
+        state.selectedItems[section].clear();
+        cancelEditMode(section);
+        saveToLocalStorage();
+        showNotification('Items removed');
+      }
+    };
+
+    // Modal functions
+    window.showAddObjectiveModal = function() {
+      createModal('Add New Objective', `
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Objective Name</label>
+            <input type="text" id="new-objective-name" class="text-zone" placeholder="e.g., Q1 Sales Enablement">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Status</label>
+            <select id="new-objective-status" class="text-zone">
+              <option value="On Track">On Track</option>
+              <option value="At Risk">At Risk</option>
+              <option value="Off Track">Off Track</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Target Date</label>
+            <input type="date" id="new-objective-date" class="text-zone">
+          </div>
+        </div>
+      `, [
+        { label: 'Cancel', class: 'btn-ghost', action: 'closeModal()' },
+        { label: 'Add Objective', class: 'btn-primary', action: 'addObjective()' }
+      ]);
+    };
+
+    window.showAddValueModal = function() {
+      createModal('Add Value Realized', `
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Value Type</label>
+            <select id="value-type" class="text-zone">
+              <option>Time Savings</option>
+              <option>Cost Reduction</option>
+              <option>Revenue Increase</option>
+              <option>Efficiency Gain</option>
+              <option>Quality Improvement</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Description</label>
+            <textarea id="value-description" class="text-zone text-area" placeholder="Describe the value realized..."></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Date Realized</label>
+            <input type="date" id="value-date" class="text-zone">
+          </div>
+        </div>
+      `, [
+        { label: 'Cancel', class: 'btn-ghost', action: 'closeModal()' },
+        { label: 'Add Value', class: 'btn-primary', action: 'addValue()' }
+      ]);
+    };
+
+    window.showAddGoalModal = function() {
+      createModal('Add Mission Goal', `
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Goal Title</label>
+            <input type="text" id="goal-title" class="text-zone" placeholder="e.g., Increase Adoption Rate">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Description</label>
+            <textarea id="goal-description" class="text-zone text-area" placeholder="Describe the goal..."></textarea>
+          </div>
+        </div>
+      `, [
+        { label: 'Cancel', class: 'btn-ghost', action: 'closeModal()' },
+        { label: 'Add Goal', class: 'btn-primary', action: 'addGoal()' }
+      ]);
+    };
+
+    // Add functions
+    window.addObjective = function() {
+      const name = $('#new-objective-name').value.trim();
+      const status = $('#new-objective-status').value;
+      const targetDate = $('#new-objective-date').value;
+      
+      if (!name) {
+        showNotification('Please enter an objective name', 'error');
+        return;
+      }
+      
+      const newObjective = {
+        id: Date.now(),
+        name,
+        status,
+        targetDate,
+        kpis: []
+      };
+      
+      state.objectives.push(newObjective);
+      closeModal();
+      renderObjectives();
+      saveToLocalStorage();
+      showNotification('Objective added successfully');
+    };
+
+    window.addValue = function() {
+      const type = $('#value-type').value;
+      const description = $('#value-description').value.trim();
+      const date = $('#value-date').value;
+      
+      if (!description) {
+        showNotification('Please enter a description', 'error');
+        return;
+      }
+      
+      const newValue = {
+        id: Date.now(),
+        type,
+        description,
+        date,
+        link: ''
+      };
+      
+      state.valueRealized.push(newValue);
+      closeModal();
+      renderValueRealized();
+      saveToLocalStorage();
+      showNotification('Value item added successfully');
+    };
+
+    window.addGoal = function() {
+      const title = $('#goal-title').value.trim();
+      const description = $('#goal-description').value.trim();
+      
+      if (!title || !description) {
+        showNotification('Please fill in all fields', 'error');
+        return;
+      }
+      
+      const newGoal = {
+        id: Date.now(),
+        title,
+        description,
+        customFields: []
+      };
+      
+      state.missionGoals.push(newGoal);
+      closeModal();
+      renderMissionGoals();
+      saveToLocalStorage();
+      showNotification('Goal added successfully');
+    };
+
+    // Export functions
+    window.exportToPDF = function() {
+      const btn = $('#export-pdf-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="animate-spin">⟳</span> Generating...';
+      
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // Header
+        doc.setFontSize(20);
+        doc.text('Customer Success Plan', 20, 20);
+        doc.setFontSize(12);
+        doc.text(`Customer: ${state.customerName}`, 20, 30);
+        doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 38);
+        doc.text(`Health Status: ${state.planHealth.toUpperCase()}`, 20, 46);
+        
+        let y = 60;
+        
+        // Mission Summary
+        doc.setFontSize(14);
+        doc.text('Mission Summary', 20, y);
+        y += 10;
+        doc.setFontSize(10);
+        const summaryLines = doc.splitTextToSize(state.missionSummary, 170);
+        doc.text(summaryLines, 20, y);
+        y += summaryLines.length * 5 + 10;
+        
+        // Save
+        doc.save(`${state.customerName.replace(/\[|\]/g, '')}-success-plan.pdf`);
+        showNotification('PDF exported successfully');
+      } catch (error) {
+        showNotification('Failed to export PDF', 'error');
+        console.error(error);
+      }
+      
+      btn.disabled = false;
+      btn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" />
+        </svg>
+        Export PDF
+      `;
+    };
+
+    window.exportToExcel = function() {
+      try {
+        const wb = XLSX.utils.book_new();
+        
+        // Overview sheet
+        const overview = [{
+          'Customer': state.customerName,
+          'Mission Summary': state.missionSummary,
+          'Health Status': state.planHealth
+        }];
+        const ws1 = XLSX.utils.json_to_sheet(overview);
+        XLSX.utils.book_append_sheet(wb, ws1, 'Overview');
+        
+        // Objectives sheet
+        const objectives = state.objectives.map(obj => ({
+          'Name': obj.name,
+          'Status': obj.status,
+          'Target Date': obj.targetDate || 'Not set'
+        }));
+        const ws2 = XLSX.utils.json_to_sheet(objectives);
+        XLSX.utils.book_append_sheet(wb, ws2, 'Objectives');
+        
+        // Value Realized sheet
+        const values = state.valueRealized.map(v => ({
+          'Type': v.type,
+          'Description': v.description,
+          'Date': v.date
+        }));
+        const ws3 = XLSX.utils.json_to_sheet(values);
+        XLSX.utils.book_append_sheet(wb, ws3, 'Value Realized');
+        
+        XLSX.writeFile(wb, `${state.customerName.replace(/\[|\]/g, '')}-success-plan.xlsx`);
+        showNotification('Excel exported successfully');
+      } catch (error) {
+        showNotification('Failed to export Excel', 'error');
+        console.error(error);
+      }
+    };
+
+    // Storage functions
+    function saveToLocalStorage() {
+      try {
+        localStorage.setItem('responsiveCustomerSuccess', JSON.stringify(state));
+      } catch (error) {
+        console.error('Failed to save to localStorage:', error);
+      }
+    }
+
+    function loadFromLocalStorage() {
+      try {
+        const saved = localStorage.getItem('responsiveCustomerSuccess');
+        if (saved) {
+          const savedState = JSON.parse(saved);
+          Object.assign(state, savedState);
+          // Recreate Sets for selectedItems
+          state.selectedItems = {
+            objectives: new Set(),
+            valueRealized: new Set(),
+            pastObjectives: new Set()
+          };
+        }
+      } catch (error) {
+        console.error('Failed to load from localStorage:', error);
+      }
+    }
+
+    // Initialize
+    function init() {
+      // Set date
+      const dateEl = $('#last-updated-date');
+      if (dateEl) {
+        dateEl.textContent = new Date().toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        });
+      }
+      
+      // Load saved data
+      loadFromLocalStorage();
+      
+      // Render everything
+      renderAll();
+      
+      // Set up event listeners
+      $('#health-score-select')?.addEventListener('change', (e) => {
+        state.planHealth = e.target.value;
+        renderHealthScore();
+        saveToLocalStorage();
+      });
+      
+      $('#customer-name-display')?.addEventListener('click', () => {
+        const newName = prompt('Enter customer name:', state.customerName);
+        if (newName && newName.trim()) {
+          state.customerName = newName.trim();
+          renderCustomerName();
+          saveToLocalStorage();
+        }
+      });
+      
+      // Mission summary edit
+      const missionEditBtns = $$('[data-edit="mission-summary"]');
+      missionEditBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          $('#mission-summary-display').classList.add('hidden');
+          $('#mission-summary-edit').classList.remove('hidden');
+          const input = $('#mission-summary-input');
+          input.value = state.missionSummary;
+          input.style.height = 'auto';
+          input.style.height = input.scrollHeight + 'px';
+        });
+      });
+      
+      const missionSaveBtns = $$('[data-save="mission-summary"]');
+      missionSaveBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.missionSummary = $('#mission-summary-input').value;
+          renderMissionSummary();
+          $('#mission-summary-display').classList.remove('hidden');
+          $('#mission-summary-edit').classList.add('hidden');
+          saveToLocalStorage();
+        });
+      });
+      
+      const missionCancelBtns = $$('[data-cancel="mission-summary"]');
+      missionCancelBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          $('#mission-summary-display').classList.remove('hidden');
+          $('#mission-summary-edit').classList.add('hidden');
+        });
+      });
+      
+      // Auto-resize textareas
+      $$('textarea').forEach(textarea => {
+        textarea.addEventListener('input', function() {
+          this.style.height = 'auto';
+          this.style.height = this.scrollHeight + 'px';
+        });
+      });
+    }
+
+    // Start when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  </script>
+</body>
+</html>
